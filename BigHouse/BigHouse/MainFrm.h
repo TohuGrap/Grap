@@ -3,7 +3,8 @@
 //
 
 #pragma once
-
+#include "FormBar.h"
+#include "BigHouseView.h"
 class MainFrame : public CFrameWndEx
 {
 	
@@ -35,8 +36,12 @@ protected:  // control bar embedded members
 	CMFCToolBar       m_wndToolBar;
 	CMFCStatusBar     m_wndStatusBar;
 	CMFCToolBarImages m_UserImages;
+  BigHouseView *big_house_view_;
+  FormBar *form_view_;
 
+public:
   CSplitterWnd splitter_;
+
 
 // Generated message map functions
 protected:

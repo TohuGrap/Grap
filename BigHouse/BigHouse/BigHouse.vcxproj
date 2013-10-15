@@ -99,8 +99,14 @@
     <None Include="res\BigHouse.rc2" />
     <None Include="res\BigHouseDoc.ico" />
     <None Include="res\bm_desk.bmp" />
+    <None Include="res\cone.bmp" />
+    <None Include="res\Rect.bmp" />
+    <None Include="res\Sphere.bmp" />
+    <None Include="res\tearport.bmp" />
     <None Include="res\Toolbar.bmp" />
     <None Include="res\Toolbar256.bmp" />
+    <None Include="res\Tours.bmp" />
+    <None Include="res\Triangular_based_pyramid.bmp" />
     <None Include="UserImages.bmp" />
   </ItemGroup>
   <ItemGroup>

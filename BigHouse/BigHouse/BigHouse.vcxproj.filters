@@ -40,6 +40,24 @@
     <None Include="res\bm_desk.bmp">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="res\Rect.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\cone.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\Triangular_based_pyramid.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\Sphere.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\tearport.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\Tours.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BigHouse.h">

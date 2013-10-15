@@ -3,6 +3,7 @@
 //
 
 #pragma once
+#include "FormBar.h"
 #include "BigHouseDoc.h"
 
 #define PI 3.1415926535
@@ -45,9 +46,21 @@ public:
   void DrawGround();
   void DrawCoordinate();
   void DrawRectangle(int length);
-  // Variable for opengl
+  void SetFormView(FormBar* form_bar) {form_bar_ = form_bar;}
+  void DrawObject();
+  void DrawSample();
+  void SetIndexObject(int index) {object_index_ = index; InvalidateRect(NULL, FALSE);}
+  void SetPosValue(float p[3]) {
+    pos[0] = p[0];
+    pos[1] = p[1];
+    pos[2] = p[2];
+  }
 protected:
+  float pos[3];
+
+  int object_index_;
   int pixel_format_;
+  FormBar* form_bar_;
   HGLRC m_hRC;    // Render context variable
   CDC* m_pDC;     // Device context variable
 
@@ -62,6 +75,10 @@ protected:
   GLfloat m_PosIncr;
 	GLfloat m_AngIncr;
 	GLfloat m_AngleX;
+
+  int cx_; // size of window
+  int cy_; 
+  
 // Generated message map functions
 protected:
 	afx_msg void OnFilePrintPreview();
@@ -70,6 +87,7 @@ protected:
   afx_msg void OnSize(UINT nType, int cx, int cy);
   afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
   afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
+  afx_msg void CalculateRotatefAngle(CPoint point);
   afx_msg void OnDestroy();
 	DECLARE_MESSAGE_MAP()
 };

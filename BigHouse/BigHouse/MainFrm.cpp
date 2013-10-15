@@ -4,10 +4,7 @@
 
 #include "stdafx.h"
 #include "BigHouse.h"
-
 #include "MainFrm.h"
-#include "FormBar.h"
-#include "BigHouseView.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -113,7 +110,7 @@ int MainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	// enable quick (Alt+drag) toolbar customization
 	CMFCToolBar::EnableQuickCustomization();
-
+  /*
 	if (CMFCToolBar::GetUserImages() == NULL)
 	{
 		// load user-defined toolbar images
@@ -121,7 +118,7 @@ int MainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		{
 			CMFCToolBar::SetUserImages(&m_UserImages);
 		}
-	}
+	} */
 
 	// enable menu personalization (most-recently used commands)
 	// TODO: define your own basic commands, ensuring that each pulldown menu has at least one basic command.
@@ -163,6 +160,9 @@ BOOL MainFrame::OnCreateClient(LPCREATESTRUCT lpCreateStruct, CCreateContext *pC
     return FALSE;
   }
 
+  big_house_view_ = reinterpret_cast<BigHouseView*>(splitter_.GetPane(0, 1));
+  form_view_ = reinterpret_cast<FormBar*>(splitter_.GetPane(0, 0));
+  big_house_view_->SetFormView(form_view_);
   return TRUE;
 }
 

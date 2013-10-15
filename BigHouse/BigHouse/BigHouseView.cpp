@@ -18,7 +18,8 @@
 
 
 // BigHouseView
-
+#define SIZE_GROUND 100
+#define M_PI 3.14
 IMPLEMENT_DYNCREATE(BigHouseView, CView)
 
 BEGIN_MESSAGE_MAP(BigHouseView, CView)
@@ -31,6 +32,8 @@ BEGIN_MESSAGE_MAP(BigHouseView, CView)
   ON_WM_SIZE()
   ON_WM_CREATE()
   ON_WM_KEYDOWN()
+  ON_WM_RBUTTONDOWN()
+  ON_WM_MOUSEMOVE()
 END_MESSAGE_MAP()
 
 // BigHouseView construction/destruction
@@ -46,7 +49,10 @@ BigHouseView::BigHouseView():
   m_PosIncr = 0.25f;
 	m_AngIncr = 5.0f;
 	m_AngleX = 90.0f;
-
+  object_index_ = -1;
+  pos[0] = 0.0f;
+  pos[1] = 0.0f;
+  pos[2] = 0.0f;
 }
 
 BigHouseView::~BigHouseView()
@@ -111,14 +117,15 @@ void BigHouseView::OnEndPrinting(CDC* /*pDC*/, CPrintInfo* /*pInfo*/)
 	// TODO: add cleanup after printing
 }
 
-void BigHouseView::OnRButtonUp(UINT /* nFlags */, CPoint point)
+void BigHouseView::OnRButtonUp(UINT nFlags, CPoint point)
 {
-	ClientToScreen(&point);
-	OnContextMenu(this, point);
+  //CView::OnLButtonUp(nFlags, point);
+	//ClientToScreen(&point);
+	//OnContextMenu(this, point);
 }
 
 void BigHouseView::OnContextMenu(CWnd* /* pWnd */, CPoint point)
-{
+{ 
 #ifndef SHARED_HANDLERS
 	theApp.GetContextMenuManager()->ShowPopupMenu(IDR_POPUP_EDIT, point.x, point.y, this, TRUE);
 #endif
@@ -153,6 +160,8 @@ void BigHouseView::OnSize(UINT nType, int cx, int cy) {
   if (cx <= 0 || cy <= 0)
     return;
 
+  cx_ = cx;
+  cy_ = cy;
   // Define viewport = size window
   glViewport(0, 0, cx, cy);
   GLfloat aspect_ratio = (GLdouble)cx/(GLdouble)cy;
@@ -284,6 +293,71 @@ void BigHouseView::RenderScene() {
   DrawGround();
   glPopMatrix();
 
+  //DrawCoordinate() ;
+
+  glPushMatrix();
+  glTranslated(0.0f, 0.0f, 0.0f);
+  DrawObject();
+  glPopMatrix();
+
+  //DrawSample();
+}
+
+void BigHouseView::DrawObject() {
+
+  if (object_index_ == 0) {
+    glColor3f(1.0, 0.0, 0.0);
+    glPushMatrix();
+    glTranslated(pos[0], pos[1], pos[2]);
+    DrawRectangle(1.0);
+    glPopMatrix();
+  }
+  if (object_index_ == 1) {
+    glPushMatrix();
+    glTranslated(pos[0], pos[1], pos[2]);
+    glRotatef(-90, 1.0, 0.0, 0.0);
+    glColor3f(1.0, 0.0, 0.0);
+    glutSolidCone(1.0, 2.0, 16, 100);
+    glPopMatrix();
+  }
+  if (object_index_ == 2) {
+    glPushMatrix();
+    glTranslated(pos[0], pos[1], pos[2]);
+    glColor3f(1.0, 0.0, 0.0);
+    glRotatef(-190, 1.0, 0.0, 0.0);
+    glutSolidTetrahedron();
+    glPopMatrix();
+  }
+  
+
+  if (object_index_ == 3) {
+    glPushMatrix();
+    glTranslated(pos[0], pos[1], pos[2]);
+    glColor3f(1.0, 1.0, 0.0);
+    glRotatef(-90, 1.0, 0.0, 0.0);
+    glutWireSphere(0.5, 16, 100);
+    glPopMatrix();
+  }
+
+  if (object_index_ == 4) {
+    glPushMatrix();
+    glTranslated(pos[0], pos[1], pos[2]);
+    glColor3f(1.0, 1.0, 0.0);
+    glutWireTeapot(0.5);
+    glPopMatrix();
+  }
+
+  if (object_index_ == 5) {
+    glPushMatrix();
+    glTranslated(pos[0], pos[1], pos[2]);
+    glColor3f(1.0, 1.0, 0.0);
+    glRotatef(-90, 1.0, 0.0, 0.0);
+    glutWireTorus(0.5, 1.0, 16, 100);
+    glPopMatrix();
+  }
+}
+
+void BigHouseView::DrawSample() {
   // Draw Regtangle
   glPushMatrix();
   glTranslated(1.0, 0.0, 0.0);
@@ -319,31 +393,35 @@ void BigHouseView::RenderScene() {
   glScalef(1.0, 2.0, 1.0);
   DrawRectangle(1.0);
   glPopMatrix();
-
 }
 
+
 void BigHouseView::DrawCoordinate() {
-  glLineWidth(2.0f);
+  glLineWidth(4.0f);
   glBegin(GL_LINES);
+  
   glColor3f(1.0f, 0.0, 0.0);
   glVertex3f(-100.0, 0.0, 0.0f);
   glVertex3f(100.0, 0.0, 0.0f);
+  
   glColor3f(0.0f, 1.0, 0.0);
   glVertex3f(0.0f, -100.0f, 0.0f);
   glVertex3f(0.0f, 100.0f, 0.0f);
+  
   glColor3f(0.0f, 0.0, 1.0);
   glVertex3f(0.0f, 0.0f, -100.0f);
   glVertex3f(0.0f, 0.0f, 100.0f);
+  
   glEnd();
 }
 
 void BigHouseView::DrawGround() {
   glColor3f(1.0, 0.5f, 0.0f);
   glBegin(GL_POLYGON);
-  glVertex3f(10.0, 0.0f, 10.0f);
-  glVertex3f(10.0f, 0.0f, -10.0f);
-  glVertex3f(-10.0f, 0.0f, -10.0f);
-  glVertex3f(-10.0f, 0.0, 10.0f);
+  glVertex3f(SIZE_GROUND, 0.0f, SIZE_GROUND);
+  glVertex3f(SIZE_GROUND, 0.0f, -1*SIZE_GROUND);
+  glVertex3f(-1*SIZE_GROUND, 0.0f, -1*SIZE_GROUND);
+  glVertex3f(-1*SIZE_GROUND, 0.0, 1*SIZE_GROUND);
   glEnd();
 }
 
@@ -351,6 +429,7 @@ void BigHouseView::DrawGround() {
 void BigHouseView::DrawRectangle(int length) {
   glutSolidCube(length);
 }
+
 
 void BigHouseView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
 	// TODO: Add your message handler code here and/or call default
