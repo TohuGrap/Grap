@@ -48,9 +48,9 @@
 
 // Include opengl Library
 #include <gl\GL.h>
-#include <gl\GLAUX.H>
 #include <gl\GLU.h>
 #include <gl\glut.h>
+#include <gl\GLAUX.H>
 
 
 

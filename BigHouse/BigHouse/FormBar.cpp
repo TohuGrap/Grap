@@ -73,6 +73,9 @@ void FormBar::OnInitialUpdate() {
   edit_x_pos_ = "0";
   edit_y_pos_ = "0";
   edit_z_pos_ = "0";
+
+  CButton* btn = reinterpret_cast<CButton*>(GetDlgItem(IDC_OBJECT_NEXT));
+  btn->EnableWindow(FALSE);
   UpdateData(FALSE);
 }
 

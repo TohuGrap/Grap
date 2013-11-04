@@ -18,7 +18,7 @@
 
 
 // BigHouseView
-#define SIZE_GROUND 100
+#define SIZE_GROUND 50
 #define M_PI 3.14
 IMPLEMENT_DYNCREATE(BigHouseView, CView)
 
@@ -34,6 +34,7 @@ BEGIN_MESSAGE_MAP(BigHouseView, CView)
   ON_WM_KEYDOWN()
   ON_WM_RBUTTONDOWN()
   ON_WM_MOUSEMOVE()
+  ON_WM_MOUSEWHEEL()
 END_MESSAGE_MAP()
 
 // BigHouseView construction/destruction
@@ -44,7 +45,13 @@ BigHouseView::BigHouseView():
   eyeZ_(2.5f),
   centX_(0.0f),
   centY_(0.5f),
-  centZ_(2.25f)
+  centZ_(2.25f),
+  x_position_(0.0f),
+  y_position_(0.0f),
+  z_zoom_(0.0f),
+  angle_x_ea_(0.0f),
+  angle_y_ea_(0.0f),
+  angle_z_ea_(0.0f)
 {
   m_PosIncr = 0.25f;
 	m_AngIncr = 5.0f;
@@ -53,6 +60,15 @@ BigHouseView::BigHouseView():
   pos[0] = 0.0f;
   pos[1] = 0.0f;
   pos[2] = 0.0f;
+
+  m_OrthoRangeLeft = -1.5f;
+	m_OrthoRangeRight = 1.5f;
+	m_OrthoRangeBottom = -1.5f;
+	m_OrthoRangeTop = 1.5f;
+	m_OrthoRangeNear = -50.0f;
+	m_OrthoRangeFar = 50.0f;
+
+  m_scaling = 1.0f;
 }
 
 BigHouseView::~BigHouseView()
@@ -117,12 +133,6 @@ void BigHouseView::OnEndPrinting(CDC* /*pDC*/, CPrintInfo* /*pInfo*/)
 	// TODO: add cleanup after printing
 }
 
-void BigHouseView::OnRButtonUp(UINT nFlags, CPoint point)
-{
-  //CView::OnLButtonUp(nFlags, point);
-	//ClientToScreen(&point);
-	//OnContextMenu(this, point);
-}
 
 void BigHouseView::OnContextMenu(CWnd* /* pWnd */, CPoint point)
 { 
@@ -170,7 +180,11 @@ void BigHouseView::OnSize(UINT nType, int cx, int cy) {
   // here, option aspection view
   ::glMatrixMode(GL_PROJECTION);
   ::glLoadIdentity();
-  gluPerspective(60.0f, aspect_ratio, 0.01, 100.0);
+  ::gluPerspective(45.0f, aspect_ratio, .01f, 200.0f);
+
+    //glOrtho(m_OrthoRangeLeft * aspect_ratio, m_OrthoRangeRight * aspect_ratio,
+		//m_OrthoRangeBottom, m_OrthoRangeTop,
+		//m_OrthoRangeNear, m_OrthoRangeFar);
 
   // Select MatrixModelView
   ::glMatrixMode(GL_MODELVIEW);
@@ -219,7 +233,9 @@ BOOL BigHouseView::InitializeOpenGL() {
   ::glShadeModel(GL_SMOOTH);
 
   // Setup lighting and material
+  glEnable(GL_CULL_FACE);
   SetupLight();
+  OnLoadTexture();
 
   return TRUE;
 }
@@ -262,7 +278,7 @@ void BigHouseView::SetupLight() {
   // Enable lighting
   glEnable(GL_LIGHTING);
   glEnable(GL_LIGHT0);
-
+  glEnable(GL_NORMALIZE); 
   // setup light mode
   glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_FALSE);
   glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_FALSE);
@@ -287,20 +303,35 @@ void BigHouseView::DisableLight() {
 
 void BigHouseView::RenderScene() {
   glLoadIdentity();
-  gluLookAt(eyeX_, eyeY_, eyeZ_, centX_, centY_, centZ_, 0.0f, 1.0f, 0.0f);
-  glTranslated(0.0f, 0.0f, 0.0f);
+  //gluLookAt(eyeX_, eyeY_, eyeZ_, centX_, centY_, centZ_, 0.0f, 1.0f, 0.0f);
+  //glTranslated(0.0f, 0.0f, 0.0f);
+
+    // clear AntiAliasing
+  glEnable(GL_POINT_SMOOTH);
+	glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
+	glEnable(GL_LINE_SMOOTH);
+	glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
   glPushMatrix();
+
+  glEnable(GL_TEXTURE_2D);
+  glBindTexture(GL_TEXTURE_2D, m_texture[0]);
+
+  glTranslatef(x_position_, y_position_, - 100.0f);
+  glRotatef(angle_x_ea_ + 45.0, 1.0f, 0.0f, 0.0f);
+  glRotatef(angle_y_ea_, 0.0f, 1.0f, 0.0f);
+
+  glScalef(m_scaling, m_scaling, m_scaling);
   DrawGround();
-  glPopMatrix();
-
-  //DrawCoordinate() ;
+  glDisable(GL_TEXTURE_2D);
 
   glPushMatrix();
-  glTranslated(0.0f, 0.0f, 0.0f);
+  glScalef(m_scaling, m_scaling, m_scaling);
   DrawObject();
   glPopMatrix();
 
-  //DrawSample();
 }
 
 void BigHouseView::DrawObject() {
@@ -308,8 +339,8 @@ void BigHouseView::DrawObject() {
   if (object_index_ == 0) {
     glColor3f(1.0, 0.0, 0.0);
     glPushMatrix();
-    glTranslated(pos[0], pos[1], pos[2]);
-    DrawRectangle(1.0);
+    glTranslated(pos[0], pos[1] + 0.11, pos[2]);
+    DrawRectangle(20.0);
     glPopMatrix();
   }
   if (object_index_ == 1) {
@@ -418,10 +449,14 @@ void BigHouseView::DrawCoordinate() {
 void BigHouseView::DrawGround() {
   glColor3f(1.0, 0.5f, 0.0f);
   glBegin(GL_POLYGON);
-  glVertex3f(SIZE_GROUND, 0.0f, SIZE_GROUND);
+  glTexCoord2f(0.0f, 0.0f);
+  glVertex3f(SIZE_GROUND, 0.0f, 2*SIZE_GROUND);
+  glTexCoord2f(1.0f, 0.0f);
   glVertex3f(SIZE_GROUND, 0.0f, -1*SIZE_GROUND);
+  glTexCoord2f(1.0f, 1.0f);
   glVertex3f(-1*SIZE_GROUND, 0.0f, -1*SIZE_GROUND);
-  glVertex3f(-1*SIZE_GROUND, 0.0, 1*SIZE_GROUND);
+  glTexCoord2f(0.0f, 1.0f);
+  glVertex3f(-1*SIZE_GROUND, 0.0, 2*SIZE_GROUND);
   glEnd();
 }
 
@@ -431,8 +466,60 @@ void BigHouseView::DrawRectangle(int length) {
 }
 
 
+void BigHouseView::OnRButtonUp(UINT nFlags, CPoint point)
+{
+	//ClientToScreen(&point);
+	//OnContextMenu(this, point);  // Create menu cut copy paste
+  mouse_down_point_ = CPoint(0, 0);
+  ReleaseCapture();
+  //CView::OnLButtonUp(nFlags, point);
+}
+
+void BigHouseView::OnRButtonDown(UINT nFlags, CPoint point) {
+   mouse_down_point_ = point;
+  SetCapture();
+  //CView::OnLButtonDown(nFlags, point);
+}
+
+
+void BigHouseView::OnMouseMove(UINT nFlags, CPoint point) {
+  // TODO: Add your message handler code here and/or call default
+  // Check if we have captured the mouse
+  CView::OnMouseMove(nFlags, point);
+  if (GetCapture() == this) {
+    //Increment the object rotation angles
+    angle_x_ea_ += (point.y - mouse_down_point_.y)/3.6;
+    angle_y_ea_ += (point.x - mouse_down_point_.x)/3.6;
+      //Redraw the view
+    InvalidateRect(NULL, FALSE);
+      //Set the mouse point
+    mouse_down_point_ = point;
+  }
+}
+
+BOOL BigHouseView::OnMouseWheel(UINT nFlags, short zDetal, CPoint point) {
+  BOOL ret = FALSE ;
+  if (zDetal >=0) {
+    m_scaling *= 1.25f;
+    ret = TRUE ;
+  }
+  else {
+    m_scaling /= 1.25f;
+    ret = TRUE ;
+  }
+  InvalidateRect(NULL,FALSE);
+  //Set the mouse point
+  mouse_down_point_ = point;
+  CWnd::OnMouseWheel(nFlags, zDetal, point);
+  return  ret;
+}
+
+
+
 void BigHouseView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
+  return;
 	// TODO: Add your message handler code here and/or call default
+#if 0
 	switch (nChar) {
 	//Processing Arrow Keys to Synchronise with Movement
 	case VK_UP:
@@ -483,6 +570,48 @@ void BigHouseView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
     InvalidateRect(NULL, FALSE);
     break;
 	}
-	
+#endif
 	CView::OnKeyDown(nChar, nRepCnt, nFlags);
+}
+
+
+void BigHouseView::OnLoadTexture() {
+  //Create Texture Names
+  glGenTextures(1, m_texture);
+  CString str_path = GetPathModule();
+  
+  LoadTexture(str_path + L"\\bitmap\\Floor.bmp",  0);
+}
+
+CString BigHouseView::GetPathModule() {
+  CString full_path = L"";
+  ::GetModuleFileName(NULL, full_path.GetBufferSetLength(MAX_PATH+1), MAX_PATH);
+  full_path = full_path.Left(full_path.ReverseFind('\\'));
+  return full_path;
+}
+
+void BigHouseView::LoadTexture(CString file_name, int text_name )
+{
+  // load texture 
+  AUX_RGBImageRec *texture;
+  int length = file_name.GetLength();
+  LPWSTR lpstr = LPWSTR( file_name.GetBuffer(length));
+  file_name.ReleaseBuffer();
+  texture = auxDIBImageLoad(lpstr);
+  if (!texture) {
+    AfxMessageBox(L"Picture cout not be loaded");
+    exit(1);
+  }
+
+  glBindTexture(GL_TEXTURE_2D, m_texture[text_name]);
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+
+  gluBuild2DMipmaps(GL_TEXTURE_2D, 3, texture->sizeX,
+                    texture->sizeY, GL_RGB, GL_UNSIGNED_BYTE,
+                    texture->data);
 }

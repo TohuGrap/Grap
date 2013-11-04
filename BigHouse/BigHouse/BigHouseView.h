@@ -50,6 +50,9 @@ public:
   void DrawObject();
   void DrawSample();
   void SetIndexObject(int index) {object_index_ = index; InvalidateRect(NULL, FALSE);}
+  void OnLoadTexture();
+  CString GetPathModule();
+  void LoadTexture(CString file_name, int text_name);
   void SetPosValue(float p[3]) {
     pos[0] = p[0];
     pos[1] = p[1];
@@ -76,6 +79,26 @@ protected:
 	GLfloat m_AngIncr;
 	GLfloat m_AngleX;
 
+  GLfloat x_position_;
+  GLfloat y_position_;
+  GLfloat z_zoom_;
+
+  GLfloat angle_x_ea_;
+  GLfloat angle_y_ea_;
+  GLfloat angle_z_ea_;
+
+  GLfloat m_OrthoRangeLeft;
+	GLfloat m_OrthoRangeRight;
+	GLfloat m_OrthoRangeTop;
+	GLfloat m_OrthoRangeBottom;
+	GLfloat m_OrthoRangeNear;
+	GLfloat m_OrthoRangeFar;
+  GLfloat m_scaling;
+
+  GLuint m_texture[4];
+
+  CPoint mouse_down_point_;
+
   int cx_; // size of window
   int cy_; 
   
@@ -83,12 +106,15 @@ protected:
 protected:
 	afx_msg void OnFilePrintPreview();
 	afx_msg void OnRButtonUp(UINT nFlags, CPoint point);
+  afx_msg void OnRButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
   afx_msg void OnSize(UINT nType, int cx, int cy);
   afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
   afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
   afx_msg void CalculateRotatefAngle(CPoint point);
   afx_msg void OnDestroy();
+  afx_msg void OnMouseMove(UINT nFlags, CPoint point);
+  afx_msg BOOL OnMouseWheel(UINT nFlags, short zDetal, CPoint point);
 	DECLARE_MESSAGE_MAP()
 };
 
