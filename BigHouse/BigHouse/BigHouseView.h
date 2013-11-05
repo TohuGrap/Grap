@@ -53,6 +53,7 @@ public:
   void OnLoadTexture();
   CString GetPathModule();
   void LoadTexture(CString file_name, int text_name);
+	void DrawRoom();
   void SetPosValue(float p[3]) {
     pos[0] = p[0];
     pos[1] = p[1];

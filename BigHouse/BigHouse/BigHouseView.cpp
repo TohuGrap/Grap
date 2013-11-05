@@ -96,8 +96,9 @@ void BigHouseView::OnDraw(CDC* /*pDC*/)
 
 // Empty color buffer and depth buffer
   ::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  
   // Call render function 
+ ::glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+
   glPushMatrix();
   RenderScene();
   glPopMatrix();
@@ -224,16 +225,15 @@ BOOL BigHouseView::InitializeOpenGL() {
   // Clear depth
   glClearDepth(1.0f);
   // Enalbe depth test
-  ::glEnable(GL_DEPTH_TEST);
+	::glEnable(GL_DEPTH_TEST);
 
   // Enable color tracking
   ::glEnable(GL_COLOR_MATERIAL);
   ::glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
 
   ::glShadeModel(GL_SMOOTH);
-
   // Setup lighting and material
-  glEnable(GL_CULL_FACE);
+	glDisable(GL_CULL_FACE);
   SetupLight();
   OnLoadTexture();
 
@@ -311,9 +311,9 @@ void BigHouseView::RenderScene() {
 	glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
 	glEnable(GL_LINE_SMOOTH);
 	glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
+//	glEnable(GL_BLEND);
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	
   glPushMatrix();
 
   glEnable(GL_TEXTURE_2D);
@@ -324,7 +324,11 @@ void BigHouseView::RenderScene() {
   glRotatef(angle_y_ea_, 0.0f, 1.0f, 0.0f);
 
   glScalef(m_scaling, m_scaling, m_scaling);
-  DrawGround();
+//DrawGround();
+	glEnable(GL_DEPTH_TEST);
+	DrawRoom();
+	glDisable(GL_DEPTH_TEST);
+
   glDisable(GL_TEXTURE_2D);
 
   glPushMatrix();
@@ -614,4 +618,82 @@ void BigHouseView::LoadTexture(CString file_name, int text_name )
   gluBuild2DMipmaps(GL_TEXTURE_2D, 3, texture->sizeX,
                     texture->sizeY, GL_RGB, GL_UNSIGNED_BYTE,
                     texture->data);
+}
+
+void BigHouseView::DrawRoom() { 
+  double lenght = 100;
+  double with = 100;
+  double hieght = 20;
+	glPushMatrix();
+  glTranslatef(-lenght /2.0, -with/2.0, 0);
+  glColor3f(1.0, 0.0f, 0.0f);
+  // plane
+
+
+  glBegin(GL_POLYGON);
+  //glNormal3f(0, 0, 1.0);
+	glTexCoord2f(0.0f, 0.0f);
+  glVertex3f(0.0, 0.0f, 0.0f);
+	glTexCoord2f(1.0f, 0.0f);
+ 	glVertex3f(lenght, 0.0f, 0.0f);
+	glTexCoord2f(1.0f, 1.0f);
+ 	glVertex3f(lenght, with, 0.0f);
+	glTexCoord2f(0.0f, 1.0f);
+  glVertex3f(0.0f, with, 0.0f);
+
+  glEnd();
+
+
+	// A
+   glBegin(GL_POLYGON);
+ 	//glNormal3f(0, 1.0, 0.0);
+	glTexCoord2f(0.0f, 0.0f);
+   glVertex3f(0.0, 0.0f, 0.0f);
+	 glTexCoord2f(1.0f, 0.0f);
+ 	glVertex3f(0.0f, 0.0f, hieght);
+	glTexCoord2f(1.0f, 1.0f);
+   glVertex3f(lenght, 0.0f, hieght);
+	 glTexCoord2f(0.0f, 1.0f);
+   glVertex3f(lenght, 0.0f, 0.0f);
+   glEnd();
+ 	// B
+  glBegin(GL_POLYGON);
+  //glNormal3f(0, - 1.0, 0.0);
+	glTexCoord2f(0.0f, 0.0f);
+  glVertex3f(0.0, with, 0.0f);
+		glTexCoord2f(1.0f, 0.0f);
+	glVertex3f(0.0f, with, hieght);
+		glTexCoord2f(1.0f, 1.0f);
+  glVertex3f(lenght, with, hieght);
+		glTexCoord2f(0.0f, 1.0f);
+  glVertex3f(lenght, with, 0.0f);
+   glEnd();
+	 // C
+	  glBegin(GL_POLYGON);
+	//glNormal3f(1.0,  0.0, 0.0);
+		glTexCoord2f(0.0f, 0.0f);
+  glVertex3f(0.0f, 0.0f, 0.0f);
+	glTexCoord2f(1.0f, 0.0f);
+	glVertex3f(0.0f, 0.0f, hieght);
+	glTexCoord2f(1.0f, 1.0f);
+  glVertex3f(0.0f, with, hieght);
+	glTexCoord2f(0.0f, 1.0f);
+  glVertex3f(0.0f, with, 0.0f);
+   glEnd();
+	//D
+	  glBegin(GL_POLYGON);
+
+	//glNormal3f( - 1.0, 0.0, 0.0);
+			glTexCoord2f(0.0f, 0.0f);
+	glVertex3f(lenght, 0.0f, 0.0f);
+			glTexCoord2f(1.0f, 0.0f);
+	glVertex3f(lenght, 0.0f, hieght);
+			glTexCoord2f(1.0f, 1.0f);
+  glVertex3f(lenght, with, hieght);
+			glTexCoord2f(0.0f, 1.0f);
+  glVertex3f(lenght, with, 0.0f);
+  glEnd();
+
+
+	glPopMatrix();
 }
