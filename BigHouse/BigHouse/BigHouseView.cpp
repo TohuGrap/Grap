@@ -235,7 +235,7 @@ BOOL BigHouseView::InitializeOpenGL() {
 
   ::glShadeModel(GL_SMOOTH);
   // Setup lighting and material
-	glDisable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
 
   SetupLight();
   OnLoadTexture();
@@ -292,11 +292,11 @@ void BigHouseView::SetupLight() {
 	GLfloat m_ScenePosition1[] = {1.0f,1.5f,-1.0f,1.0f};
 	GLfloat m_SceneDirection1[]= {0.0f,0.0f,-1.0f,1.0f};
 
-	glLightfv(GL_LIGHT0,GL_AMBIENT,m_SceneAmbient1); 
-	glLightfv(GL_LIGHT0,GL_DIFFUSE,m_SceneDiffuse1); 
-	glLightfv(GL_LIGHT0,GL_SPECULAR,m_SceneSpecular1); 
-	glLightfv(GL_LIGHT0,GL_POSITION,m_ScenePosition1);
-	glLightf(GL_LIGHT0,GL_SPOT_CUTOFF,75.0f);
+	glLightfv(GL_LIGHT0, GL_AMBIENT, m_SceneAmbient1); 
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, m_SceneDiffuse1); 
+	glLightfv(GL_LIGHT0, GL_SPECULAR, m_SceneSpecular1); 
+	glLightfv(GL_LIGHT0, GL_POSITION, m_ScenePosition1);
+	glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, 75.0f);
 	glLightfv(GL_LIGHT0,GL_SPOT_DIRECTION,m_SceneDirection1);
 }
 
@@ -324,19 +324,16 @@ void BigHouseView::RenderScene() {
 
   glTranslatef(x_position_, y_position_, - 100.0f);
   glRotatef(angle_x_ea_ + 45.0, 1.0f, 0.0f, 0.0f);
-  glRotatef(angle_y_ea_, 0.0f, 1.0f, 0.0f);
+  glRotatef(angle_z_ea_ -135, 0.0f, 0.0f, 1.0f);
 
   glScalef(m_scaling, m_scaling, m_scaling);
-//DrawGround();
-	glEnable(GL_DEPTH_TEST);
-	DrawRoom();
-	glDisable(GL_DEPTH_TEST);
-
+  //DrawGround();
+	 DrawRoom();
   glDisable(GL_TEXTURE_2D);
 
-  glRotatef(-90.0, 1.0f, 0.0f, 0.0f);
+  //glRotatef(-90.0, 1.0f, 0.0f, 0.0f);
   //glEnable(GL_TEXTURE_2D);
-  //glBindTexture(GL_TEXTURE_2D, m_texture[1]);
+  glBindTexture(GL_TEXTURE_2D, m_texture[1]);
   glEnable(GL_DEPTH_TEST);
   DrawCad();
   glDisable(GL_DEPTH_TEST);
@@ -348,7 +345,7 @@ void BigHouseView::RenderScene() {
 void BigHouseView::DrawCad() {
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   int a = theApp.GetNumberOfPoint();
-  //glColor3f(1.0, 0.7, 0.2);
+  glColor3f(1.0, 1.0, 0.0);
   for (unsigned long i = 0; i < theApp.GetNumberOfPoint(); i = i+3) {
     glBegin(GL_POLYGON);
     glNormal3f(theApp.GetNormalVector()[i/3][0], theApp.GetNormalVector()[i/3][1], theApp.GetNormalVector()[i/3][2]); 
@@ -520,7 +517,7 @@ void BigHouseView::OnMouseMove(UINT nFlags, CPoint point) {
   if (GetCapture() == this) {
     //Increment the object rotation angles
     angle_x_ea_ += (point.y - mouse_down_point_.y)/3.6;
-    angle_y_ea_ += (point.x - mouse_down_point_.x)/3.6;
+    angle_z_ea_ += (point.x - mouse_down_point_.x)/3.6;
       //Redraw the view
     InvalidateRect(NULL, FALSE);
       //Set the mouse point
