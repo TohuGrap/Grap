@@ -59,6 +59,7 @@ public:
     pos[1] = p[1];
     pos[2] = p[2];
   }
+  void DrawCad();
 protected:
   float pos[3];
 

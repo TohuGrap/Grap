@@ -35,6 +35,7 @@ BEGIN_MESSAGE_MAP(BigHouseView, CView)
   ON_WM_RBUTTONDOWN()
   ON_WM_MOUSEMOVE()
   ON_WM_MOUSEWHEEL()
+  ON_WM_DESTROY()
 END_MESSAGE_MAP()
 
 // BigHouseView construction/destruction
@@ -201,6 +202,7 @@ int BigHouseView::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 }
 
 void BigHouseView::OnDestroy() {
+  theApp.FreePoint();
   CView::OnDestroy();
   ::wglDeleteContext(m_hRC);
   delete m_pDC;
@@ -234,6 +236,7 @@ BOOL BigHouseView::InitializeOpenGL() {
   ::glShadeModel(GL_SMOOTH);
   // Setup lighting and material
 	glDisable(GL_CULL_FACE);
+
   SetupLight();
   OnLoadTexture();
 
@@ -331,12 +334,36 @@ void BigHouseView::RenderScene() {
 
   glDisable(GL_TEXTURE_2D);
 
-  glPushMatrix();
-  glScalef(m_scaling, m_scaling, m_scaling);
-  DrawObject();
+  glRotatef(-90.0, 1.0f, 0.0f, 0.0f);
+  //glEnable(GL_TEXTURE_2D);
+  //glBindTexture(GL_TEXTURE_2D, m_texture[1]);
+  glEnable(GL_DEPTH_TEST);
+  DrawCad();
+  glDisable(GL_DEPTH_TEST);
+  //glDisable(GL_TEXTURE_2D);
   glPopMatrix();
 
 }
+
+void BigHouseView::DrawCad() {
+  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  int a = theApp.GetNumberOfPoint();
+  //glColor3f(1.0, 0.7, 0.2);
+  for (unsigned long i = 0; i < theApp.GetNumberOfPoint(); i = i+3) {
+    glBegin(GL_POLYGON);
+    glNormal3f(theApp.GetNormalVector()[i/3][0], theApp.GetNormalVector()[i/3][1], theApp.GetNormalVector()[i/3][2]); 
+    glTexCoord2f(0.0f, 0.0f);
+	  glVertex3f(theApp.GetTrianglePoint()->Vertex[i][0], theApp.GetTrianglePoint()->Vertex[i][1], theApp.GetTrianglePoint()->Vertex[i][2]);
+    glTexCoord2f(1.0f, 0.0f);
+	  glVertex3f(theApp.GetTrianglePoint()->Vertex[i+1][0], theApp.GetTrianglePoint()->Vertex[i+1][1], theApp.GetTrianglePoint()->Vertex[i+1][2]);
+    glTexCoord2f(0.0f, 1.0f);
+	  glVertex3f(theApp.GetTrianglePoint()->Vertex[i+2][0], theApp.GetTrianglePoint()->Vertex[i+2][1], theApp.GetTrianglePoint()->Vertex[i+2][2]);
+	glEnd();
+  
+  }
+}
+
+
 
 void BigHouseView::DrawObject() {
 
@@ -581,10 +608,11 @@ void BigHouseView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
 
 void BigHouseView::OnLoadTexture() {
   //Create Texture Names
-  glGenTextures(1, m_texture);
+  glGenTextures(2, m_texture);
   CString str_path = GetPathModule();
   
   LoadTexture(str_path + L"\\bitmap\\Floor.bmp",  0);
+  LoadTexture(str_path + L"\\bitmap\\TAB.bmp",  1);
 }
 
 CString BigHouseView::GetPathModule() {

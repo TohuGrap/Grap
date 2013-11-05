@@ -22,7 +22,7 @@ BEGIN_MESSAGE_MAP(BigHouseApp, CWinAppEx)
 	ON_COMMAND(ID_APP_ABOUT, &BigHouseApp::OnAppAbout)
 	// Standard file based document commands
 	ON_COMMAND(ID_FILE_NEW, &CWinAppEx::OnFileNew)
-	ON_COMMAND(ID_FILE_OPEN, &CWinAppEx::OnFileOpen)
+  ON_COMMAND(ID_FILE_OPEN, &BigHouseApp::OnFileOpen)
 	// Standard print setup command
 	ON_COMMAND(ID_FILE_PRINT_SETUP, &CWinAppEx::OnFilePrintSetup)
 END_MESSAGE_MAP()
@@ -137,6 +137,8 @@ BOOL BigHouseApp::InitInstance()
 	m_pMainWnd->UpdateWindow();
 	// call DragAcceptFiles only if there's a suffix
 	//  In an SDI app, this should occur after ProcessShellCommand
+
+  LoadFileCad(); 
 	return TRUE;
 }
 
@@ -210,4 +212,125 @@ void BigHouseApp::SaveCustomState()
 // BigHouseApp message handlers
 
 
+// handle reading file stl
+void BigHouseApp::OnFileOpen() {
+  UINT n_size = 0;
+  char str[MAX_PATH];
+  FILE *pFile = NULL;
+  Point *value_stl = NULL;
+  Point *asscii_value_stl = NULL;
+  CFileDialog Dlg(TRUE);
+  CString file_name_stl = L"";
+  // Get file name 
+  if (IDOK == Dlg.DoModal()) {
+    file_name_stl = Dlg.GetPathName();
+  }
 
+}
+
+void BigHouseApp::LoadFileCad () {
+  UINT n_size = 0;
+  char str[MAX_PATH];
+  FILE *pFile = NULL;
+  Point *value_stl = NULL;
+  Point *asscii_value_stl = NULL;
+
+  CString str_file = GetModulePath() + ("\\cad\\table.stl");
+  // convert CString to char*
+  char file_name[MAX_PATH];
+  n_size = str_file .GetLength();
+  memset(file_name, 0, n_size + 1);
+  wcstombs(file_name, str_file, n_size);
+
+  pFile = fopen(file_name, "r");
+  if (pFile == NULL)
+    return;
+  fclose(pFile);
+
+    pFile = fopen(file_name, "r");
+    if (pFile == NULL)
+      return;
+    while(!feof(pFile)) {
+      fscanf(pFile, "%s", str);
+      if (strcmp(str, "vertex") == 0 || strcmp(str, "VERTEX") == 0) {
+        number_of_point_ += 1;
+      }
+    }
+    fclose(pFile);
+    // check number_of_point
+    if (number_of_point_ == 0) {
+      ::MessageBox(NULL, L"Can not read STL file", L"Inform", MB_OK | MB_ICONWARNING);
+      return;
+    }
+
+    static long count_normal_vector = 0;
+    if (gl_point_ != NULL) {
+      delete [] gl_point_;
+      gl_point_ = NULL;
+    }
+    if (normal_vector_ != NULL) {
+      delete [] normal_vector_;
+      count_normal_vector = 0;
+      normal_vector_ = NULL;
+    }
+    gl_point_ = new Triangle[number_of_point_];
+    value_stl = new Point[number_of_point_];
+    normal_vector_ = new Vector[number_of_point_ /3];
+    // read data form stl file
+    pFile = fopen(file_name, "r");
+    fgets(str, MAX_PATH, pFile);
+    while(!feof(pFile)) {
+      fscanf(pFile, "%s%s%f%f%f", str, str,
+             &normal_vector_[count_normal_vector][0],
+             &normal_vector_[count_normal_vector][1],
+             &normal_vector_[count_normal_vector][2]);
+      count_normal_vector = 1;
+      fgets(str, MAX_PATH, pFile);
+      fgets(str, MAX_PATH, pFile);
+      for (long i = 0; i< number_of_point_; i++) {
+        fscanf(pFile,"%s%f%f%f",str, &value_stl[i][0],
+              &value_stl[i][1],
+              &value_stl[i][2]);
+        gl_point_->Vertex[i][0] = value_stl[i][0];
+        gl_point_->Vertex[i][1] = value_stl[i][1];
+			  gl_point_->Vertex[i][2] = value_stl[i][2];
+			  if((i+1)%3 == 0) {
+				  fgets(str,100,pFile);
+				  fgets(str,100,pFile);
+				  fgets(str,100,pFile);
+				  fscanf(pFile,"%s%s%f%f%f", str, str,
+                 &normal_vector_[count_normal_vector][0],
+                 &normal_vector_[count_normal_vector][1],
+                 &normal_vector_[count_normal_vector][2]);
+          count_normal_vector ++;
+				  fgets(str,100,pFile);
+				  fgets(str,100,pFile);
+        }
+      }
+    }
+    allow_draw_data_ = TRUE ;
+	  InvalidateRect(NULL,NULL,FALSE);
+    if (value_stl != NULL) {
+      delete [] value_stl;
+      value_stl = NULL;
+    }
+	  fclose(pFile);
+}
+
+void BigHouseApp::FreePoint() {
+  if (gl_point_ != NULL) {
+    delete [] gl_point_;
+    gl_point_ = NULL;
+  }
+  if (normal_vector_ != NULL) {
+    delete [] normal_vector_;
+    normal_vector_ = NULL;
+  }
+}
+
+CString BigHouseApp::GetModulePath() {
+  CString full_path = L"";
+  ::GetModuleFileName(NULL, full_path.GetBufferSetLength(MAX_PATH+1), MAX_PATH);
+  full_path = full_path.Left(full_path.ReverseFind('\\'));
+  return full_path;
+}
