@@ -235,10 +235,11 @@ BOOL BigHouseView::InitializeOpenGL() {
 
   ::glShadeModel(GL_SMOOTH);
   // Setup lighting and material
-	glEnable(GL_CULL_FACE);
+	
 
   SetupLight();
   OnLoadTexture();
+	glDisable(GL_CULL_FACE);
 
   return TRUE;
 }
@@ -286,17 +287,17 @@ void BigHouseView::SetupLight() {
   glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_FALSE);
   glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_FALSE);
 
-  GLfloat m_SceneAmbient1[]  = {0.5f,0.5f,0.5f,1.0f};
-	GLfloat m_SceneDiffuse1[]  = {1.0f,1.0f,1.0f,1.0f};
+  GLfloat m_SceneAmbient1[]  = {0.2f,0.3f,0.3f,1.0f};
+	GLfloat m_SceneDiffuse1[]  = {0.2f,0.4f,0.5f,1.0f};
 	GLfloat m_SceneSpecular1[] = {1.0f,1.0f,1.0f,1.0f};
-	GLfloat m_ScenePosition1[] = {1.0f,1.5f,-1.0f,1.0f};
+	GLfloat m_ScenePosition1[] = {0.0f,0.0f,0.0f,1.0f};
 	GLfloat m_SceneDirection1[]= {0.0f,0.0f,-1.0f,1.0f};
 
 	glLightfv(GL_LIGHT0, GL_AMBIENT, m_SceneAmbient1); 
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, m_SceneDiffuse1); 
 	glLightfv(GL_LIGHT0, GL_SPECULAR, m_SceneSpecular1); 
 	glLightfv(GL_LIGHT0, GL_POSITION, m_ScenePosition1);
-	glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, 75.0f);
+	glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, 45.0f);
 	glLightfv(GL_LIGHT0,GL_SPOT_DIRECTION,m_SceneDirection1);
 }
 
@@ -306,54 +307,43 @@ void BigHouseView::DisableLight() {
 
 void BigHouseView::RenderScene() {
   glLoadIdentity();
-  //gluLookAt(eyeX_, eyeY_, eyeZ_, centX_, centY_, centZ_, 0.0f, 1.0f, 0.0f);
-  //glTranslated(0.0f, 0.0f, 0.0f);
-
-    // clear AntiAliasing
   glEnable(GL_POINT_SMOOTH);
 	glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
 	glEnable(GL_LINE_SMOOTH);
 	glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
-//	glEnable(GL_BLEND);
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
   glPushMatrix();
-
-  glEnable(GL_TEXTURE_2D);
-  glBindTexture(GL_TEXTURE_2D, m_texture[0]);
-
   glTranslatef(x_position_, y_position_, - 100.0f);
   glRotatef(angle_x_ea_ + 45.0, 1.0f, 0.0f, 0.0f);
   glRotatef(angle_z_ea_ -135, 0.0f, 0.0f, 1.0f);
 
   glScalef(m_scaling, m_scaling, m_scaling);
-  //DrawGround();
-	 DrawRoom();
-  glDisable(GL_TEXTURE_2D);
-
-  //glRotatef(-90.0, 1.0f, 0.0f, 0.0f);
-  //glEnable(GL_TEXTURE_2D);
-  glBindTexture(GL_TEXTURE_2D, m_texture[1]);
-  glEnable(GL_DEPTH_TEST);
+	glEnable(GL_DEPTH_TEST);
   DrawCad();
-  glDisable(GL_DEPTH_TEST);
-  //glDisable(GL_TEXTURE_2D);
+  //glDisable(GL_DEPTH_TEST);
+  //DrawGround();
+	//glEnable(GL_DEPTH_TEST);
+	 DrawRoom();
   glPopMatrix();
 
 }
 
 void BigHouseView::DrawCad() {
+	glEnable(GL_CULL_FACE);
+	glEnable(GL_LIGHTING);
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   int a = theApp.GetNumberOfPoint();
   glColor3f(1.0, 1.0, 0.0);
   for (unsigned long i = 0; i < theApp.GetNumberOfPoint(); i = i+3) {
     glBegin(GL_POLYGON);
     glNormal3f(theApp.GetNormalVector()[i/3][0], theApp.GetNormalVector()[i/3][1], theApp.GetNormalVector()[i/3][2]); 
-    glTexCoord2f(0.0f, 0.0f);
+    //glTexCoord2f(0.0f, 0.0f);
 	  glVertex3f(theApp.GetTrianglePoint()->Vertex[i][0], theApp.GetTrianglePoint()->Vertex[i][1], theApp.GetTrianglePoint()->Vertex[i][2]);
-    glTexCoord2f(1.0f, 0.0f);
+    //glTexCoord2f(1.0f, 0.0f);
 	  glVertex3f(theApp.GetTrianglePoint()->Vertex[i+1][0], theApp.GetTrianglePoint()->Vertex[i+1][1], theApp.GetTrianglePoint()->Vertex[i+1][2]);
-    glTexCoord2f(0.0f, 1.0f);
+    //glTexCoord2f(0.0f, 1.0f);
 	  glVertex3f(theApp.GetTrianglePoint()->Vertex[i+2][0], theApp.GetTrianglePoint()->Vertex[i+2][1], theApp.GetTrianglePoint()->Vertex[i+2][2]);
 	glEnd();
   
@@ -646,79 +636,87 @@ void BigHouseView::LoadTexture(CString file_name, int text_name )
 }
 
 void BigHouseView::DrawRoom() { 
-  double lenght = 100;
-  double with = 100;
-  double hieght = 20;
+	double lenght = 100;
+	double with = 100;
+	double hieght = 20;
 	glPushMatrix();
-  glTranslatef(-lenght /2.0, -with/2.0, 0);
-  glColor3f(1.0, 0.0f, 0.0f);
-  // plane
-
-
-  glBegin(GL_POLYGON);
-  //glNormal3f(0, 0, 1.0);
-	glTexCoord2f(0.0f, 0.0f);
-  glVertex3f(0.0, 0.0f, 0.0f);
-	glTexCoord2f(1.0f, 0.0f);
- 	glVertex3f(lenght, 0.0f, 0.0f);
-	glTexCoord2f(1.0f, 1.0f);
- 	glVertex3f(lenght, with, 0.0f);
-	glTexCoord2f(0.0f, 1.0f);
-  glVertex3f(0.0f, with, 0.0f);
-
-  glEnd();
-
+	glTranslatef(-lenght /2.0, -with/2.0, 0);
+	// plane
+	glDisable(GL_CULL_FACE);
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, m_texture[0]);
 
 	// A
-   glBegin(GL_POLYGON);
- 	//glNormal3f(0, 1.0, 0.0);
+	glPushMatrix();
+	glBegin(GL_POLYGON);
+	glNormal3f(0, 1.0, 0.0);
 	glTexCoord2f(0.0f, 0.0f);
-   glVertex3f(0.0, 0.0f, 0.0f);
-	 glTexCoord2f(1.0f, 0.0f);
- 	glVertex3f(0.0f, 0.0f, hieght);
-	glTexCoord2f(1.0f, 1.0f);
-   glVertex3f(lenght, 0.0f, hieght);
-	 glTexCoord2f(0.0f, 1.0f);
-   glVertex3f(lenght, 0.0f, 0.0f);
-   glEnd();
- 	// B
-  glBegin(GL_POLYGON);
-  //glNormal3f(0, - 1.0, 0.0);
-	glTexCoord2f(0.0f, 0.0f);
-  glVertex3f(0.0, with, 0.0f);
-		glTexCoord2f(1.0f, 0.0f);
-	glVertex3f(0.0f, with, hieght);
-		glTexCoord2f(1.0f, 1.0f);
-  glVertex3f(lenght, with, hieght);
-		glTexCoord2f(0.0f, 1.0f);
-  glVertex3f(lenght, with, 0.0f);
-   glEnd();
-	 // C
-	  glBegin(GL_POLYGON);
-	//glNormal3f(1.0,  0.0, 0.0);
-		glTexCoord2f(0.0f, 0.0f);
-  glVertex3f(0.0f, 0.0f, 0.0f);
+	glVertex3f(0.0, 0.0f, 0.0f);
 	glTexCoord2f(1.0f, 0.0f);
 	glVertex3f(0.0f, 0.0f, hieght);
 	glTexCoord2f(1.0f, 1.0f);
-  glVertex3f(0.0f, with, hieght);
-	glTexCoord2f(0.0f, 1.0f);
-  glVertex3f(0.0f, with, 0.0f);
-   glEnd();
-	//D
-	  glBegin(GL_POLYGON);
-
-	//glNormal3f( - 1.0, 0.0, 0.0);
-			glTexCoord2f(0.0f, 0.0f);
-	glVertex3f(lenght, 0.0f, 0.0f);
-			glTexCoord2f(1.0f, 0.0f);
 	glVertex3f(lenght, 0.0f, hieght);
-			glTexCoord2f(1.0f, 1.0f);
-  glVertex3f(lenght, with, hieght);
-			glTexCoord2f(0.0f, 1.0f);
-  glVertex3f(lenght, with, 0.0f);
-  glEnd();
+	glTexCoord2f(0.0f, 1.0f);
+	glVertex3f(lenght, 0.0f, 0.0f);
+	glEnd();
+	glPopMatrix();
+	glPushMatrix();
+	// B
+	glBegin(GL_POLYGON);
+	glNormal3f(0, - 1.0, 0.0);
+	glTexCoord2f(0.0f, 0.0f);
+	glVertex3f(0.0, with, 0.0f);
+	glTexCoord2f(1.0f, 0.0f);
+	glVertex3f(0.0f, with, hieght);
+	glTexCoord2f(1.0f, 1.0f);
+	glVertex3f(lenght, with, hieght);
+	glTexCoord2f(0.0f, 1.0f);
+	glVertex3f(lenght, with, 0.0f);
+	glEnd();
+	// C
+	glPopMatrix();
+	glPushMatrix();
+	glBegin(GL_POLYGON);
+	glNormal3f(1.0,  0.0, 0.0);
+	glTexCoord2f(0.0f, 0.0f);
+	glVertex3f(0.0f, 0.0f, 0.0f);
+	glTexCoord2f(1.0f, 0.0f);
+	glVertex3f(0.0f, 0.0f, hieght);
+	glTexCoord2f(1.0f, 1.0f);
+	glVertex3f(0.0f, with, hieght);
+	glTexCoord2f(0.0f, 1.0f);
+	glVertex3f(0.0f, with, 0.0f);
+	glEnd();
+	//D
+	glPopMatrix();
+	glPushMatrix();
+	glBegin(GL_POLYGON);
+	// plane
+	glNormal3f( - 1.0, 0.0, 0.0);
+	glTexCoord2f(0.0f, 0.0f);
+	glVertex3f(lenght, 0.0f, 0.0f);
+	glTexCoord2f(1.0f, 0.0f);
+	glVertex3f(lenght, 0.0f, hieght);
+	glTexCoord2f(1.0f, 1.0f);
+	glVertex3f(lenght, with, hieght);
+	glTexCoord2f(0.0f, 1.0f);
+	glVertex3f(lenght, with, 0.0f);
+	glEnd();
+	glPopMatrix();
 
-
+	glPushMatrix();
+	glBegin(GL_POLYGON);
+	glNormal3f(0, 0, 0.0);
+	glTexCoord2f(0.0f, 0.0f);
+	glVertex3f(0.0, 0.0f, 0.0f);
+	glTexCoord2f(1.0f, 0.0f);
+	glVertex3f(lenght, 0.0f, 0.0f);
+	glTexCoord2f(1.0f, 1.0f);
+	glVertex3f(lenght, with, 0.0f);
+	glTexCoord2f(0.0f, 1.0f);
+	glVertex3f(0.0f, with, 0.0f);
+	glEnd();
+	glPopMatrix();
+	glDisable(GL_TEXTURE_2D);
 	glPopMatrix();
 }
