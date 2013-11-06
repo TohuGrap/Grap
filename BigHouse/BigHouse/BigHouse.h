@@ -46,8 +46,7 @@ public:
   long GetNumberOfPoint() { return number_of_point_;}
   Triangle* GetTrianglePoint() {return gl_point_;}
   void OnFileOpen();
-  CString GetModulePath();
-  void LoadFileCad();
+  void LoadFileCad(CString str_file);
 	virtual void PreLoadState();
 	virtual void LoadCustomState();
 	virtual void SaveCustomState();

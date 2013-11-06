@@ -51,7 +51,6 @@ public:
   void DrawSample();
   void SetIndexObject(int index) {object_index_ = index; InvalidateRect(NULL, FALSE);}
   void OnLoadTexture();
-  CString GetPathModule();
   void LoadTexture(CString file_name, int text_name);
 	void DrawRoom();
   void SetPosValue(float p[3]) {

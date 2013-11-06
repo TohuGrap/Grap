@@ -58,6 +58,12 @@
     <None Include="res\Tours.bmp">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="res\table.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\desk.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BigHouse.h">
@@ -83,6 +89,9 @@
     </ClInclude>
     <ClInclude Include="FormBar.h">
       <Filter>Source Files\FormBar</Filter>
+    </ClInclude>
+    <ClInclude Include="base.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

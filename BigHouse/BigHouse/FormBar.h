@@ -27,6 +27,12 @@ public:
 public:
   int ObjectIndex() {return object_index_;}
   BigHouseView* GetBigHouseView();
+  void UpdateBitmap(int index_bitmap);
+  int CheckBitmap(CString str);
+  enum ObjectShape {
+    OBJ_TABLE = 0,
+    OBJ_DESK = 1,
+  };
 protected:
   CStatic bitmap_image_ctrl;
   CBitmap cbitmap_;
@@ -39,8 +45,9 @@ protected:
   virtual void OnPaint();
   virtual void OnInitialUpdate();
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-
+  afx_msg void OnLBSelChange();
   afx_msg void OnBnNext();
+  afx_msg void OnSize(UINT nType, int cx, int cy);
   afx_msg void OnOption();
   afx_msg void OnEditChangeXpos();
   afx_msg void OnEditChangeYpos();
@@ -48,12 +55,12 @@ protected:
 
 	DECLARE_MESSAGE_MAP()
 private:
-  int bitmap_index_;
   int object_index_;
 protected:
   CString edit_x_pos_;
   CString edit_y_pos_;
   CString edit_z_pos_;
+  CListBox list_box_ctrl_;
 };
 
 

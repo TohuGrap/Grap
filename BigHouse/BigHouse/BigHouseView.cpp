@@ -11,6 +11,7 @@
 
 #include "BigHouseDoc.h"
 #include "BigHouseView.h"
+#include "base.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -596,18 +597,12 @@ void BigHouseView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
 void BigHouseView::OnLoadTexture() {
   //Create Texture Names
   glGenTextures(2, m_texture);
-  CString str_path = GetPathModule();
+  CString str_path = Base::GetPathModule();
   
   LoadTexture(str_path + L"\\bitmap\\Floor.bmp",  0);
   LoadTexture(str_path + L"\\bitmap\\TAB.bmp",  1);
 }
 
-CString BigHouseView::GetPathModule() {
-  CString full_path = L"";
-  ::GetModuleFileName(NULL, full_path.GetBufferSetLength(MAX_PATH+1), MAX_PATH);
-  full_path = full_path.Left(full_path.ReverseFind('\\'));
-  return full_path;
-}
 
 void BigHouseView::LoadTexture(CString file_name, int text_name )
 {

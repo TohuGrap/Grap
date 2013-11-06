@@ -10,6 +10,7 @@
 
 #include "BigHouseDoc.h"
 #include "BigHouseView.h"
+#include "base.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -138,7 +139,7 @@ BOOL BigHouseApp::InitInstance()
 	// call DragAcceptFiles only if there's a suffix
 	//  In an SDI app, this should occur after ProcessShellCommand
 
-  LoadFileCad(); 
+  //LoadFileCad(); 
 	return TRUE;
 }
 
@@ -228,14 +229,14 @@ void BigHouseApp::OnFileOpen() {
 
 }
 
-void BigHouseApp::LoadFileCad () {
+void BigHouseApp::LoadFileCad (CString strs) {
   UINT n_size = 0;
   char str[MAX_PATH];
   FILE *pFile = NULL;
   Point *value_stl = NULL;
   Point *asscii_value_stl = NULL;
 
-  CString str_file = GetModulePath() + ("\\cad\\table.stl");
+  CString str_file = Base::GetPathModule() + _T("\\cad\\") + strs;
   // convert CString to char*
   char file_name[MAX_PATH];
   n_size = str_file .GetLength();
@@ -328,9 +329,3 @@ void BigHouseApp::FreePoint() {
   }
 }
 
-CString BigHouseApp::GetModulePath() {
-  CString full_path = L"";
-  ::GetModuleFileName(NULL, full_path.GetBufferSetLength(MAX_PATH+1), MAX_PATH);
-  full_path = full_path.Left(full_path.ReverseFind('\\'));
-  return full_path;
-}

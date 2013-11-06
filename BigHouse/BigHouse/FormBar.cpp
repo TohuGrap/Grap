@@ -8,6 +8,7 @@
 #include "BigHouseView.h"
 #include "MainFrm.h"
 #include "BigHouse.h"
+#include "base.h"
 // FormBar
 
 IMPLEMENT_DYNCREATE(FormBar, CFormView)
@@ -15,8 +16,6 @@ IMPLEMENT_DYNCREATE(FormBar, CFormView)
 FormBar::FormBar()
 	: CFormView(FormBar::IDD)
 {
-  cbitmap_.LoadBitmap(IDB_BITMAP_RECTANGLE);
-  bitmap_index_ = 0;
   object_index_ = -1;
   str_x_pos_ = L"";
   str_y_pos_ = L"";
@@ -34,6 +33,7 @@ void FormBar::DoDataExchange(CDataExchange* pDX)
   DDX_Text(pDX, IDC_EDIT_X_POS, edit_x_pos_);
   DDX_Text(pDX, IDC_EDIT_Y_POS, edit_y_pos_);
   DDX_Text(pDX, IDC_EDIT_Z_POS, edit_z_pos_);
+  DDX_Control(pDX, IDC_LIST_FILE_OBJ, list_box_ctrl_);
 }
 
 BEGIN_MESSAGE_MAP(FormBar, CFormView)
@@ -43,6 +43,8 @@ BEGIN_MESSAGE_MAP(FormBar, CFormView)
   //ON_COMMAND(IDC_EDIT_Y_POS, FormBar::OnEditChangeYpos)
   //ON_COMMAND(IDC_EDIT_Z_POS, FormBar::OnEditChangeZpos)
   ON_WM_PAINT()
+  ON_WM_SIZE()
+  ON_LBN_SELCHANGE(IDC_LIST_FILE_OBJ, FormBar::OnLBSelChange)
 END_MESSAGE_MAP()
 
 
@@ -77,13 +79,46 @@ void FormBar::OnInitialUpdate() {
   CButton* btn = reinterpret_cast<CButton*>(GetDlgItem(IDC_OBJECT_NEXT));
   btn->EnableWindow(FALSE);
   UpdateData(FALSE);
+
+
+  CString str = Base::GetPathModule();
+  str = str + _T("\\cad\\");
+  std::string str_cad = CStringA(str);
+  std::string str_tye("*.stl");
+  str_cad = str_cad + str_tye;
+
+  std::vector<std::string> list_file = Base::ListFileInFolder(str_cad);
+
+  for (int i =0; i < list_file.size(); i++) {
+    CA2T str( list_file[i].c_str() );
+    list_box_ctrl_.AddString(str);
+  }
+  list_box_ctrl_.SetSel(0, true);
+
+
+  CButton *option_btn = reinterpret_cast<CButton*>(GetDlgItem(IDC_OBJECT_OPTION));
+  int index = list_box_ctrl_.GetCurSel();
+  if (index >= 0) {
+    CString current_str;
+    list_box_ctrl_.GetText(index, current_str);
+    option_btn->EnableWindow(TRUE);
+    int index_bitmap = CheckBitmap(current_str);
+    UpdateBitmap(index_bitmap);
+  } else {
+     option_btn->EnableWindow(FALSE);
+  }
+
+  UpdateData(FALSE);
 }
 
 void FormBar::OnPaint() {
   CFormView::OnPaint();
 }
 
-
+void FormBar::OnSize(UINT nType, int cx, int cy) {
+  EnableScrollBarCtrl(SB_VERT, FALSE);
+  CFormView::OnSize(nType, cx, cy);
+}
 BigHouseView *FormBar::GetBigHouseView() {
   BigHouseApp *pApp= (BigHouseApp*)AfxGetApp();
   MainFrame *pMainFrame = (MainFrame*)pApp->m_pMainWnd;
@@ -92,69 +127,57 @@ BigHouseView *FormBar::GetBigHouseView() {
 }
 
 void FormBar::OnBnNext() {
-  bitmap_index_++;
-  switch(bitmap_index_) {
+}
+
+void FormBar::UpdateBitmap(int index_bitmap) {
+  switch(index_bitmap) {
   case 0: {
     CBitmap cbitmap;
-    cbitmap.LoadBitmap(IDB_BITMAP_RECTANGLE);
+    cbitmap.LoadBitmap(IDB_BITMAP_TABLE);
     bitmap_image_ctrl.SetBitmap((HBITMAP)cbitmap);
     break;
   }
   case 1: {
     CBitmap cbitmap;
-    cbitmap.LoadBitmap(IDB_BITMAP_CONE);
+    cbitmap.LoadBitmap(IDB_BITMAP_DESK);
     bitmap_image_ctrl.SetBitmap((HBITMAP)cbitmap);
     break;
   }
   case 2: {
-    CBitmap cbitmap;
-    cbitmap.LoadBitmap(IDB_BITMAP_TRY_BA_PY);
-    bitmap_image_ctrl.SetBitmap((HBITMAP)cbitmap);
     break;
   }
   case 3: {
-    CBitmap cbitmap;
-    cbitmap.LoadBitmap(IDB_BITMAP_SPHERE);
-    bitmap_image_ctrl.SetBitmap((HBITMAP)cbitmap);
     break;
   }
   case 4: {
-    CBitmap cbitmap;
-    cbitmap.LoadBitmap(IDB_BITMAP_TEARPORT);
-    bitmap_image_ctrl.SetBitmap((HBITMAP)cbitmap);
     break;
   }
   case 5: {
-    CBitmap cbitmap;
-    cbitmap.LoadBitmap(IDB_BITMAP_TOURS);
-    bitmap_image_ctrl.SetBitmap((HBITMAP)cbitmap);
     break;
   }
   default : {
-    bitmap_index_ = 0;
-    CBitmap cbitmap;
-    cbitmap.LoadBitmap(IDB_BITMAP_RECTANGLE);
-    bitmap_image_ctrl.SetBitmap((HBITMAP)cbitmap);
     break;
    }
   }
 }
 
 void FormBar::OnOption() {
-  GetBigHouseView()->SetIndexObject(bitmap_index_);
+  int current_index = list_box_ctrl_.GetCurSel();
+  CString current_str;
+  list_box_ctrl_.GetText(current_index, current_str);
+  theApp.LoadFileCad(current_str);
+  int index_bitmap = CheckBitmap(current_str);
+  UpdateBitmap(index_bitmap);
+}
 
-  float pos[3];
-
-  UpdateData(TRUE);
-  str_x_pos_ = edit_x_pos_;
-  str_y_pos_ = edit_y_pos_;
-  str_z_pos_ = edit_z_pos_;
-
-  pos[0] = _tstof(str_x_pos_);
-  pos[1] = _tstof(str_y_pos_);
-  pos[2] = _tstof(str_z_pos_);
-
-  GetBigHouseView()->SetPosValue(pos);
+int FormBar::CheckBitmap(CString str) {
+  if (str == "table.stl") {
+    return 0;
+  } else if (str == "desk.stl") {
+    return 1;
+  } else {
+    return -1;
+  }
 }
 
 void FormBar::OnEditChangeXpos() {
@@ -169,4 +192,18 @@ void FormBar::OnEditChangeYpos() {
 void FormBar::OnEditChangeZpos() {
   UpdateData(TRUE);
   str_z_pos_ = edit_z_pos_;
+}
+
+void FormBar::OnLBSelChange() {
+  CButton *option_btn = reinterpret_cast<CButton*>(GetDlgItem(IDC_OBJECT_OPTION));
+  int index = list_box_ctrl_.GetCurSel();
+  if (index >= 0) {
+    CString current_str;
+    list_box_ctrl_.GetText(index, current_str);
+    option_btn->EnableWindow(TRUE);
+    int index_bitmap = CheckBitmap(current_str);
+    UpdateBitmap(index_bitmap);
+  } else {
+     option_btn->EnableWindow(FALSE);
+  }
 }
