@@ -38,6 +38,7 @@ public:
 #endif
   // Declare functions for opengl
 public:
+  void SetViewFrustum();
   BOOL InitializeOpenGL();
   BOOL SetupPixelFormat();
   void SetupLight();
@@ -68,6 +69,7 @@ protected:
   HGLRC m_hRC;    // Render context variable
   CDC* m_pDC;     // Device context variable
 
+  GLfloat rendering_rate_;
   GLfloat eyeX_;
   GLfloat eyeY_;
   GLfloat eyeZ_;

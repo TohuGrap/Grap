@@ -20,6 +20,10 @@
 
 // BigHouseView
 #define SIZE_GROUND 50
+const float ROOM_LENGTH = 100.0f;
+const	float ROOM_WIDTH = 100.0f;
+const float ROOM_HEIGHT = 20.0f;
+
 #define M_PI 3.14
 IMPLEMENT_DYNCREATE(BigHouseView, CView)
 
@@ -67,9 +71,9 @@ BigHouseView::BigHouseView():
 	m_OrthoRangeRight = 1.5f;
 	m_OrthoRangeBottom = -1.5f;
 	m_OrthoRangeTop = 1.5f;
-	m_OrthoRangeNear = -50.0f;
-	m_OrthoRangeFar = 50.0f;
-
+	m_OrthoRangeNear = -20.0f;
+	m_OrthoRangeFar = 100.0f;
+  rendering_rate_ = 2.0f;
   m_scaling = 1.0f;
 }
 
@@ -101,9 +105,9 @@ void BigHouseView::OnDraw(CDC* /*pDC*/)
   // Call render function 
  ::glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
 
-  glPushMatrix();
+  //glPushMatrix();
   RenderScene();
-  glPopMatrix();
+  //glPopMatrix();
 
   ::glFinish();
   ::SwapBuffers(m_pDC->GetSafeHdc());
@@ -183,16 +187,27 @@ void BigHouseView::OnSize(UINT nType, int cx, int cy) {
   // here, option aspection view
   ::glMatrixMode(GL_PROJECTION);
   ::glLoadIdentity();
-  ::gluPerspective(45.0f, aspect_ratio, .01f, 200.0f);
+  // ::gluPerspective(45.0f, aspect_ratio, .01f, 200.0f);
 
-    //glOrtho(m_OrthoRangeLeft * aspect_ratio, m_OrthoRangeRight * aspect_ratio,
-		//m_OrthoRangeBottom, m_OrthoRangeTop,
-		//m_OrthoRangeNear, m_OrthoRangeFar);
+  SetViewFrustum();
 
   // Select MatrixModelView
   ::glMatrixMode(GL_MODELVIEW);
   ::glLoadIdentity();
 }
+
+void BigHouseView::SetViewFrustum() {
+  double left_ = -(double)cx_ *0.5/ rendering_rate_;
+  double right_ = (double)cx_ *0.5/ rendering_rate_;
+  double top_ = (double)cy_ *0.5/ rendering_rate_;
+  double bottom_ = -(double)cy_ *0.5/ rendering_rate_;
+
+  double zfar = 2000/rendering_rate_;
+  zfar = max(2000, rendering_rate_);
+  glOrtho(left_, right_, bottom_, top_, -zfar, zfar);
+}
+
+
 
 int BigHouseView::OnCreate(LPCREATESTRUCT lpCreateStruct) {
   if (CView::OnCreate(lpCreateStruct) == -1)
@@ -228,7 +243,7 @@ BOOL BigHouseView::InitializeOpenGL() {
   // Clear depth
   glClearDepth(1.0f);
   // Enalbe depth test
-	::glEnable(GL_DEPTH_TEST);
+	//::glEnable(GL_DEPTH_TEST);
 
   // Enable color tracking
   ::glEnable(GL_COLOR_MATERIAL);
@@ -236,12 +251,10 @@ BOOL BigHouseView::InitializeOpenGL() {
 
   ::glShadeModel(GL_SMOOTH);
   // Setup lighting and material
-	
 
-  SetupLight();
+  //glEnable(GL_CULL_FACE);
+  //SetupLight();
   OnLoadTexture();
-	glDisable(GL_CULL_FACE);
-
   return TRUE;
 }
 
@@ -284,25 +297,32 @@ void BigHouseView::SetupLight() {
   glEnable(GL_LIGHTING);
   glEnable(GL_LIGHT0);
   glEnable(GL_NORMALIZE); 
-  // setup light mode
-  glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_FALSE);
-  glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_FALSE);
+  glEnable(GL_DEPTH_TEST);
+  glEnable(GL_CULL_FACE);
+ // // setup light mode
+ // glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_FALSE);
+ // glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_FALSE);
 
-  GLfloat m_SceneAmbient1[]  = {0.2f,0.3f,0.3f,1.0f};
-	GLfloat m_SceneDiffuse1[]  = {0.2f,0.4f,0.5f,1.0f};
-	GLfloat m_SceneSpecular1[] = {1.0f,1.0f,1.0f,1.0f};
-	GLfloat m_ScenePosition1[] = {0.0f,0.0f,0.0f,1.0f};
-	GLfloat m_SceneDirection1[]= {0.0f,0.0f,-1.0f,1.0f};
+ // GLfloat m_SceneAmbient1[]  = {0.2f,0.3f,0.3f,1.0f};
+	//GLfloat m_SceneDiffuse1[]  = {0.2f,0.4f,0.5f,1.0f};
+	//GLfloat m_SceneSpecular1[] = {1.0f,1.0f,1.0f,1.0f};
+	//GLfloat m_ScenePosition1[] = {0.0f,0.0f,0.0f,1.0f};
+	//GLfloat m_SceneDirection1[]= {0.0f,0.0f,-1.0f,1.0f};
 
-	glLightfv(GL_LIGHT0, GL_AMBIENT, m_SceneAmbient1); 
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, m_SceneDiffuse1); 
-	glLightfv(GL_LIGHT0, GL_SPECULAR, m_SceneSpecular1); 
-	glLightfv(GL_LIGHT0, GL_POSITION, m_ScenePosition1);
-	glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, 45.0f);
-	glLightfv(GL_LIGHT0,GL_SPOT_DIRECTION,m_SceneDirection1);
+	//glLightfv(GL_LIGHT0, GL_AMBIENT, m_SceneAmbient1); 
+	//glLightfv(GL_LIGHT0, GL_DIFFUSE, m_SceneDiffuse1); 
+	//glLightfv(GL_LIGHT0, GL_SPECULAR, m_SceneSpecular1); 
+	//glLightfv(GL_LIGHT0, GL_POSITION, m_ScenePosition1);
+	//glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, 45.0f);
+	//glLightfv(GL_LIGHT0,GL_SPOT_DIRECTION,m_SceneDirection1);
 }
 
 void BigHouseView::DisableLight() {
+  glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_FALSE);
+  glDisable(GL_POINT_SMOOTH);
+  glDisable(GL_LINE_SMOOTH);
+	glDisable(GL_BLEND);
+  glDisable(GL_CULL_FACE);
   glDisable(GL_LIGHTING);
 }
 
@@ -317,23 +337,21 @@ void BigHouseView::RenderScene() {
 
   glPushMatrix();
   glTranslatef(x_position_, y_position_, - 100.0f);
-  glRotatef(angle_x_ea_ + 45.0, 1.0f, 0.0f, 0.0f);
+  glRotatef(angle_x_ea_ - 45.0, 1.0f, 0.0f, 0.0f);
   glRotatef(angle_z_ea_ -135, 0.0f, 0.0f, 1.0f);
 
   glScalef(m_scaling, m_scaling, m_scaling);
-	glEnable(GL_DEPTH_TEST);
-  DrawCad();
-  //glDisable(GL_DEPTH_TEST);
-  //DrawGround();
-	//glEnable(GL_DEPTH_TEST);
-	 DrawRoom();
-  glPopMatrix();
 
+  SetupLight();
+  DrawCad();
+  DisableLight();
+
+	DrawRoom();
+
+  glPopMatrix();
 }
 
 void BigHouseView::DrawCad() {
-	glEnable(GL_CULL_FACE);
-	glEnable(GL_LIGHTING);
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   int a = theApp.GetNumberOfPoint();
   glColor3f(1.0, 1.0, 0.0);
@@ -631,87 +649,84 @@ void BigHouseView::LoadTexture(CString file_name, int text_name )
 }
 
 void BigHouseView::DrawRoom() { 
-	double lenght = 100;
-	double with = 100;
-	double hieght = 20;
 	glPushMatrix();
-	glTranslatef(-lenght /2.0, -with/2.0, 0);
-	// plane
-	glDisable(GL_CULL_FACE);
+  glTranslatef(-1*ROOM_LENGTH /2.0, -1*ROOM_WIDTH/2.0, 0);
+
+	//glDisable(GL_CULL_FACE);
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, m_texture[0]);
 
 	// A
-	glPushMatrix();
+	//glPushMatrix();
 	glBegin(GL_POLYGON);
-	glNormal3f(0, 1.0, 0.0);
+	//glNormal3f(0, 1.0, 0.0);
 	glTexCoord2f(0.0f, 0.0f);
 	glVertex3f(0.0, 0.0f, 0.0f);
 	glTexCoord2f(1.0f, 0.0f);
-	glVertex3f(0.0f, 0.0f, hieght);
+  glVertex3f(0.0f, 0.0f, ROOM_HEIGHT);
 	glTexCoord2f(1.0f, 1.0f);
-	glVertex3f(lenght, 0.0f, hieght);
+	glVertex3f(ROOM_LENGTH, 0.0f, ROOM_HEIGHT);
 	glTexCoord2f(0.0f, 1.0f);
-	glVertex3f(lenght, 0.0f, 0.0f);
+	glVertex3f(ROOM_LENGTH, 0.0f, 0.0f);
 	glEnd();
-	glPopMatrix();
-	glPushMatrix();
+	//glPopMatrix();
+	//glPushMatrix();
 	// B
 	glBegin(GL_POLYGON);
-	glNormal3f(0, - 1.0, 0.0);
+	//glNormal3f(0, - 1.0, 0.0);
 	glTexCoord2f(0.0f, 0.0f);
-	glVertex3f(0.0, with, 0.0f);
+  glVertex3f(0.0, ROOM_WIDTH, 0.0f);
 	glTexCoord2f(1.0f, 0.0f);
-	glVertex3f(0.0f, with, hieght);
+	glVertex3f(0.0f, ROOM_WIDTH, ROOM_HEIGHT);
 	glTexCoord2f(1.0f, 1.0f);
-	glVertex3f(lenght, with, hieght);
+	glVertex3f(ROOM_LENGTH, ROOM_WIDTH, ROOM_HEIGHT);
 	glTexCoord2f(0.0f, 1.0f);
-	glVertex3f(lenght, with, 0.0f);
+	glVertex3f(ROOM_LENGTH, ROOM_WIDTH, 0.0f);
 	glEnd();
 	// C
-	glPopMatrix();
-	glPushMatrix();
+	//glPopMatrix();
+	//glPushMatrix();
 	glBegin(GL_POLYGON);
-	glNormal3f(1.0,  0.0, 0.0);
+	//glNormal3f(1.0,  0.0, 0.0);
 	glTexCoord2f(0.0f, 0.0f);
 	glVertex3f(0.0f, 0.0f, 0.0f);
 	glTexCoord2f(1.0f, 0.0f);
-	glVertex3f(0.0f, 0.0f, hieght);
+	glVertex3f(0.0f, 0.0f, ROOM_HEIGHT);
 	glTexCoord2f(1.0f, 1.0f);
-	glVertex3f(0.0f, with, hieght);
+	glVertex3f(0.0f, ROOM_WIDTH, ROOM_HEIGHT);
 	glTexCoord2f(0.0f, 1.0f);
-	glVertex3f(0.0f, with, 0.0f);
+	glVertex3f(0.0f, ROOM_WIDTH, 0.0f);
 	glEnd();
 	//D
-	glPopMatrix();
-	glPushMatrix();
+	//glPopMatrix();
+	//glPushMatrix();
 	glBegin(GL_POLYGON);
 	// plane
-	glNormal3f( - 1.0, 0.0, 0.0);
+	//glNormal3f( - 1.0, 0.0, 0.0);
 	glTexCoord2f(0.0f, 0.0f);
-	glVertex3f(lenght, 0.0f, 0.0f);
+	glVertex3f(ROOM_LENGTH, 0.0f, 0.0f);
 	glTexCoord2f(1.0f, 0.0f);
-	glVertex3f(lenght, 0.0f, hieght);
+  glVertex3f(ROOM_LENGTH, 0.0f, ROOM_HEIGHT);
 	glTexCoord2f(1.0f, 1.0f);
-	glVertex3f(lenght, with, hieght);
+	glVertex3f(ROOM_LENGTH, ROOM_WIDTH, ROOM_HEIGHT);
 	glTexCoord2f(0.0f, 1.0f);
-	glVertex3f(lenght, with, 0.0f);
+	glVertex3f(ROOM_LENGTH, ROOM_WIDTH, 0.0f);
 	glEnd();
-	glPopMatrix();
+	//glPopMatrix();
 
-	glPushMatrix();
+	//glPushMatrix();
 	glBegin(GL_POLYGON);
-	glNormal3f(0, 0, 0.0);
+	//glNormal3f(0, 0, 0.0);
 	glTexCoord2f(0.0f, 0.0f);
 	glVertex3f(0.0, 0.0f, 0.0f);
 	glTexCoord2f(1.0f, 0.0f);
-	glVertex3f(lenght, 0.0f, 0.0f);
+	glVertex3f(ROOM_LENGTH, 0.0f, 0.0f);
 	glTexCoord2f(1.0f, 1.0f);
-	glVertex3f(lenght, with, 0.0f);
+	glVertex3f(ROOM_LENGTH, ROOM_WIDTH, 0.0f);
 	glTexCoord2f(0.0f, 1.0f);
-	glVertex3f(0.0f, with, 0.0f);
+	glVertex3f(0.0f, ROOM_WIDTH, 0.0f);
 	glEnd();
-	glPopMatrix();
+	//glPopMatrix();
 	glDisable(GL_TEXTURE_2D);
 	glPopMatrix();
 }
