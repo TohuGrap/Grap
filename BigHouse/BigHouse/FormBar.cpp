@@ -105,6 +105,7 @@ void FormBar::OnInitialUpdate() {
     int index_bitmap = CheckBitmap(current_str);
     UpdateBitmap(index_bitmap);
   } else {
+     UpdateBitmap(-1);
      option_btn->EnableWindow(FALSE);
   }
 
@@ -144,18 +145,30 @@ void FormBar::UpdateBitmap(int index_bitmap) {
     break;
   }
   case 2: {
+    CBitmap cbitmap;
+    cbitmap.LoadBitmap(IDB_BITMAP_TABLE_1);
+    bitmap_image_ctrl.SetBitmap((HBITMAP)cbitmap);
     break;
   }
   case 3: {
+    CBitmap cbitmap;
+    cbitmap.LoadBitmap(IDB_BITMAP_CHAIR);
+    bitmap_image_ctrl.SetBitmap((HBITMAP)cbitmap);
     break;
   }
   case 4: {
+    CBitmap cbitmap;
+    cbitmap.LoadBitmap(IDB_BITMAP_LONG_TABLE);
+    bitmap_image_ctrl.SetBitmap((HBITMAP)cbitmap);
     break;
   }
   case 5: {
     break;
   }
   default : {
+    CBitmap cbitmap;
+    cbitmap.LoadBitmap(IDB_BITMAP_BKGN);
+    bitmap_image_ctrl.SetBitmap((HBITMAP)cbitmap);
     break;
    }
   }
@@ -171,10 +184,16 @@ void FormBar::OnOption() {
 }
 
 int FormBar::CheckBitmap(CString str) {
-  if (str == "table.stl") {
+  if (str == "table.STL") {
     return 0;
-  } else if (str == "desk.stl") {
+  } else if (str == "desk.STL") {
     return 1;
+  } else if (str =="table_1.STL") {
+    return 2;
+  } else if (str == "chair.STL") {
+    return 3;
+  } else if (str == "long_table.STL") {
+    return 4;
   } else {
     return -1;
   }

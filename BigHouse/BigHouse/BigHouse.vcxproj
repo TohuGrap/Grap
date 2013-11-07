@@ -99,12 +99,17 @@
     <None Include="res\BigHouse.ico" />
     <None Include="res\BigHouse.rc2" />
     <None Include="res\BigHouseDoc.ico" />
+    <None Include="res\bitmap1.bmp" />
+    <None Include="res\Bknd.bmp" />
     <None Include="res\bm_desk.bmp" />
+    <None Include="res\chair.bmp" />
     <None Include="res\cone.bmp" />
     <None Include="res\desk.bmp" />
+    <None Include="res\long_table.bmp" />
     <None Include="res\Rect.bmp" />
     <None Include="res\Sphere.bmp" />
     <None Include="res\table.bmp" />
+    <None Include="res\table_1.bmp" />
     <None Include="res\tearport.bmp" />
     <None Include="res\Toolbar.bmp" />
     <None Include="res\Toolbar256.bmp" />

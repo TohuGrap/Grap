@@ -64,6 +64,21 @@
     <None Include="res\desk.bmp">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="res\bitmap1.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\table_1.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\chair.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\Bknd.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\long_table.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BigHouse.h">

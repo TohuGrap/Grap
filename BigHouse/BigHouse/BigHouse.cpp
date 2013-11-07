@@ -315,6 +315,7 @@ void BigHouseApp::LoadFileCad (CString strs) {
       delete [] value_stl;
       value_stl = NULL;
     }
+
 	  fclose(pFile);
 }
 

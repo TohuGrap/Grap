@@ -54,6 +54,7 @@ public:
   void OnLoadTexture();
   void LoadTexture(CString file_name, int text_name);
 	void DrawRoom();
+  void DrawRectangleBox(float width, float height, float depth, char solid);
   void SetPosValue(float p[3]) {
     pos[0] = p[0];
     pos[1] = p[1];

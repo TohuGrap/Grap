@@ -339,22 +339,39 @@ void BigHouseView::RenderScene() {
   glTranslatef(x_position_, y_position_, - 100.0f);
   glRotatef(angle_x_ea_ - 45.0, 1.0f, 0.0f, 0.0f);
   glRotatef(angle_z_ea_ -135, 0.0f, 0.0f, 1.0f);
-
   glScalef(m_scaling, m_scaling, m_scaling);
+  DrawCoordinate();
 
   SetupLight();
+  glPushMatrix();
+  glTranslatef(50.0, 0.0, 2.5f);
   DrawCad();
+  glPopMatrix();
+
+  glPushMatrix();
+  glTranslatef(50.0, -120.0, 2.5f);
+  DrawCad();
+  glPopMatrix();
+
+  glPushMatrix();
+  glTranslatef(-260.0, 0.0, 2.5f);
+  DrawCad();
+  glPopMatrix();
+
+  glPushMatrix();
+  glTranslatef(-260.0, -120.0, 2.5f);
+  DrawCad();
+  glPopMatrix();
   DisableLight();
 
 	DrawRoom();
-
   glPopMatrix();
 }
 
 void BigHouseView::DrawCad() {
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   int a = theApp.GetNumberOfPoint();
-  glColor3f(1.0, 1.0, 0.0);
+  glColor3f(0.9, 0.9, 0.88);
   for (unsigned long i = 0; i < theApp.GetNumberOfPoint(); i = i+3) {
     glBegin(GL_POLYGON);
     glNormal3f(theApp.GetNormalVector()[i/3][0], theApp.GetNormalVector()[i/3][1], theApp.GetNormalVector()[i/3][2]); 
@@ -368,8 +385,6 @@ void BigHouseView::DrawCad() {
   
   }
 }
-
-
 
 void BigHouseView::DrawObject() {
 
@@ -396,7 +411,6 @@ void BigHouseView::DrawObject() {
     glutSolidTetrahedron();
     glPopMatrix();
   }
-  
 
   if (object_index_ == 3) {
     glPushMatrix();
@@ -463,23 +477,22 @@ void BigHouseView::DrawSample() {
   glPopMatrix();
 }
 
-
 void BigHouseView::DrawCoordinate() {
-  glLineWidth(4.0f);
+  glLineWidth(1.0f);
   glBegin(GL_LINES);
   
   glColor3f(1.0f, 0.0, 0.0);
-  glVertex3f(-100.0, 0.0, 0.0f);
-  glVertex3f(100.0, 0.0, 0.0f);
+  glVertex3f(-1000.0, 0.0, 0.0f);
+  glVertex3f(1000.0, 0.0, 0.0f);
   
   glColor3f(0.0f, 1.0, 0.0);
-  glVertex3f(0.0f, -100.0f, 0.0f);
-  glVertex3f(0.0f, 100.0f, 0.0f);
+  glVertex3f(0.0f, -1000.0f, 0.0f);
+  glVertex3f(0.0f, 1000.0f, 0.0f);
   
   glColor3f(0.0f, 0.0, 1.0);
-  glVertex3f(0.0f, 0.0f, -100.0f);
-  glVertex3f(0.0f, 0.0f, 100.0f);
-  
+  glVertex3f(0.0f, 0.0f, -1000.0f);
+  glVertex3f(0.0f, 0.0f, 1000.0f);
+
   glEnd();
 }
 
@@ -617,8 +630,8 @@ void BigHouseView::OnLoadTexture() {
   glGenTextures(2, m_texture);
   CString str_path = Base::GetPathModule();
   
-  LoadTexture(str_path + L"\\bitmap\\Floor.bmp",  0);
-  LoadTexture(str_path + L"\\bitmap\\TAB.bmp",  1);
+  LoadTexture(str_path + L"\\bitmap\\wall.bmp",  0);
+  //LoadTexture(str_path + L"\\bitmap\\TAB.bmp",  1);
 }
 
 
@@ -648,85 +661,108 @@ void BigHouseView::LoadTexture(CString file_name, int text_name )
                     texture->data);
 }
 
-void BigHouseView::DrawRoom() { 
-	glPushMatrix();
-  glTranslatef(-1*ROOM_LENGTH /2.0, -1*ROOM_WIDTH/2.0, 0);
 
-	//glDisable(GL_CULL_FACE);
+void BigHouseView::DrawRectangleBox(float width, float height, float depth, char solid) {
+  char i, j = 0;
+  float x = width / 2.0, y = height / 2.0, z = depth / 2.0;
+  for (i = 0; i < 4; i++) {
+    glRotatef(90.0, 0.0, 0.0, 1.0);
+    if (j) {
+      if (!solid)
+        glBegin(GL_LINE_LOOP);
+      else
+        glBegin(GL_QUADS);
+      glNormal3f(-1.0, 0.0, 0.0);
+      glTexCoord2f(0.0f, 0.0f);
+      glVertex3f(-x, y, z);
+      glTexCoord2f(0.0f, 1.0f);
+      glVertex3f(-x, -y, z);
+      glTexCoord2f(1.0f, 1.0f);
+      glVertex3f(-x, -y, -z);
+      glTexCoord2f(1.0f, 0.0f);
+      glVertex3f(-x, y, -z);
+      glEnd();
+      if (solid) {
+        glBegin(GL_TRIANGLES);
+        glNormal3f(0.0, 0.0, 1.0);
+        glTexCoord2f(0.0f, 0.0f);
+        glVertex3f(0.0, 0.0, z);
+        glTexCoord2f(0.0f, 1.0f);
+        glVertex3f(-x, y, z);
+        glTexCoord2f(1.0f, 1.0f);
+        glVertex3f(-x, -y, z);
+        glNormal3f(0.0, 0.0, -1.0);
+        glTexCoord2f(0.0f, 0.0f);
+        glVertex3f(0.0, 0.0, -z);
+        glTexCoord2f(0.0f, 1.0f);
+        glVertex3f(-x, -y, -z);
+        glTexCoord2f(1.0f, 1.0f);
+        glVertex3f(-x, y, -z);
+        glEnd();
+      }
+      j = 0;
+    } else {
+      if (!solid)
+        glBegin(GL_LINE_LOOP);
+      else
+        glBegin(GL_QUADS);
+      glNormal3f(-1.0, 0.0, 0.0);
+      glTexCoord2f(0.0f, 0.0f);
+      glVertex3f(-y, x, z);
+      glTexCoord2f(0.0f, 1.0f);
+      glVertex3f(-y, -x, z);
+      glTexCoord2f(1.0f, 1.0f);
+      glVertex3f(-y, -x, -z);
+      glTexCoord2f(01.0f, 0.0f);
+      glVertex3f(-y, x, -z);
+      glEnd();
+      if (solid) {
+        glBegin(GL_TRIANGLES);
+        glNormal3f(0.0, 0.0, 1.0);
+        glTexCoord2f(0.0f, 0.0f);
+        glVertex3f(0.0, 0.0, z);
+        glTexCoord2f(0.0f, 1.0f);
+        glVertex3f(-y, x, z);
+        glTexCoord2f(1.0f, 1.0f);
+        glVertex3f(-y, -x, z);
+        glNormal3f(0.0, 0.0, -1.0);
+        glTexCoord2f(0.0f, 0.0f);
+        glVertex3f(0.0, 0.0, -z);
+        glTexCoord2f(0.0f, 1.0f);
+        glVertex3f(-y, -x, -z);
+        glTexCoord2f(1.0f, 1.0f);
+        glVertex3f(-y, x, -z);
+        glEnd();
+      }
+      j = 1;
+    }
+  }
+}
+
+void BigHouseView::DrawRoom() { 
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, m_texture[0]);
 
-	// A
-	//glPushMatrix();
-	glBegin(GL_POLYGON);
-	//glNormal3f(0, 1.0, 0.0);
-	glTexCoord2f(0.0f, 0.0f);
-	glVertex3f(0.0, 0.0f, 0.0f);
-	glTexCoord2f(1.0f, 0.0f);
-  glVertex3f(0.0f, 0.0f, ROOM_HEIGHT);
-	glTexCoord2f(1.0f, 1.0f);
-	glVertex3f(ROOM_LENGTH, 0.0f, ROOM_HEIGHT);
-	glTexCoord2f(0.0f, 1.0f);
-	glVertex3f(ROOM_LENGTH, 0.0f, 0.0f);
-	glEnd();
-	//glPopMatrix();
-	//glPushMatrix();
-	// B
-	glBegin(GL_POLYGON);
-	//glNormal3f(0, - 1.0, 0.0);
-	glTexCoord2f(0.0f, 0.0f);
-  glVertex3f(0.0, ROOM_WIDTH, 0.0f);
-	glTexCoord2f(1.0f, 0.0f);
-	glVertex3f(0.0f, ROOM_WIDTH, ROOM_HEIGHT);
-	glTexCoord2f(1.0f, 1.0f);
-	glVertex3f(ROOM_LENGTH, ROOM_WIDTH, ROOM_HEIGHT);
-	glTexCoord2f(0.0f, 1.0f);
-	glVertex3f(ROOM_LENGTH, ROOM_WIDTH, 0.0f);
-	glEnd();
-	// C
-	//glPopMatrix();
-	//glPushMatrix();
-	glBegin(GL_POLYGON);
-	//glNormal3f(1.0,  0.0, 0.0);
-	glTexCoord2f(0.0f, 0.0f);
-	glVertex3f(0.0f, 0.0f, 0.0f);
-	glTexCoord2f(1.0f, 0.0f);
-	glVertex3f(0.0f, 0.0f, ROOM_HEIGHT);
-	glTexCoord2f(1.0f, 1.0f);
-	glVertex3f(0.0f, ROOM_WIDTH, ROOM_HEIGHT);
-	glTexCoord2f(0.0f, 1.0f);
-	glVertex3f(0.0f, ROOM_WIDTH, 0.0f);
-	glEnd();
-	//D
-	//glPopMatrix();
-	//glPushMatrix();
-	glBegin(GL_POLYGON);
-	// plane
-	//glNormal3f( - 1.0, 0.0, 0.0);
-	glTexCoord2f(0.0f, 0.0f);
-	glVertex3f(ROOM_LENGTH, 0.0f, 0.0f);
-	glTexCoord2f(1.0f, 0.0f);
-  glVertex3f(ROOM_LENGTH, 0.0f, ROOM_HEIGHT);
-	glTexCoord2f(1.0f, 1.0f);
-	glVertex3f(ROOM_LENGTH, ROOM_WIDTH, ROOM_HEIGHT);
-	glTexCoord2f(0.0f, 1.0f);
-	glVertex3f(ROOM_LENGTH, ROOM_WIDTH, 0.0f);
-	glEnd();
-	//glPopMatrix();
+  glColor3f(0.0f, 1.0f, 1.0f);
+  DrawRectangleBox(600, 400, 5, 1);  // Bottom face
 
-	//glPushMatrix();
-	glBegin(GL_POLYGON);
-	//glNormal3f(0, 0, 0.0);
-	glTexCoord2f(0.0f, 0.0f);
-	glVertex3f(0.0, 0.0f, 0.0f);
-	glTexCoord2f(1.0f, 0.0f);
-	glVertex3f(ROOM_LENGTH, 0.0f, 0.0f);
-	glTexCoord2f(1.0f, 1.0f);
-	glVertex3f(ROOM_LENGTH, ROOM_WIDTH, 0.0f);
-	glTexCoord2f(0.0f, 1.0f);
-	glVertex3f(0.0f, ROOM_WIDTH, 0.0f);
-	glEnd();
-	//glPopMatrix();
+  glPushMatrix();                    // left wall
+  glTranslatef(0.0f, -200.0f, 57.5f);
+  glRotatef(90.0, 1.0, 0.0, 0.0);
+  DrawRectangleBox(600, 120, 5, 1);
+  glPopMatrix();
+
+  glPushMatrix();                    // right wall
+  glTranslatef(0.0f, 200.0f, 57.5f);
+  glRotatef(-90.0, 1.0, 0.0, 0.0);
+  DrawRectangleBox(600, 120, 5, 1);
+  glPopMatrix();
+
+  glPushMatrix();    // Back wall
+  glTranslatef(-300.0, 0.0, 57.5f);
+  glRotatef(-90.0, 0.0, 1.0, 0.0);
+  DrawRectangleBox(120, 405, 5, 1);
+  glPopMatrix();
 	glDisable(GL_TEXTURE_2D);
 	glPopMatrix();
 }
