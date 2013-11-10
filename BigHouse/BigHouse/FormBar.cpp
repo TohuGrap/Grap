@@ -9,6 +9,7 @@
 #include "MainFrm.h"
 #include "BigHouse.h"
 #include "base.h"
+#include "SetupRoomDlg.h"
 // FormBar
 
 IMPLEMENT_DYNCREATE(FormBar, CFormView)
@@ -17,9 +18,9 @@ FormBar::FormBar()
 	: CFormView(FormBar::IDD)
 {
   object_index_ = -1;
-  str_x_pos_ = L"";
-  str_y_pos_ = L"";
-  str_z_pos_ = L"";
+  size_room_.long_room = 600.0f;
+  size_room_.width_room = 400.0f;
+  size_room_.height_room = 120.0f;
 }
 
 FormBar::~FormBar()
@@ -30,18 +31,13 @@ void FormBar::DoDataExchange(CDataExchange* pDX)
 {
   CFormView::DoDataExchange(pDX);
   DDX_Control(pDX, IDC_BITMAP_PICTURE, bitmap_image_ctrl);
-  DDX_Text(pDX, IDC_EDIT_X_POS, edit_x_pos_);
-  DDX_Text(pDX, IDC_EDIT_Y_POS, edit_y_pos_);
-  DDX_Text(pDX, IDC_EDIT_Z_POS, edit_z_pos_);
   DDX_Control(pDX, IDC_LIST_FILE_OBJ, list_box_ctrl_);
+  DDX_Control(pDX, IDC_BUTTON_SETUP_ROOM, setup_room_btn_);
 }
 
 BEGIN_MESSAGE_MAP(FormBar, CFormView)
-  ON_COMMAND(IDC_OBJECT_NEXT, FormBar::OnBnNext)
   ON_COMMAND(IDC_OBJECT_OPTION, FormBar::OnOption)
-  //ON_COMMAND(IDC_EDIT_X_POS, FormBar::OnEditChangeXpos)
-  //ON_COMMAND(IDC_EDIT_Y_POS, FormBar::OnEditChangeYpos)
-  //ON_COMMAND(IDC_EDIT_Z_POS, FormBar::OnEditChangeZpos)
+  ON_COMMAND(IDC_BUTTON_SETUP_ROOM, FormBar::OnOpenSetupRoomDlg)
   ON_WM_PAINT()
   ON_WM_SIZE()
   ON_LBN_SELCHANGE(IDC_LIST_FILE_OBJ, FormBar::OnLBSelChange)
@@ -72,15 +68,6 @@ void FormBar::OnInitialUpdate() {
   CFormView::OnInitialUpdate();
   bitmap_image_ctrl.SetBitmap((HBITMAP)cbitmap_);
 
-  edit_x_pos_ = "0";
-  edit_y_pos_ = "0";
-  edit_z_pos_ = "0";
-
-  CButton* btn = reinterpret_cast<CButton*>(GetDlgItem(IDC_OBJECT_NEXT));
-  btn->EnableWindow(FALSE);
-  UpdateData(FALSE);
-
-
   CString str = Base::GetPathModule();
   str = str + _T("\\cad\\");
   std::string str_cad = CStringA(str);
@@ -108,7 +95,7 @@ void FormBar::OnInitialUpdate() {
      UpdateBitmap(-1);
      option_btn->EnableWindow(FALSE);
   }
-
+  
   UpdateData(FALSE);
 }
 
@@ -127,8 +114,6 @@ BigHouseView *FormBar::GetBigHouseView() {
   return pView;
 }
 
-void FormBar::OnBnNext() {
-}
 
 void FormBar::UpdateBitmap(int index_bitmap) {
   switch(index_bitmap) {
@@ -199,20 +184,6 @@ int FormBar::CheckBitmap(CString str) {
   }
 }
 
-void FormBar::OnEditChangeXpos() {
-  str_x_pos_ = edit_x_pos_;
-}
-
-void FormBar::OnEditChangeYpos() {
-  UpdateData(TRUE);
-  str_y_pos_ = edit_y_pos_;
-}
-
-void FormBar::OnEditChangeZpos() {
-  UpdateData(TRUE);
-  str_z_pos_ = edit_z_pos_;
-}
-
 void FormBar::OnLBSelChange() {
   CButton *option_btn = reinterpret_cast<CButton*>(GetDlgItem(IDC_OBJECT_OPTION));
   int index = list_box_ctrl_.GetCurSel();
@@ -225,4 +196,13 @@ void FormBar::OnLBSelChange() {
   } else {
      option_btn->EnableWindow(FALSE);
   }
+}
+
+void FormBar::OnOpenSetupRoomDlg() {
+  SetupRoomDlg dlg(size_room_.long_room, size_room_.width_room, size_room_.height_room);
+  if (dlg.DoModal() == IDOK) {
+    size_room_ = dlg.GetSizeRoom();
+  }
+
+  GetBigHouseView()->InvalidateRect(NULL, FALSE);
 }

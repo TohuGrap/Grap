@@ -740,28 +740,34 @@ void BigHouseView::DrawRectangleBox(float width, float height, float depth, char
 }
 
 void BigHouseView::DrawRoom() { 
+  size_room_ =  form_bar_->GetSizeRoom();
+  float longs = size_room_.long_room;
+  float width = size_room_.width_room;
+  float height = size_room_.height_room;
+
+
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, m_texture[0]);
 
   glColor3f(0.0f, 1.0f, 1.0f);
-  DrawRectangleBox(600, 400, 5, 1);  // Bottom face
+  DrawRectangleBox(longs, width, 5, 1);  // Bottom face // 600 400 120
 
   glPushMatrix();                    // left wall
-  glTranslatef(0.0f, -200.0f, 57.5f);
+  glTranslatef(0.0f, -1*(width/2), (height/2)-2.5);
   glRotatef(90.0, 1.0, 0.0, 0.0);
-  DrawRectangleBox(600, 120, 5, 1);
+  DrawRectangleBox(longs, height, 5, 1);
   glPopMatrix();
 
   glPushMatrix();                    // right wall
-  glTranslatef(0.0f, 200.0f, 57.5f);
+  glTranslatef(0.0f, width/2, (height/2)-2.5);
   glRotatef(-90.0, 1.0, 0.0, 0.0);
-  DrawRectangleBox(600, 120, 5, 1);
+  DrawRectangleBox(longs, height, 5, 1);
   glPopMatrix();
 
   glPushMatrix();    // Back wall
-  glTranslatef(-300.0, 0.0, 57.5f);
+  glTranslatef(-1*(longs/2), 0.0, (height/2)-2.5);
   glRotatef(-90.0, 0.0, 1.0, 0.0);
-  DrawRectangleBox(120, 405, 5, 1);
+  DrawRectangleBox(height, width + 5, 5, 1);
   glPopMatrix();
 	glDisable(GL_TEXTURE_2D);
 	glPopMatrix();

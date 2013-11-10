@@ -1,7 +1,7 @@
 #pragma once
 #include "resource.h"
 #include "afxwin.h"
-
+#include "struct.h"
 class BigHouseView;
 class BigHouseDoc;
 
@@ -29,6 +29,7 @@ public:
   BigHouseView* GetBigHouseView();
   void UpdateBitmap(int index_bitmap);
   int CheckBitmap(CString str);
+  SizeRoom GetSizeRoom() {return size_room_;}
   enum ObjectShape {
     OBJ_TABLE = 0,
     OBJ_DESK = 1,
@@ -36,31 +37,21 @@ public:
 protected:
   CStatic bitmap_image_ctrl;
   CBitmap cbitmap_;
-
-  CString str_x_pos_;
-  CString str_y_pos_;
-  CString str_z_pos_;
-
+  SizeRoom size_room_;
 protected:
   virtual void OnPaint();
   virtual void OnInitialUpdate();
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
   afx_msg void OnLBSelChange();
-  afx_msg void OnBnNext();
   afx_msg void OnSize(UINT nType, int cx, int cy);
   afx_msg void OnOption();
-  afx_msg void OnEditChangeXpos();
-  afx_msg void OnEditChangeYpos();
-  afx_msg void OnEditChangeZpos();
-
+  afx_msg void OnOpenSetupRoomDlg();
 	DECLARE_MESSAGE_MAP()
 private:
   int object_index_;
 protected:
-  CString edit_x_pos_;
-  CString edit_y_pos_;
-  CString edit_z_pos_;
   CListBox list_box_ctrl_;
+  CButton setup_room_btn_;
 };
 
 

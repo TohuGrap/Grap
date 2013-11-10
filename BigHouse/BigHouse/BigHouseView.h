@@ -5,6 +5,7 @@
 #pragma once
 #include "FormBar.h"
 #include "BigHouseDoc.h"
+#include "struct.h"
 
 #define PI 3.1415926535
 class BigHouseView : public CView
@@ -55,6 +56,7 @@ public:
   void LoadTexture(CString file_name, int text_name);
 	void DrawRoom();
   void DrawRectangleBox(float width, float height, float depth, char solid);
+  void SetSizeRoom(SizeRoom size_room) {size_room_ = size_room;}
   void SetPosValue(float p[3]) {
     pos[0] = p[0];
     pos[1] = p[1];
@@ -64,6 +66,7 @@ public:
 protected:
   float pos[3];
 
+  SizeRoom size_room_;
   int object_index_;
   int pixel_format_;
   FormBar* form_bar_;

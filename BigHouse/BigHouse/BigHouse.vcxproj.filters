@@ -108,6 +108,12 @@
     <ClInclude Include="base.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SetupRoomDlg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="struct.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BigHouse.cpp">
@@ -127,6 +133,9 @@
     </ClCompile>
     <ClCompile Include="FormBar.cpp">
       <Filter>Source Files\FormBar</Filter>
+    </ClCompile>
+    <ClCompile Include="SetupRoomDlg.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
