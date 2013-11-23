@@ -69,6 +69,13 @@ public:
 	void ConvertScrenToOpengl(CPoint &point, Vector3D &point_3D);
 	bool LineCutSurface(Vector3D &dir, Vector3D &pos,Vector3D &n, Vector3D &A, Vector3D &B);
 	bool LineCutBoundingBox(Vector3D &dir, Vector3D &pos, Vector3D &bbmin, Vector3D &bbmax);
+
+  void SetShefLong(float longs) {shelf_long_ = longs;};
+  void SetShefWidth(float width) {shelf_width_ = width;};
+  void SetShefHeight(float height) {shelf_height_ = height;};
+  void SetNumberOfShelf(float nums) {number_shelf_ = nums;};
+  void SetNumberOfFloor(float numf) {number_floor_ = numf;};
+  void SetIsTurningBack(bool is_tb) {is_turnning_back_ = is_tb;}
 protected:
   float pos[3];
 
@@ -114,6 +121,14 @@ protected:
   int cx_; // size of window
   int cy_; 
   
+
+  // variable about shelf
+  float shelf_long_;
+  float shelf_width_;
+  float shelf_height_;
+  int number_shelf_;
+  int number_floor_;
+  int is_turnning_back_;
 // Generated message map functions
 private:
 	bool right_button_down_;

@@ -80,6 +80,13 @@ BigHouseView::BigHouseView():
 	left_button_down_ = false;
 	phi_ = 0;
 	theta_ = 45;
+
+  shelf_long_ = 0.0;
+  shelf_width_ = 0.0;
+  shelf_height_ = 0.0;
+  number_shelf_ = 0;
+  number_floor_ = 0;
+  is_turnning_back_ = false;
 }
 
 BigHouseView::~BigHouseView()

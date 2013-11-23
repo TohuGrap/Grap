@@ -17,9 +17,9 @@ FormBar::FormBar()
 	: CFormView(FormBar::IDD)
 {
   object_index_ = -1;
-  str_x_pos_ = L"";
-  str_y_pos_ = L"";
-  str_z_pos_ = L"";
+  str_shelf_long_ = L"";
+  str_shelf_width_ = L"";
+  str_shelf_height_ = L"";
 }
 
 FormBar::~FormBar()
@@ -30,18 +30,23 @@ void FormBar::DoDataExchange(CDataExchange* pDX)
 {
   CFormView::DoDataExchange(pDX);
   DDX_Control(pDX, IDC_BITMAP_PICTURE, bitmap_image_ctrl);
-  DDX_Text(pDX, IDC_EDIT_X_POS, edit_x_pos_);
-  DDX_Text(pDX, IDC_EDIT_Y_POS, edit_y_pos_);
-  DDX_Text(pDX, IDC_EDIT_Z_POS, edit_z_pos_);
+  DDX_Text(pDX, IDC_EDIT_NUMBER_SHELF, edit_number_of_shelf_);
+  DDX_Text(pDX, IDC_EDIT_SHELF_LONG,  edit_shelf_long_);
+  DDX_Text(pDX, IDC_EDIT_SHELF_WIDTH, edit_shelf_width_);
+  DDX_Text(pDX, IDC_EDIT_SHELF_HEIGH, edit_shelf_height_);
+  DDX_Text(pDX, IDC_EDIT_NUMBER_FLOOR, edit_number_of_floor_);
+  DDX_Check(pDX, IDC_CHECK_IS_TURNNING_BACK, is_turning_back_);
   DDX_Control(pDX, IDC_LIST_FILE_OBJ, list_box_ctrl_);
 }
 
 BEGIN_MESSAGE_MAP(FormBar, CFormView)
   ON_COMMAND(IDC_OBJECT_NEXT, FormBar::OnBnNext)
   ON_COMMAND(IDC_OBJECT_OPTION, FormBar::OnOption)
-  //ON_COMMAND(IDC_EDIT_X_POS, FormBar::OnEditChangeXpos)
-  //ON_COMMAND(IDC_EDIT_Y_POS, FormBar::OnEditChangeYpos)
-  //ON_COMMAND(IDC_EDIT_Z_POS, FormBar::OnEditChangeZpos)
+  ON_EN_CHANGE(IDC_EDIT_NUMBER_SHELF, &FormBar::OnNumberOfShelf)
+  ON_EN_CHANGE(IDC_EDIT_SHELF_LONG, &FormBar::OnEditShelfLong)
+  ON_EN_CHANGE(IDC_EDIT_SHELF_WIDTH, &FormBar::OnEditShelfWidth)
+  ON_EN_CHANGE(IDC_EDIT_SHELF_HEIGH, &FormBar::OnEditShelfHeight)
+  ON_EN_CHANGE(IDC_EDIT_NUMBER_FLOOR, &FormBar::OnNumberOfFloor)
   ON_WM_PAINT()
   ON_WM_SIZE()
   ON_LBN_SELCHANGE(IDC_LIST_FILE_OBJ, FormBar::OnLBSelChange)
@@ -72,9 +77,12 @@ void FormBar::OnInitialUpdate() {
   CFormView::OnInitialUpdate();
   bitmap_image_ctrl.SetBitmap((HBITMAP)cbitmap_);
 
-  edit_x_pos_ = "0";
-  edit_y_pos_ = "0";
-  edit_z_pos_ = "0";
+  edit_number_of_shelf_ = L"0";
+  edit_shelf_long_ = L"0";
+  edit_shelf_height_ = L"0";
+  edit_shelf_width_ = L"0";
+  edit_number_of_floor_ = L"0";
+  is_turning_back_ = 0;
 
   CButton* btn = reinterpret_cast<CButton*>(GetDlgItem(IDC_OBJECT_NEXT));
   btn->EnableWindow(FALSE);
@@ -168,6 +176,28 @@ void FormBar::OnOption() {
   theApp.LoadFileCad(current_str);
   int index_bitmap = CheckBitmap(current_str);
   UpdateBitmap(index_bitmap);
+
+  // Get info from fomrview to view
+  float longs = _ttof(edit_shelf_long_);
+  float height = _ttof(str_shelf_height_);
+  float width = _ttof(str_shelf_width_);
+  float nums = _ttof(str_number_of_shelf_);
+  float numf = _ttof(str_number_of_floor_);
+  bool is_tb = false;
+
+
+  GetBigHouseView()->SetShefLong(longs);
+  GetBigHouseView()->SetShefWidth(width);
+  GetBigHouseView()->SetShefHeight(height);
+  GetBigHouseView()->SetNumberOfShelf(nums);
+  GetBigHouseView()->SetNumberOfFloor(numf);
+
+  UpdateData(TRUE);
+  if (is_turning_back_ == 1) 
+    is_tb = true;
+  else 
+    is_tb = false;
+  GetBigHouseView()->SetIsTurningBack(is_tb);
 }
 
 int FormBar::CheckBitmap(CString str) {
@@ -180,18 +210,29 @@ int FormBar::CheckBitmap(CString str) {
   }
 }
 
-void FormBar::OnEditChangeXpos() {
-  str_x_pos_ = edit_x_pos_;
+void FormBar::OnNumberOfFloor() {
+  UpdateData(TRUE);
+  str_number_of_floor_ = edit_number_of_floor_;
 }
 
-void FormBar::OnEditChangeYpos() {
+void FormBar::OnNumberOfShelf() {
   UpdateData(TRUE);
-  str_y_pos_ = edit_y_pos_;
+  str_number_of_shelf_ = edit_number_of_shelf_;
 }
 
-void FormBar::OnEditChangeZpos() {
+void FormBar::OnEditShelfLong() {
   UpdateData(TRUE);
-  str_z_pos_ = edit_z_pos_;
+  str_shelf_long_ = edit_shelf_long_;
+}
+
+void FormBar::OnEditShelfWidth() {
+  UpdateData(TRUE);
+  str_shelf_width_ = edit_shelf_width_;
+}
+
+void FormBar::OnEditShelfHeight() {
+  UpdateData(TRUE);
+  str_shelf_height_ = edit_shelf_height_;
 }
 
 void FormBar::OnLBSelChange() {

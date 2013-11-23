@@ -37,9 +37,11 @@ protected:
   CStatic bitmap_image_ctrl;
   CBitmap cbitmap_;
 
-  CString str_x_pos_;
-  CString str_y_pos_;
-  CString str_z_pos_;
+  CString str_shelf_long_;
+  CString str_shelf_width_;
+  CString str_shelf_height_;
+  CString str_number_of_shelf_;
+  CString str_number_of_floor_;
 
 protected:
   virtual void OnPaint();
@@ -49,17 +51,21 @@ protected:
   afx_msg void OnBnNext();
   afx_msg void OnSize(UINT nType, int cx, int cy);
   afx_msg void OnOption();
-  afx_msg void OnEditChangeXpos();
-  afx_msg void OnEditChangeYpos();
-  afx_msg void OnEditChangeZpos();
-
+  afx_msg void OnEditShelfLong();
+  afx_msg void OnEditShelfWidth();
+  afx_msg void OnEditShelfHeight();
+  afx_msg void OnNumberOfShelf();
+  afx_msg void OnNumberOfFloor();
 	DECLARE_MESSAGE_MAP()
 private:
   int object_index_;
 protected:
-  CString edit_x_pos_;
-  CString edit_y_pos_;
-  CString edit_z_pos_;
+  CString edit_number_of_shelf_;
+  CString edit_shelf_long_;
+  CString edit_shelf_width_;
+  CString edit_shelf_height_;
+  CString edit_number_of_floor_;
+  int is_turning_back_;
   CListBox list_box_ctrl_;
 };
 
