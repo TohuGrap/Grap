@@ -120,8 +120,11 @@
     <ClInclude Include="FormBar.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="Shelf.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="Triangle3D.h" />
+    <ClInclude Include="Vector3D.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BigHouse.cpp" />
@@ -129,10 +132,13 @@
     <ClCompile Include="BigHouseView.cpp" />
     <ClCompile Include="FormBar.cpp" />
     <ClCompile Include="MainFrm.cpp" />
+    <ClCompile Include="Shelf.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Triangle3D.cpp" />
+    <ClCompile Include="Vector3D.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="BigHouse.rc" />

@@ -8,7 +8,8 @@
 #endif
 
 #include "resource.h"       // main symbols
-
+#include "Triangle3D.h"
+#include <vector>
 
 // BigHouseApp:
 // See BigHouse.cpp for the implementation of this class
@@ -21,22 +22,32 @@ typedef struct _Triangle {
  Point Vertex[3];
 } Triangle;
 
+struct RectBody{
+	Vector3D bbmin;
+	Vector3D bbmax;
+};
+
 class BigHouseApp : public CWinAppEx
 {
 public:
 	BigHouseApp();
+	~BigHouseApp();
 
 
 // Overrides
 public:
 	virtual BOOL InitInstance();
 	virtual int ExitInstance();
-
+std::vector<std::pair<RectBody, std::vector<Triangle3D*>>> GetCadBoy();
 private:
+	void GetRectBody(std::vector<Triangle3D*> &cad_body);
+
   long number_of_point_;
   BOOL allow_draw_data_;
   Triangle *gl_point_;
   Vector *normal_vector_;
+	std::vector<Triangle3D*> cad_body_;
+	std::vector<std::pair<RectBody, std::vector<Triangle3D*>>> list_cad_boydy_;
 
 // Implementation
 	BOOL  m_bHiColorIcons;

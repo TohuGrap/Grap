@@ -5,6 +5,9 @@
 #pragma once
 #include "FormBar.h"
 #include "BigHouseDoc.h"
+#include "Vector3D.h"
+#include "Triangle3D.h"
+#include "Shelf.h"
 
 #define PI 3.1415926535
 class BigHouseView : public CView
@@ -60,6 +63,12 @@ public:
     pos[2] = p[2];
   }
   void DrawCad();
+	void ViewDirection();
+	void GetVectorPerpendicularToThescreen(Vector3D &v_oz);
+	int MoveBody(Vector3D &pos, Vector3D &point_m_on_plane);
+	void ConvertScrenToOpengl(CPoint &point, Vector3D &point_3D);
+	bool LineCutSurface(Vector3D &dir, Vector3D &pos,Vector3D &n, Vector3D &A, Vector3D &B);
+	bool LineCutBoundingBox(Vector3D &dir, Vector3D &pos, Vector3D &bbmin, Vector3D &bbmax);
 protected:
   float pos[3];
 
@@ -106,10 +115,26 @@ protected:
   int cy_; 
   
 // Generated message map functions
+private:
+	bool right_button_down_;
+	bool left_button_down_;
+	double phi_;
+	double theta_;
+	Vector3D point_m_in_opengl_;
+	Vector3D dr_oz_;
+	std::vector<Vector3D> list_body_;
+	Vector3D first_post_;
+	std::vector<std::pair<RectBody, std::vector<Triangle3D*>>> all_body_;
+	Vector3D l_point_button_down_;
+	Vector3D move_body_;
+	int move_count_;
+
 protected:
 	afx_msg void OnFilePrintPreview();
 	afx_msg void OnRButtonUp(UINT nFlags, CPoint point);
   afx_msg void OnRButtonDown(UINT nFlags, CPoint point);
+	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
+  afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
 	afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
   afx_msg void OnSize(UINT nType, int cx, int cy);
   afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);

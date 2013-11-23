@@ -12,7 +12,6 @@
 #include "BigHouseDoc.h"
 #include "BigHouseView.h"
 #include "base.h"
-
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -20,9 +19,9 @@
 
 // BigHouseView
 #define SIZE_GROUND 50
-const float ROOM_LENGTH = 100.0f;
-const	float ROOM_WIDTH = 100.0f;
-const float ROOM_HEIGHT = 20.0f;
+const float ROOM_LENGTH =1000.0f;
+const	float ROOM_WIDTH = 1000.0f;
+const float ROOM_HEIGHT = 0.0f;
 
 #define M_PI 3.14
 IMPLEMENT_DYNCREATE(BigHouseView, CView)
@@ -34,10 +33,12 @@ BEGIN_MESSAGE_MAP(BigHouseView, CView)
 	ON_COMMAND(ID_FILE_PRINT_PREVIEW, &BigHouseView::OnFilePrintPreview)
 	ON_WM_CONTEXTMENU()
 	ON_WM_RBUTTONUP()
+	ON_WM_LBUTTONUP()
   ON_WM_SIZE()
   ON_WM_CREATE()
   ON_WM_KEYDOWN()
   ON_WM_RBUTTONDOWN()
+	ON_WM_LBUTTONDOWN()
   ON_WM_MOUSEMOVE()
   ON_WM_MOUSEWHEEL()
   ON_WM_DESTROY()
@@ -75,6 +76,10 @@ BigHouseView::BigHouseView():
 	m_OrthoRangeFar = 100.0f;
   rendering_rate_ = 2.0f;
   m_scaling = 1.0f;
+	right_button_down_ = false;
+	left_button_down_ = false;
+	phi_ = 0;
+	theta_ = 45;
 }
 
 BigHouseView::~BigHouseView()
@@ -106,6 +111,7 @@ void BigHouseView::OnDraw(CDC* /*pDC*/)
  ::glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
 
   //glPushMatrix();
+  SetViewFrustum();
   RenderScene();
   //glPopMatrix();
 
@@ -187,9 +193,9 @@ void BigHouseView::OnSize(UINT nType, int cx, int cy) {
   // here, option aspection view
   ::glMatrixMode(GL_PROJECTION);
   ::glLoadIdentity();
-  // ::gluPerspective(45.0f, aspect_ratio, .01f, 200.0f);
-
-  SetViewFrustum();
+  //::gluPerspective(45.0f, aspect_ratio, 0.01f,-200.0f);
+	 gluPerspective(0,aspect_ratio,0.01,200);
+  // SetViewFrustum();
 
   // Select MatrixModelView
   ::glMatrixMode(GL_MODELVIEW);
@@ -243,18 +249,19 @@ BOOL BigHouseView::InitializeOpenGL() {
   // Clear depth
   glClearDepth(1.0f);
   // Enalbe depth test
-	//::glEnable(GL_DEPTH_TEST);
+	::glEnable(GL_DEPTH_TEST);
 
   // Enable color tracking
   ::glEnable(GL_COLOR_MATERIAL);
-  ::glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+  //::glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
 
   ::glShadeModel(GL_SMOOTH);
   // Setup lighting and material
 
   //glEnable(GL_CULL_FACE);
-  //SetupLight();
+  SetupLight();
   OnLoadTexture();
+	gluLookAt(0, 0, 1, 0, 0, 0,0, 1, 0);
   return TRUE;
 }
 
@@ -293,28 +300,31 @@ BOOL BigHouseView::SetupPixelFormat() {
 }
 
 void BigHouseView::SetupLight() {
-  // Enable lighting
   glEnable(GL_LIGHTING);
   glEnable(GL_LIGHT0);
   glEnable(GL_NORMALIZE); 
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_CULL_FACE);
- // // setup light mode
- // glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_FALSE);
- // glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_FALSE);
+	glEnable(GL_DIFFUSE);
+  glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_FALSE);
+  glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_FALSE);
 
- // GLfloat m_SceneAmbient1[]  = {0.2f,0.3f,0.3f,1.0f};
-	//GLfloat m_SceneDiffuse1[]  = {0.2f,0.4f,0.5f,1.0f};
-	//GLfloat m_SceneSpecular1[] = {1.0f,1.0f,1.0f,1.0f};
-	//GLfloat m_ScenePosition1[] = {0.0f,0.0f,0.0f,1.0f};
-	//GLfloat m_SceneDirection1[]= {0.0f,0.0f,-1.0f,1.0f};
+  GLfloat m_SceneAmbient1[]  = {0.3f,0.4f,0.3f,1.0f};
+	GLfloat m_SceneDiffuse1[]  = {0.4f,1.0f,0.5f,1.0f};
+	GLfloat m_SceneSpecular1[] = {1.0f,1.0f,1.0f,1.0f};
+	GLfloat m_ScenePosition1[] = {0.0f,0.0f, 200.0f,0.0f};
+	GLfloat m_SceneDirection1[]= {0.0f,0.0f,1.0f,0.0f};
+	GLfloat whiteSpecularLight[] = {1.0, 1.0, 1.0}; 
+	GLfloat blackAmbientLight[] = {0.0, 0.0, 0.0};
+	GLfloat whiteDiffuseLight[] = {1.0, 1.0, 1.0};
+	GLfloat mShininess[] = {128}; //set the shininess of the 
 
-	//glLightfv(GL_LIGHT0, GL_AMBIENT, m_SceneAmbient1); 
-	//glLightfv(GL_LIGHT0, GL_DIFFUSE, m_SceneDiffuse1); 
-	//glLightfv(GL_LIGHT0, GL_SPECULAR, m_SceneSpecular1); 
-	//glLightfv(GL_LIGHT0, GL_POSITION, m_ScenePosition1);
-	//glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, 45.0f);
-	//glLightfv(GL_LIGHT0,GL_SPOT_DIRECTION,m_SceneDirection1);
+	glLightfv(GL_LIGHT0, GL_AMBIENT, m_SceneAmbient1); 
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, m_SceneDiffuse1); 
+	glLightfv(GL_LIGHT0, GL_SPECULAR, m_SceneSpecular1); 
+	glLightfv(GL_LIGHT0, GL_POSITION, m_ScenePosition1);
+ 	glLightf(GL_LIGHT0, GL_SPOT_CUTOFF,100.0f);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mShininess);
 }
 
 void BigHouseView::DisableLight() {
@@ -334,39 +344,72 @@ void BigHouseView::RenderScene() {
 	glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	::glMatrixMode(GL_MODELVIEW);
+	SetViewFrustum();
+	ViewDirection();
+ // glPushMatrix();
+//	glTranslated(0,0,01)
+ // //glRotatef(angle_x_ea_ - 45.0, 1.0f, 0.0f, 0.0f);
+ //// glRotatef(angle_z_ea_ -135, 0.0f, 0.0f, 1.0f);
+	//glDisable(GL_LIGHTING);
+	//glColor3f(1,0,0);
+	//glPointSize(5.0f);
+	//glBegin(GL_POINTS);
+ // 	glVertex3f(point_m_in_opengl_.v[0], point_m_in_opengl_.v[1], point_m_in_opengl_.v[2]);
+ // glEnd();
 
-  glPushMatrix();
-  glTranslatef(x_position_, y_position_, - 100.0f);
-  glRotatef(angle_x_ea_ - 45.0, 1.0f, 0.0f, 0.0f);
-  glRotatef(angle_z_ea_ -135, 0.0f, 0.0f, 1.0f);
 
-  glScalef(m_scaling, m_scaling, m_scaling);
-
-  SetupLight();
+	glEnable(GL_LIGHTING);
+  //glScalef(m_scaling, m_scaling, m_scaling);
+  //SetupLight();
+	glPushMatrix();
+	 DisableLight();
+	 Shelf shelf;
+	 SetupLight();
+	 shelf.DrawShelf();
   DrawCad();
+	glPopMatrix();
   DisableLight();
-
 	DrawRoom();
 
-  glPopMatrix();
+  //glPopMatrix();
 }
 
 void BigHouseView::DrawCad() {
-  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-  int a = theApp.GetNumberOfPoint();
-  glColor3f(1.0, 1.0, 0.0);
-  for (unsigned long i = 0; i < theApp.GetNumberOfPoint(); i = i+3) {
-    glBegin(GL_POLYGON);
-    glNormal3f(theApp.GetNormalVector()[i/3][0], theApp.GetNormalVector()[i/3][1], theApp.GetNormalVector()[i/3][2]); 
-    //glTexCoord2f(0.0f, 0.0f);
-	  glVertex3f(theApp.GetTrianglePoint()->Vertex[i][0], theApp.GetTrianglePoint()->Vertex[i][1], theApp.GetTrianglePoint()->Vertex[i][2]);
-    //glTexCoord2f(1.0f, 0.0f);
-	  glVertex3f(theApp.GetTrianglePoint()->Vertex[i+1][0], theApp.GetTrianglePoint()->Vertex[i+1][1], theApp.GetTrianglePoint()->Vertex[i+1][2]);
-    //glTexCoord2f(0.0f, 1.0f);
-	  glVertex3f(theApp.GetTrianglePoint()->Vertex[i+2][0], theApp.GetTrianglePoint()->Vertex[i+2][1], theApp.GetTrianglePoint()->Vertex[i+2][2]);
-	glEnd();
-  
-  }
+	SetupLight();
+  //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  glColor3f(1.0, 1.0, 1.0);
+  std::vector<std::pair<RectBody, std::vector<Triangle3D*>>> all_body;
+  all_body = theApp.GetCadBoy();
+	if(all_body.size() != all_body_.size()) {
+		int size_bd = all_body_.size();
+		for(int i = size_bd; i < all_body.size(); i ++) {
+			all_body_.push_back(all_body.at(i));
+		}
+	}
+
+	for(int i = 0; i < all_body_.size(); i ++) {
+		std::vector<Triangle3D*> body = all_body_.at(i).second;
+		Vector3D cen = all_body_.at(i).first.bbmax + all_body_.at(i).first.bbmin;
+    cen = cen*0.5;
+
+		glPushMatrix();
+		glTranslatef(cen.v[0], cen.v[1], cen.v[2]);
+		if(left_button_down_ && move_count_ == i) {
+			glTranslatef (move_body_.v[0], move_body_.v[1], move_body_.v[2]);
+		}
+		SetupLight();
+		glBegin(GL_TRIANGLES); 
+		for(int j = 0; j < body.size(); j ++) {
+			glNormal3fv(body.at(j)->normal.v);
+			glVertex3fv(body.at(j)->m_v0.v);
+			glVertex3fv(body.at(j)->m_v1.v);
+			glVertex3fv(body.at(j)->m_v2.v);
+		}
+		//  glPopMatrix();
+		glEnd();
+		glPopMatrix();
+	}
 }
 
 
@@ -509,19 +552,96 @@ void BigHouseView::OnRButtonUp(UINT nFlags, CPoint point)
 	//OnContextMenu(this, point);  // Create menu cut copy paste
   mouse_down_point_ = CPoint(0, 0);
   ReleaseCapture();
+	right_button_down_ = false;
   //CView::OnLButtonUp(nFlags, point);
 }
 
+void BigHouseView::OnLButtonUp(UINT nFlags, CPoint point) {
+	left_button_down_ = false;
+	if(!all_body_.empty() && move_count_ != - 1) {
+		/*all_body_.at(move_count_).first.bbmax*/ Vector3D temp1 = all_body_.at(move_count_).first.bbmax + move_body_;
+		all_body_.at(move_count_).first.bbmax = temp1;
+		/*all_body_.at(move_count_).first.bbmin*/ Vector3D temp2 = all_body_.at(move_count_).first.bbmin + move_body_;
+		all_body_.at(move_count_).first.bbmin = temp2;
+	}
+	move_count_ = - 1;
+}
+
 void BigHouseView::OnRButtonDown(UINT nFlags, CPoint point) {
-   mouse_down_point_ = point;
+  mouse_down_point_ = point;
   SetCapture();
+	right_button_down_ = true;
   //CView::OnLButtonDown(nFlags, point);
+}
+
+void BigHouseView::OnLButtonDown(UINT nFlags, CPoint point) { 
+	ConvertScrenToOpengl(point, l_point_button_down_);
+	move_count_ = MoveBody(l_point_button_down_, l_point_button_down_);
+	left_button_down_ = true;
+	CView::OnLButtonDown(nFlags, point);
+}
+
+void BigHouseView::ConvertScrenToOpengl(CPoint &point, Vector3D &point_3D) {
+  GLint viewport[4];
+  GLdouble modelview[16];
+  GLdouble projection[16];
+  GLdouble winX, winY, winZ;
+
+  glGetDoublev( GL_PROJECTION_MATRIX, projection );
+  glGetDoublev( GL_MODELVIEW_MATRIX, modelview );
+  glGetIntegerv( GL_VIEWPORT, viewport );
+
+  winX = (GLdouble)point.x;
+  winY = (GLdouble)viewport[3] - (GLdouble)point.y;
+  winZ = 0.1;//(GLdouble)screen_point.v[2];
+  GLdouble v[3];
+  gluUnProject(winX, winY, winZ,
+               modelview, projection, viewport, v, v + 1, v + 2);
+	Vector3D pos(v[0], v[1],v[2]);
+	point_3D.Set(v[0], v[1], v[2]);
 }
 
 
 void BigHouseView::OnMouseMove(UINT nFlags, CPoint point) {
-  // TODO: Add your message handler code here and/or call default
-  // Check if we have captured the mouse
+	//*************huu.nv***************
+	if(right_button_down_) {
+  	phi_ -= ((double)(point.x - mouse_down_point_.x))/3.60;
+		if(phi_ > 360) {
+			phi_ = phi_ - 360;
+		} else if( phi_ < - 360) {
+			phi_ = phi_ + 360;
+		}
+
+		theta_ += ((double)(point.y - mouse_down_point_.y))/3.60;
+		if(theta_ > 360) {
+			theta_ = theta_ - 360;
+		} else if( theta_ < - 360) {
+			theta_ = theta_ + 360;
+		}
+	}
+  GLint viewport[4];
+  GLdouble modelview[16];
+  GLdouble projection[16];
+  GLdouble winX, winY, winZ;
+
+  glGetDoublev( GL_PROJECTION_MATRIX, projection );
+  glGetDoublev( GL_MODELVIEW_MATRIX, modelview );
+  glGetIntegerv( GL_VIEWPORT, viewport );
+
+  winX = (GLdouble)point.x;
+  winY = (GLdouble)viewport[3] - (GLdouble)point.y;
+  winZ = 0.1;//(GLdouble)screen_point.v[2];
+  GLdouble v[3];
+  gluUnProject(winX, winY, winZ,
+               modelview, projection, viewport, v, v + 1, v + 2);
+	Vector3D pos(v[0], v[1],v[2]);
+	Vector3D u;
+	MoveBody(pos, u);
+	move_body_ = u - l_point_button_down_;
+
+	//point_m_in_opengl_.Set(v[0], v[1], v[2]);
+  InvalidateRect(NULL,FALSE);
+  //**********************************
   CView::OnMouseMove(nFlags, point);
   if (GetCapture() == this) {
     //Increment the object rotation angles
@@ -534,16 +654,56 @@ void BigHouseView::OnMouseMove(UINT nFlags, CPoint point) {
   }
 }
 
+void BigHouseView::ViewDirection() {
+	double phi = phi_*3.1415/180.0;
+	double theta = theta_*3.1415/180.0;
+	Vector3D gradien;
+	gradien.v[0] = cos(phi)*sin(theta);
+	gradien.v[1] = sin(phi)*sin(theta);
+	gradien.v[2] = cos(theta);
+	Vector3D oz(0,0,1);	
+	Vector3D cam_up;
+	Vector3D temp;
+	if((theta_ < 180 && theta_ > 0) || theta_ < -180){
+		temp = oz*gradien;
+	} else {
+		temp = gradien*oz;
+	}
+	if(temp.abs() < 0.01) {
+	  cam_up.v[0] = - cos(phi);
+		cam_up.v[1] =  - sin(phi);
+		cam_up.v[2] = 0.0;
+	
+ 	} else {
+	  cam_up = gradien*temp;
+	}
+	cam_up = cam_up.Unit();
+	gluLookAt(gradien.v[0], gradien.v[1], gradien.v[2], 0, 0, 0, cam_up.v[0],cam_up.v[1],cam_up.v[2]);
+}
+
+
+
 BOOL BigHouseView::OnMouseWheel(UINT nFlags, short zDetal, CPoint point) {
   BOOL ret = FALSE ;
+  //if (zDetal >=0) {
+  //  m_scaling *= 1.25f;
+  //  ret = TRUE ;
+  //}
+  //else {
+  //  m_scaling /= 1.25f;
+  //  ret = TRUE ;
+  //}
+	//**************huu.nv***************
   if (zDetal >=0) {
-    m_scaling *= 1.25f;
+		rendering_rate_ *= 1.50f;
     ret = TRUE ;
   }
   else {
-    m_scaling /= 1.25f;
+		rendering_rate_ /= 1.5f;
     ret = TRUE ;
   }
+
+	//***********************************
   InvalidateRect(NULL,FALSE);
   //Set the mouse point
   mouse_down_point_ = point;
@@ -729,4 +889,90 @@ void BigHouseView::DrawRoom() {
 	//glPopMatrix();
 	glDisable(GL_TEXTURE_2D);
 	glPopMatrix();
+}
+
+void BigHouseView::GetVectorPerpendicularToThescreen(Vector3D &v_oz) {
+	float m[16];
+	glGetFloatv(GL_MODELVIEW_MATRIX, m);
+	v_oz.Set(m[2], m[6], m[10]);
+}
+
+int  BigHouseView::MoveBody(Vector3D &pos, Vector3D &point_m_on_plane) {
+	Vector3D dir;
+	GetVectorPerpendicularToThescreen(dir);
+	double d;
+	int count = 0;
+	for(int i = 0; i < all_body_.size(); i ++) {
+		Vector3D bbmin = all_body_.at(i).first.bbmin;
+		Vector3D bbmax = all_body_.at(i).first.bbmax;
+		if(!LineCutBoundingBox(dir, pos, bbmin, bbmax)) {
+		
+		}
+		Vector3D M = all_body_.at(i).first.bbmax + all_body_.at(i).first.bbmin;
+		M = M*0.5;
+		Vector3D temp = M - pos;
+		Vector3D temp1 = temp*dir;
+		if(i == 0) {
+			d = temp1.abs()/dir.abs();
+		} else {
+			double dis = temp1.abs()/dir.abs();
+			if(d > dis) {
+				d = dis;
+				count = i;
+			}
+		}
+		
+	}
+	Vector3D oz(0, 0, 1);
+	Vector3D O(0, 0, 0);
+	if(dir.scalar(oz) != 0) {
+		double t = (O.scalar(oz) - oz.scalar(pos))/(oz.scalar(dir));
+		Vector3D u = dir*t;
+		point_m_on_plane = pos + u;
+	return count;
+	}
+}
+
+bool BigHouseView::LineCutBoundingBox(Vector3D &dir, Vector3D &pos, Vector3D &bbmin, Vector3D &bbmax) {
+
+	Vector3D normal;
+	for(int i = 0; i < 3; i++) {
+		Vector3D p = bbmax;
+		p.v[i] = bbmin.v[i];
+		normal.Set(0, 0, 0);
+		normal.v[i] = 1;
+		if(LineCutSurface(dir, pos, normal, bbmin, p)) {
+			return true;
+		}
+	}
+	for(int i = 0; i < 3; i++) {
+		Vector3D p = bbmin;
+		p.v[i] = bbmax.v[i];
+		normal.Set(0, 0, 0);
+		normal.v[i] = 1;
+		if(LineCutSurface(dir, pos, normal, p, bbmax)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+bool BigHouseView::LineCutSurface(Vector3D &dir, Vector3D &pos, Vector3D &n, Vector3D &A, Vector3D &B) {
+	if(n.scalar(dir) == 0 ) {
+		return false;
+	}
+	double t = (n.scalar(A) - n.scalar(pos))/(n.scalar(dir));
+	Vector3D temp = dir*t;
+	Vector3D E = pos + temp;
+	for(int i = 0; i < 3; i ++) {
+		if(n.v[i] != 0) {
+			int j = (i + 1)%3;
+			int k = (j + 1)%3;
+			if(A.v[j] < E.v[j] && E.v[j] < B.v[j] && A.v[k] < E.v[k] && E.v[k] < B.v[k]) {
+				return true;
+			}
+		
+		}
+	}
+	return false;
 }
