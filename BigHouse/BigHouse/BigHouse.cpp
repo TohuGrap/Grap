@@ -356,9 +356,11 @@ void BigHouseApp::LoadFileCad (CString strs) {
   }
 	int size = cad.size();
 	cad.erase(cad.begin() + size - 1);
-	InvalidateRect(NULL,NULL,FALSE);
-	GetRectBody(cad);
+
 	fclose(pFile);
+  GetRectBody(cad);
+	InvalidateRect(NULL,NULL,FALSE);
+
 }
 
 std::vector<std::pair<RectBody, std::vector<Triangle3D*>>> BigHouseApp::GetCadBoy() {
@@ -397,14 +399,17 @@ void BigHouseApp::GetRectBody(std::vector<Triangle3D*> &cad_body) {
 		}
 	}
 	RectBody rect;
-	bbmax.v[2] = 0;
-	bbmin.v[2] = 0;
-	rect.bbmin = bbmin;
-	rect.bbmax = bbmax;
-	std::pair<RectBody, std::vector<Triangle3D*>> temp;
-	temp.first = rect;
+	//bbmax.v[2] = 0;
+	//bbmin.v[2] = 0;
+	rect.x = bbmax.v[0] - bbmin.v[0];
+	rect.y = bbmax.v[1] - bbmin.v[1];
+	std::pair<Floor, std::vector<Triangle3D*>> temp;
+	temp.first.s_b = rect;
 	temp.second = cad_body;
-	list_cad_boydy_.push_back(temp);
+	//list_cad_boydy_.push_back(temp);
+	MainFrame *pMainFrame = (MainFrame*)this->m_pMainWnd;
+  BigHouseView*pView = reinterpret_cast<BigHouseView*>(pMainFrame->splitter_.GetPane(0, 1));
+	pView->SetCadToView(temp);
 
 }
 

@@ -127,6 +127,7 @@ void FormBar::OnSize(UINT nType, int cx, int cy) {
   EnableScrollBarCtrl(SB_VERT, FALSE);
   CFormView::OnSize(nType, cx, cy);
 }
+// set to view
 BigHouseView *FormBar::GetBigHouseView() {
   BigHouseApp *pApp= (BigHouseApp*)AfxGetApp();
   MainFrame *pMainFrame = (MainFrame*)pApp->m_pMainWnd;

@@ -65,10 +65,12 @@ public:
   void DrawCad();
 	void ViewDirection();
 	void GetVectorPerpendicularToThescreen(Vector3D &v_oz);
-	int MoveBody(Vector3D &pos, Vector3D &point_m_on_plane);
-	void ConvertScrenToOpengl(CPoint &point, Vector3D &point_3D);
-	bool LineCutSurface(Vector3D &dir, Vector3D &pos,Vector3D &n, Vector3D &A, Vector3D &B);
-	bool LineCutBoundingBox(Vector3D &dir, Vector3D &pos, Vector3D &bbmin, Vector3D &bbmax);
+	int MoveBody(Vector3D &dir, Vector3D &pos, Vector3D &point_m_on_plane);
+	void ConvertScrenToOpengl(CPoint &point2D, Vector3D &point_3D);
+	bool LineCutSurface(Vector3D &dir, Vector3D &pos,Vector3D &n, Vector3D &A, Vector3D &B, Vector3D &E);
+	bool LineCutBoundingBox(Vector3D &dir, Vector3D &pos, Vector3D &bbmin, Vector3D &bbmax, Vector3D &p_on_bb);
+	void ResetColor();
+	void SetCadToView(std::pair<Floor, std::vector<Triangle3D*>> &body);
 
   void SetShefLong(float longs) {shelf_long_ = longs;};
   void SetShefWidth(float width) {shelf_width_ = width;};
@@ -140,6 +142,8 @@ private:
 	std::vector<Vector3D> list_body_;
 	Vector3D first_post_;
 	std::vector<std::pair<RectBody, std::vector<Triangle3D*>>> all_body_;
+	std::pair<Floor, std::vector<Triangle3D*>> body_;
+	std::vector<Shelf*> shelf_;
 	Vector3D l_point_button_down_;
 	Vector3D move_body_;
 	int move_count_;

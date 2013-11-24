@@ -22,10 +22,22 @@ typedef struct _Triangle {
  Point Vertex[3];
 } Triangle;
 
+	struct Size_rec {
+		int i;
+		int j;
+	};
 struct RectBody{
-	Vector3D bbmin;
-	Vector3D bbmax;
+	float x;
+	float y;
 };
+	struct Floor {
+		Vector3D color;
+		int height_floor;
+		Size_rec s_r;
+		RectBody s_b;
+	};
+
+
 
 class BigHouseApp : public CWinAppEx
 {
