@@ -80,8 +80,7 @@ BigHouseView::BigHouseView():
 	left_button_down_ = false;
 	phi_ = 0;
 	theta_ = 45;
-	Shelf *shelf = new Shelf(200, 300, 500);
-	shelf_.push_back(shelf);
+
 		 
 
   shelf_long_ = 0.0;
@@ -1033,4 +1032,16 @@ void BigHouseView::ResetColor() {
 void BigHouseView::SetCadToView(std::pair<Floor, std::vector<Triangle3D*>> &body) {
 	body_ = body;
 
+}
+
+void BigHouseView::MakeShelf(int width, int length, int height, int count_floor) {
+	Shelf *shelf = new Shelf(width, length, height, count_floor);
+	shelf_.push_back(shelf);
+	int size = shelf_.size();
+	if(size > 1) {
+		Vector3D bbmin;
+		shelf_.at(size - 2)->GetBBmin(bbmin);
+		bbmin.v[0] = bbmin.v[0] + length;
+		shelf_.at(size - 1)->SetBoundingBox(bbmin);
+	}
 }

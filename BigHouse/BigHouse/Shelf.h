@@ -20,7 +20,7 @@ class Shelf {
 	//};
 
 public:
-	Shelf(int width, int length, int height);
+	Shelf(int width, int length, int height, int count_floor);
 	~Shelf();
 	void DrawFaceShelf(Rec &rec);
 	void DrawCube(double width, double length, double height);

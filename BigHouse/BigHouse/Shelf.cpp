@@ -3,12 +3,11 @@
 #include <gl/GL.h>
 
 
-Shelf::Shelf(int width, int length, int height)
+Shelf::Shelf(int width, int length, int height, int count_floor)
 	:height_(height),
 	length_(length),
-	width_(width){
-
-  count_floor_ = 4;
+	width_(width),
+	count_floor_(count_floor) {
 	height_floor_ = (int)height/(count_floor_ + 1);
 	std::pair<Floor, std::vector<Triangle3D*>> stock;
 	for(int i = 0; i < count_floor_; i ++) {
@@ -189,6 +188,7 @@ void Shelf::PointMouseOnFloor(Vector3D &dir, Vector3D &pos) {
 
 void Shelf::DrawCommodity() {
 	glPushMatrix();
+	glColor3f(1, 0, 0);
 	for(int i = 0 ; i < stocks_.size(); i ++) {
 
 		glTranslated(0, 0, stocks_.at(i).first.height_floor); // trans z

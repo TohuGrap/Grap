@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Vector3D.h"
+#include <Windows.h>
 
 Vector3D::Vector3D() {
 
@@ -30,7 +31,7 @@ void Vector3D::Set(double x, double y, double z) {
 Vector3D Vector3D::Unit() {
 	Vector3D temp;
 	double d = sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
-	assert(d != 0);
+	//assert(d != 0);
 	temp.v[0] = v[0]/d;
 	temp.v[1] = v[1]/d;
 	temp.v[2] = v[2]/d;
