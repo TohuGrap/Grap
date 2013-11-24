@@ -911,8 +911,8 @@ void BigHouseView::DrawRoom() {
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, m_texture[0]);
 
-  float longs = 1200;
-  float width = 800;
+  float longs = 1500;
+  float width = 1500;
   float height = 0;
 
 
@@ -1146,7 +1146,7 @@ void BigHouseView::SetCadToView(std::pair<Floor, std::vector<Triangle3D*>> &body
 
 }
 
-void BigHouseView::MakeShelf(int width, int length, int height, int count_floor) {
+void BigHouseView::MakeShelf(int width, int length, int height, int count_floor, int count_shelf) {
 	Shelf *shelf = new Shelf(width, length, height, count_floor);
 	shelf_.push_back(shelf);
 	int size = shelf_.size();

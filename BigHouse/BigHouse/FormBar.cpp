@@ -20,6 +20,8 @@ FormBar::FormBar()
   str_shelf_long_ = L"";
   str_shelf_width_ = L"";
   str_shelf_height_ = L"";
+  str_number_of_floor_ = L"";
+  str_number_of_shelf_ = L"";
 }
 
 FormBar::~FormBar()
@@ -79,11 +81,19 @@ void FormBar::OnInitialUpdate() {
   CFormView::OnInitialUpdate();
   bitmap_image_ctrl.SetBitmap((HBITMAP)cbitmap_);
 
-  edit_number_of_shelf_ = L"0";
-  edit_shelf_long_ = L"0";
-  edit_shelf_height_ = L"0";
-  edit_shelf_width_ = L"0";
-  edit_number_of_floor_ = L"0";
+  edit_number_of_shelf_ = L"1";
+  edit_shelf_long_ = L"100";
+  edit_shelf_width_ = L"100";
+  edit_shelf_height_ = L"200";
+  edit_number_of_floor_ = L"5";
+
+  str_number_of_shelf_ = L"1";
+  str_shelf_long_ = L"100";
+  str_shelf_width_ = L"100";
+  str_shelf_height_ = L"200";
+  str_number_of_floor_ = L"5";
+
+
   is_turning_back_ = 0;
 
   CButton* btn = reinterpret_cast<CButton*>(GetDlgItem(IDC_OBJECT_NEXT));
@@ -115,8 +125,12 @@ void FormBar::OnInitialUpdate() {
     int index_bitmap = CheckBitmap(current_str);
     UpdateBitmap(index_bitmap);
   } else {
-     option_btn->EnableWindow(FALSE);
+    CBitmap cbitmap;
+    cbitmap.LoadBitmap(IDB_BITMAP_BKGN);
+    bitmap_image_ctrl.SetBitmap((HBITMAP)cbitmap);
+    option_btn->EnableWindow(FALSE);
   }
+
 
   UpdateData(FALSE);
 }
@@ -167,6 +181,10 @@ void FormBar::UpdateBitmap(int index_bitmap) {
     break;
   }
   default : {
+    CBitmap cbitmap;
+    cbitmap.LoadBitmap(IDB_BITMAP_BKGN);
+    bitmap_image_ctrl.SetBitmap((HBITMAP)cbitmap);
+    break;
     break;
    }
   }
@@ -185,7 +203,7 @@ void FormBar::OnOption() {
 void FormBar::OnSelectShelf() {
 
   // Get info from fomrview to view
-  float longs = _ttof(edit_shelf_long_);
+  float longs = _ttof(str_shelf_long_);
   float height = _ttof(str_shelf_height_);
   float width = _ttof(str_shelf_width_);
   float nums = _ttof(str_number_of_shelf_);
@@ -198,7 +216,7 @@ void FormBar::OnSelectShelf() {
   else 
     is_tb = false;
 
-  GetBigHouseView()->MakeShelf((int)width, (int)longs, (int)height, (int)numf);
+  GetBigHouseView()->MakeShelf((int)width, (int)longs, (int)height, (int)numf, (int)nums);
 }
 
 void FormBar::ClearShelf() {
