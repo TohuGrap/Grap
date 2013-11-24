@@ -206,9 +206,9 @@ void FormBar::ClearShelf() {
 }
 
 int FormBar::CheckBitmap(CString str) {
-  if (str == "table.stl") {
+  if (str == "table.stl" || str == "table.STL") {
     return 0;
-  } else if (str == "desk.stl") {
+  } else if (str == "desk.stl" || str == "desk.STL") {
     return 1;
   } else {
     return -1;
