@@ -40,6 +40,7 @@ public:
 	void SetCadToShelf(std::pair<Floor , std::vector<Triangle3D*>> &body);
 	void DrawPoint();
 	void DrawCommodity();
+	void ReSetSelectFloor();
 private:
 	int length_;
 	int height_;

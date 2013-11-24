@@ -89,6 +89,7 @@ BigHouseView::BigHouseView():
   number_shelf_ = 0;
   number_floor_ = 0;
   is_turnning_back_ = false;
+	old_move_count_ = - 1;
 }
 
 BigHouseView::~BigHouseView()
@@ -647,17 +648,19 @@ void BigHouseView::OnMouseMove(UINT nFlags, CPoint point) {
 		 	MoveBody(dir, pos, point_plane);
 			move_body_ = point_plane - l_point_button_down_;
 			point_m_in_opengl_ = pos;
-			//if(move_count_ != -1) {
-			//	shelf_.at(move_count_)->PointMouseOnFloor(dir, pos);
-			//}
-		//} else {
-		//
 		} else if(!body_.second.empty()) {
 		  move_count_ = MoveBody(dir, pos, point_plane);
+			//old_move_count_ - move_count_;
 			if(move_count_ != -1) {
 				shelf_.at(move_count_)->PointMouseOnFloor(dir, pos);
 			}
 		}
+		if(old_move_count_ != - 1 && old_move_count_ != move_count_) {
+			if(shelf_.size() > old_move_count_) {
+				shelf_.at(old_move_count_)->ReSetSelectFloor();
+			}
+		}
+		old_move_count_ = move_count_;
 	}
 
   InvalidateRect(NULL,FALSE);
@@ -1153,9 +1156,13 @@ void BigHouseView::MakeShelf(int width, int length, int height, int count_floor,
 	if(size > 1) {
 		Vector3D bbmin;
 		shelf_.at(size - 2)->GetBBmin(bbmin);
-		bbmin.v[0] = bbmin.v[0] + length;
+		bbmin.v[1] = bbmin.v[1] + length + 50;
 		shelf_.at(size - 1)->SetBoundingBox(bbmin);
+	} else {
+	  Vector3D bbmin(-600, -600, 0);
+		shelf_.at(0)->SetBoundingBox(bbmin);
 	}
+	InvalidateRect(NULL, true);
 }
 
 void BigHouseView::ClearShelf() {

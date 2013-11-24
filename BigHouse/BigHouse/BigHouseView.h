@@ -150,6 +150,7 @@ private:
 	Vector3D l_point_button_down_;
 	Vector3D move_body_;
 	int move_count_;
+	int old_move_count_;
 
 protected:
 	afx_msg void OnFilePrintPreview();

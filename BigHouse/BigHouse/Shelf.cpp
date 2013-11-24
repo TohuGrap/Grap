@@ -83,6 +83,7 @@ void Shelf::DrawCube(double width, double length, double height) {
 void Shelf::ShelfStructure() {
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   glDisable(GL_CULL_FACE);
+	glColor3f(1, 0, 0);
 	glPushMatrix();
 	glTranslated(0,0,1);
 	DrawCube(width_, length_, 10); // de
@@ -97,18 +98,19 @@ void Shelf::ShelfStructure() {
 void Shelf::DrawShelfFloor() {
 	glPushMatrix();
 	for(int i = 0; i < stocks_.size(); i ++){
-	//	glPushMatrix();
 		glTranslated(0,0,stocks_.at(i).first.height_floor);
-		if(count_floor_ == i) {
+		if(count_floor_ == i && stocks_.at(i).second.empty()) {
 			glColor3f(0, 0, 1);
 		} else {
 		  glColor3f(1, 1, 1);
 		}
-		  //glColor3fv(stocks_.at(i).first.color.v);
-	  	DrawCube(width_, length_, 1);
-		//glPopMatrix();
+	  DrawCube(width_, length_, 1);
 	}
 	glPopMatrix();
+}
+
+void Shelf::ReSetSelectFloor() {
+	count_floor_ = -1;
 }
 
 void Shelf::DrawShelf() {
@@ -188,7 +190,7 @@ void Shelf::PointMouseOnFloor(Vector3D &dir, Vector3D &pos) {
 
 void Shelf::DrawCommodity() {
 	glPushMatrix();
-	glColor3f(1, 0, 0);
+	glColor3f(0, 0, 1);
 	for(int i = 0 ; i < stocks_.size(); i ++) {
 
 		glTranslated(0, 0, stocks_.at(i).first.height_floor); // trans z
