@@ -42,6 +42,8 @@ void FormBar::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(FormBar, CFormView)
   ON_COMMAND(IDC_OBJECT_NEXT, FormBar::OnBnNext)
   ON_COMMAND(IDC_OBJECT_OPTION, FormBar::OnOption)
+  ON_COMMAND(IDC_OBJECT_OPTION_SHELF, FormBar::OnSelectShelf)
+  ON_COMMAND(IDC_CLEAR_SHELF,  FormBar::ClearShelf)
   ON_EN_CHANGE(IDC_EDIT_NUMBER_SHELF, &FormBar::OnNumberOfShelf)
   ON_EN_CHANGE(IDC_EDIT_SHELF_LONG, &FormBar::OnEditShelfLong)
   ON_EN_CHANGE(IDC_EDIT_SHELF_WIDTH, &FormBar::OnEditShelfWidth)
@@ -178,6 +180,10 @@ void FormBar::OnOption() {
   int index_bitmap = CheckBitmap(current_str);
   UpdateBitmap(index_bitmap);
 
+}
+
+void FormBar::OnSelectShelf() {
+
   // Get info from fomrview to view
   float longs = _ttof(edit_shelf_long_);
   float height = _ttof(str_shelf_height_);
@@ -186,19 +192,17 @@ void FormBar::OnOption() {
   float numf = _ttof(str_number_of_floor_);
   bool is_tb = false;
 
-
-  GetBigHouseView()->SetShefLong(longs);
-  GetBigHouseView()->SetShefWidth(width);
-  GetBigHouseView()->SetShefHeight(height);
-  GetBigHouseView()->SetNumberOfShelf(nums);
-  GetBigHouseView()->SetNumberOfFloor(numf);
-
   UpdateData(TRUE);
   if (is_turning_back_ == 1) 
     is_tb = true;
   else 
     is_tb = false;
-  GetBigHouseView()->SetIsTurningBack(is_tb);
+
+  GetBigHouseView()->MakeShelf((int)width, (int)longs, (int)height, (int)numf);
+}
+
+void FormBar::ClearShelf() {
+  GetBigHouseView()->ClearShelf();
 }
 
 int FormBar::CheckBitmap(CString str) {

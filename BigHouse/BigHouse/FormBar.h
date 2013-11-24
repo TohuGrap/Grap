@@ -51,6 +51,8 @@ protected:
   afx_msg void OnBnNext();
   afx_msg void OnSize(UINT nType, int cx, int cy);
   afx_msg void OnOption();
+  afx_msg void OnSelectShelf();
+  afx_msg void ClearShelf();
   afx_msg void OnEditShelfLong();
   afx_msg void OnEditShelfWidth();
   afx_msg void OnEditShelfHeight();

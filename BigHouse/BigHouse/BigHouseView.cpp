@@ -1045,3 +1045,8 @@ void BigHouseView::MakeShelf(int width, int length, int height, int count_floor)
 		shelf_.at(size - 1)->SetBoundingBox(bbmin);
 	}
 }
+
+void BigHouseView::ClearShelf() {
+  if (shelf_.empty() == false)
+    shelf_.clear();
+}

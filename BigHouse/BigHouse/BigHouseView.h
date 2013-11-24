@@ -79,6 +79,7 @@ public:
   void SetNumberOfFloor(float numf) {number_floor_ = numf;};
   void SetIsTurningBack(bool is_tb) {is_turnning_back_ = is_tb;}
 	void MakeShelf(int width, int length, int height, int count_floor);
+  void ClearShelf();
 protected:
   float pos[3];
 
