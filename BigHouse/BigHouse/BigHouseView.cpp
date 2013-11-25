@@ -18,12 +18,13 @@
 
 
 // BigHouseView
-#define SIZE_GROUND 50
-const float ROOM_LENGTH =1000.0f;
-const	float ROOM_WIDTH = 1000.0f;
-const float ROOM_HEIGHT = 0.0f;
+#define LENGTH_AXIS 10000
 
-#define M_PI 3.14
+#define LONG_ROOM 1500
+#define WIDTH_ROOM 1500
+#define HEIGHT_ROOM 0
+
+#define M_PI 3.1415
 IMPLEMENT_DYNCREATE(BigHouseView, CView)
 
 BEGIN_MESSAGE_MAP(BigHouseView, CView)
@@ -48,11 +49,11 @@ END_MESSAGE_MAP()
 
 BigHouseView::BigHouseView():
   eyeX_(0.0f),
-  eyeY_(0.5f),
-  eyeZ_(2.5f),
+  eyeY_(0.0f),
+  eyeZ_(0.0f),
   centX_(0.0f),
-  centY_(0.5f),
-  centZ_(2.25f),
+  centY_(0.0f),
+  centZ_(0.0f),
   x_position_(0.0f),
   y_position_(0.0f),
   z_zoom_(0.0f),
@@ -74,22 +75,29 @@ BigHouseView::BigHouseView():
 	m_OrthoRangeTop = 1.5f;
 	m_OrthoRangeNear = -20.0f;
 	m_OrthoRangeFar = 100.0f;
-  rendering_rate_ = 2.0f;
+  rendering_rate_ = 0.5f;
+
+  lef_pos_ = 0.0f;
+  right_pos_ = 0.0f;
+  bottom_pos = 0.0f;
+  top_pos_ = 0.0f;
+
+
   m_scaling = 1.0f;
 	right_button_down_ = false;
 	left_button_down_ = false;
 	phi_ = 0;
 	theta_ = 45;
 
-		 
-
   shelf_long_ = 0.0;
   shelf_width_ = 0.0;
   shelf_height_ = 0.0;
   number_shelf_ = 0;
   number_floor_ = 0;
-  is_turnning_back_ = false;
-	old_move_count_ = - 1;
+
+	old_move_count_ = -1;
+
+  show_coordinate_ = false;
 }
 
 BigHouseView::~BigHouseView()
@@ -123,7 +131,6 @@ void BigHouseView::OnDraw(CDC* /*pDC*/)
   //glPushMatrix();
  	CClientDC clienDC(this);
 	wglMakeCurrent(clienDC.m_hDC, m_hRC);
-  SetViewFrustum();
   RenderScene();
 	wglMakeCurrent(NULL, m_hRC);
   //glPopMatrix();
@@ -204,7 +211,7 @@ void BigHouseView::OnSize(UINT nType, int cx, int cy) {
   ::glMatrixMode(GL_PROJECTION);
   ::glLoadIdentity();
   //::gluPerspective(45.0f, aspect_ratio, 0.01f,-200.0f);
-	 gluPerspective(0,aspect_ratio,3.5, 20);
+	// gluPerspective(0,aspect_ratio,0.01,200);
 	  glViewport(0, 0, cx, cy);
   // SetViewFrustum();
 
@@ -265,15 +272,12 @@ BOOL BigHouseView::InitializeOpenGL() {
   // Enable color tracking
   ::glEnable(GL_COLOR_MATERIAL);
   ::glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
-	::glColorMaterial(GL_FRONT_AND_BACK, GL_SPECULAR);
 
   ::glShadeModel(GL_SMOOTH);
   // Setup lighting and material
 
-  //glEnable(GL_CULL_FACE);
   SetupLight();
   OnLoadTexture();
-	gluLookAt(0, 0, 1, 0, 0, 0,0, 1, 0);
   return TRUE;
 }
 
@@ -363,197 +367,101 @@ void BigHouseView::RenderScene() {
 	glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	::glMatrixMode(GL_MODELVIEW);
+
+  // Setup Projection for BigHouse
 	SetViewFrustum();
+
+  // Setup View for Bighouse
 	ViewDirection();
- // glPushMatrix();
-//	glTranslated(0,0,01)
- // //glRotatef(angle_x_ea_ - 45.0, 1.0f, 0.0f, 0.0f);
- //// glRotatef(angle_z_ea_ -135, 0.0f, 0.0f, 1.0f);
-	glDisable(GL_LIGHTING);
+  
+  if (show_coordinate_ == true) {
+    glPushMatrix();
+    glTranslatef(0.0f, 0.0f, 3.5f);
+    DrawCoordinate();
+    glPopMatrix();
+  }
+
+#ifdef ENABLE_DRAW_POINT
 	glColor3f(1,0,0);
 	glPointSize(5.0f);
 	glBegin(GL_POINTS);
-  	glVertex3f(point_m_in_opengl_.v[0], point_m_in_opengl_.v[1], point_m_in_opengl_.v[2]);
+  glVertex3f(point_m_in_opengl_.v[0], point_m_in_opengl_.v[1], point_m_in_opengl_.v[2]);
   glEnd();
+#endif
 
-
-	glEnable(GL_LIGHTING);
 	glPushMatrix();
+  SetupLight(); // only used for cad
+#if 0
+	 Shelf shelf;
+	 SetupLight();
+	 shelf.DrawShelf();
+#endif
+  // Draw Cad
   DrawCad();
-	glPopMatrix();
+  // Then draw cad is complelted, so disable light
   DisableLight();
-	DrawRoom();
 
-  //glPopMatrix();
+	glPopMatrix();
+
+  // Draw Room 
+	DrawRoom();
 }
 
 void BigHouseView::DrawCad() {
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   glColor3f(1.0, 1.0, 1.0);
- // std::vector<std::pair<RectBody, std::vector<Triangle3D*>>> all_body;
- // all_body = theApp.GetCadBoy();
-	//if(all_body.size() != all_body_.size()) {
-	//	int size_bd = all_body_.size();
-	//	for(int i = size_bd; i < all_body.size(); i ++) {
-	//		all_body_.push_back(all_body.at(i));
-	//	}
-	//}
-
-	for(int i = 0; i <shelf_.size() /*all_body_.size()*/; i ++) {
+#if 0
+  std::vector<std::pair<RectBody, std::vector<Triangle3D*>>> all_body;
+  all_body = theApp.GetCadBoy();
+	if(all_body.size() != all_body_.size()) {
+		int size_bd = all_body_.size();
+		for(int i = size_bd; i < all_body.size(); i ++) {
+			all_body_.push_back(all_body.at(i));
+		}
+	}
+#endif
+	for(int i = 0; i < shelf_.size(); i ++) {
 		//std::vector<Triangle3D*> body = all_body_.at(i).second;
 		Vector3D cen ;
-		shelf_.at(i)->GetBBmin(cen);///*all_body_.at(i).first.bbmax + */all_body_.at(i).first.bbmin;
-  //  cen = cen*0.5;
+		shelf_.at(i)->GetBBmin(cen);
+    //  cen = cen*0.5;
 
 		glPushMatrix();
 		glTranslatef(cen.v[0], cen.v[1], cen.v[2]);
 		if(left_button_down_ && move_count_ == i) {
 			glTranslatef (move_body_.v[0], move_body_.v[1], move_body_.v[2]);
 		}
-		//SetupLight();
 		shelf_.at(i)->DrawShelf();
-		//glBegin(GL_TRIANGLES); 
-		//for(int j = 0; j < body.size(); j ++) {
-		//	glNormal3fv(body.at(j)->normal.v);
-		//	glVertex3fv(body.at(j)->m_v0.v);
-		//	glVertex3fv(body.at(j)->m_v1.v);
-		//	glVertex3fv(body.at(j)->m_v2.v);
-		//}
-		//  glPopMatrix();
+#if 0
+		glBegin(GL_TRIANGLES); 
+		for(int j = 0; j < body.size(); j ++) {
+			glNormal3fv(body.at(j)->normal.v);
+			glVertex3fv(body.at(j)->m_v0.v);
+			glVertex3fv(body.at(j)->m_v1.v);
+			glVertex3fv(body.at(j)->m_v2.v);
+		}
+		glPopMatrix();
 		glEnd();
+#endif
 		glPopMatrix();
 	}
 }
 
 
-
-void BigHouseView::DrawObject() {
-
-  if (object_index_ == 0) {
-    glColor3f(1.0, 0.0, 0.0);
-    glPushMatrix();
-    glTranslated(pos[0], pos[1] + 0.11, pos[2]);
-    DrawRectangle(20.0);
-    glPopMatrix();
-  }
-  if (object_index_ == 1) {
-    glPushMatrix();
-    glTranslated(pos[0], pos[1], pos[2]);
-    glRotatef(-90, 1.0, 0.0, 0.0);
-    glColor3f(1.0, 0.0, 0.0);
-    glutSolidCone(1.0, 2.0, 16, 100);
-    glPopMatrix();
-  }
-  if (object_index_ == 2) {
-    glPushMatrix();
-    glTranslated(pos[0], pos[1], pos[2]);
-    glColor3f(1.0, 0.0, 0.0);
-    glRotatef(-190, 1.0, 0.0, 0.0);
-    glutSolidTetrahedron();
-    glPopMatrix();
-  }
-  
-
-  if (object_index_ == 3) {
-    glPushMatrix();
-    glTranslated(pos[0], pos[1], pos[2]);
-    glColor3f(1.0, 1.0, 0.0);
-    glRotatef(-90, 1.0, 0.0, 0.0);
-    glutWireSphere(0.5, 16, 100);
-    glPopMatrix();
-  }
-
-  if (object_index_ == 4) {
-    glPushMatrix();
-    glTranslated(pos[0], pos[1], pos[2]);
-    glColor3f(1.0, 1.0, 0.0);
-    glutWireTeapot(0.5);
-    glPopMatrix();
-  }
-
-  if (object_index_ == 5) {
-    glPushMatrix();
-    glTranslated(pos[0], pos[1], pos[2]);
-    glColor3f(1.0, 1.0, 0.0);
-    glRotatef(-90, 1.0, 0.0, 0.0);
-    glutWireTorus(0.5, 1.0, 16, 100);
-    glPopMatrix();
-  }
-}
-
-void BigHouseView::DrawSample() {
-  // Draw Regtangle
-  glPushMatrix();
-  glTranslated(1.0, 0.0, 0.0);
-  glColor3f(1.0, 0.0, 0.0);
-  glScalef(1.0, 1.0, 1.0);
-  DrawRectangle(1.5);
-  glPopMatrix();
-
-  glPushMatrix();
-  glTranslated(-1.0, 0.0, 0.0);
-  glColor3f(0.0, 1.0, 0.0);
-  glScalef(1.0, 1.0, 1.0);
-  DrawRectangle(1.0);
-  glPopMatrix();
-
-  glPushMatrix();
-  glTranslated(0.0, 0.0, -5.0);
-  glColor3f(0.0, 0.0, 1.0);
-  glScalef(1.0, 1.0, 1.0);
-  DrawRectangle(1.5);
-  glPopMatrix();
-
-  glPushMatrix();
-  glTranslated(2.0, 0.0, -5.0);
-  glColor3f(0.0, 1.0, 1.0);
-  glScalef(1.0, 3.0, 1.0);
-  DrawRectangle(1.0);
-  glPopMatrix();
-
-  glPushMatrix();
-  glTranslated(-2.0, 0.0, -3.0);
-  glColor3f(1.0, 0.0, 1.0);
-  glScalef(1.0, 2.0, 1.0);
-  DrawRectangle(1.0);
-  glPopMatrix();
-}
-
-
 void BigHouseView::DrawCoordinate() {
-  glLineWidth(4.0f);
+  glLineWidth(2.0f);
   glBegin(GL_LINES);
-  
   glColor3f(1.0f, 0.0, 0.0);
-  glVertex3f(-100.0, 0.0, 0.0f);
-  glVertex3f(100.0, 0.0, 0.0f);
-  
+  glVertex3f(-LENGTH_AXIS, 0.0, 0.0f);
+  glVertex3f(LENGTH_AXIS, 0.0, 0.0f);
   glColor3f(0.0f, 1.0, 0.0);
-  glVertex3f(0.0f, -100.0f, 0.0f);
-  glVertex3f(0.0f, 100.0f, 0.0f);
-  
+  glVertex3f(0.0f, -LENGTH_AXIS, 0.0f);
+  glVertex3f(0.0f, LENGTH_AXIS, 0.0f);
   glColor3f(0.0f, 0.0, 1.0);
-  glVertex3f(0.0f, 0.0f, -100.0f);
-  glVertex3f(0.0f, 0.0f, 100.0f);
-  
+  glVertex3f(0.0f, 0.0, -LENGTH_AXIS);
+  glVertex3f(0.0f, 0.0f, LENGTH_AXIS);
   glEnd();
 }
-
-void BigHouseView::DrawGround() {
-  glColor3f(1.0, 0.5f, 0.0f);
-  glBegin(GL_POLYGON);
-  glTexCoord2f(0.0f, 0.0f);
-  glVertex3f(SIZE_GROUND, 0.0f, 2*SIZE_GROUND);
-  glTexCoord2f(1.0f, 0.0f);
-  glVertex3f(SIZE_GROUND, 0.0f, -1*SIZE_GROUND);
-  glTexCoord2f(1.0f, 1.0f);
-  glVertex3f(-1*SIZE_GROUND, 0.0f, -1*SIZE_GROUND);
-  glTexCoord2f(0.0f, 1.0f);
-  glVertex3f(-1*SIZE_GROUND, 0.0, 2*SIZE_GROUND);
-  glEnd();
-}
-
 
 void BigHouseView::DrawRectangle(int length) {
   glutSolidCube(length);
@@ -625,7 +533,6 @@ void BigHouseView::ConvertScrenToOpengl(CPoint &point2D, Vector3D &point_3D) {
 
 
 void BigHouseView::OnMouseMove(UINT nFlags, CPoint point) {
-	//*************huu.nv***************
 	if(right_button_down_) {
   	phi_ -= ((double)(point.x - mouse_down_point_.x))/3.60;
 		if(phi_ > 360) {
@@ -643,8 +550,10 @@ void BigHouseView::OnMouseMove(UINT nFlags, CPoint point) {
 	} else {
 			Vector3D pos;
 			ConvertScrenToOpengl(point, pos);
+
 	  	Vector3D dir;
 	    GetVectorPerpendicularToThescreen(dir);
+
 			Vector3D point_plane;
 		if(left_button_down_) {
 		 	MoveBody(dir, pos, point_plane);
@@ -652,7 +561,6 @@ void BigHouseView::OnMouseMove(UINT nFlags, CPoint point) {
 			point_m_in_opengl_ = pos;
 		} else if(!body_.second.empty()) {
 		  move_count_ = MoveBody(dir, pos, point_plane);
-			//old_move_count_ - move_count_;
 			if(move_count_ != -1) {
 				shelf_.at(move_count_)->PointMouseOnFloor(dir, pos);
 			}
@@ -667,28 +575,23 @@ void BigHouseView::OnMouseMove(UINT nFlags, CPoint point) {
 
   InvalidateRect(NULL,FALSE);
 
-  //**********************************
   CView::OnMouseMove(nFlags, point);
   if (GetCapture() == this) {
-    ////Increment the object rotation angles
-    //angle_x_ea_ += (point.y - mouse_down_point_.y)/3.6;
-    //angle_z_ea_ += (point.x - mouse_down_point_.x)/3.6;
-    //  //Redraw the view
-    //InvalidateRect(NULL, FALSE);
-    //  //Set the mouse point
     mouse_down_point_ = point;
   }
 }
 
 void BigHouseView::ViewDirection() {
-	double phi = phi_*3.1415/180.0;
-	double theta = theta_*3.1415/180.0;
+
+	double phi = phi_*M_PI/180.0;
+	double theta = theta_*M_PI/180.0;
+
 	Vector3D gradien;
 	gradien.v[0] = cos(phi)*sin(theta);
 	gradien.v[1] = sin(phi)*sin(theta);
 	gradien.v[2] = cos(theta);
-	/*gradient_ = gradien;*/
-	Vector3D oz(0,0,1);	
+
+	Vector3D oz(0, 0, 1);	
 	Vector3D cam_up;
 	Vector3D temp;
 	if((theta_ < 180 && theta_ > 0) || theta_ < -180){
@@ -708,32 +611,25 @@ void BigHouseView::ViewDirection() {
 	  cam_up = gradien*temp;
 	}
 	cam_up = cam_up.Unit();
-	gluLookAt(gradien.v[0], gradien.v[1], gradien.v[2], 0, 0, 0, cam_up.v[0],cam_up.v[1],cam_up.v[2]);
-}
 
+  
+  gluLookAt(eyeX_ + gradien.v[0], eyeX_ + gradien.v[1], eyeX_ + gradien.v[2],
+            eyeX_, eyeY_, eyeX_, cam_up.v[0], cam_up.v[1],
+            cam_up.v[2]);
+}
 
 
 BOOL BigHouseView::OnMouseWheel(UINT nFlags, short zDetal, CPoint point) {
   BOOL ret = FALSE ;
-  //if (zDetal >=0) {
-  //  m_scaling *= 1.25f;
-  //  ret = TRUE ;
-  //}
-  //else {
-  //  m_scaling /= 1.25f;
-  //  ret = TRUE ;
-  //}
-	//**************huu.nv***************
-  if (zDetal >=0) {
+  
+  if (zDetal >= 0) {
 		rendering_rate_ *= 1.50f;
     ret = TRUE ;
-  }
-  else {
+  } else {
 		rendering_rate_ /= 1.5f;
     ret = TRUE ;
   }
 
-	//***********************************
   InvalidateRect(NULL,FALSE);
   //Set the mouse point
   mouse_down_point_ = point;
@@ -744,60 +640,21 @@ BOOL BigHouseView::OnMouseWheel(UINT nFlags, short zDetal, CPoint point) {
 
 
 void BigHouseView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
-  return;
-	// TODO: Add your message handler code here and/or call default
-#if 0
 	switch (nChar) {
 	//Processing Arrow Keys to Synchronise with Movement
 	case VK_UP:
-    centZ_ = eyeZ_ - 0.5f*(GLfloat)sin(m_AngleX*PI/180.0f);
-		eyeZ_ = eyeZ_ - m_PosIncr*(GLfloat)sin(m_AngleX*PI/180.0f);
-    centX_ = eyeX_ - 0.5f*(GLfloat)cos(m_AngleX*PI/180.0f);
-		eyeX_ = eyeX_ - m_PosIncr*(GLfloat)cos(m_AngleX*PI/180.0f);
 		InvalidateRect(NULL,FALSE);
 		break;
 	case VK_DOWN:
-		centZ_ = eyeZ_ - 0.5f*(GLfloat)sin(m_AngleX*PI/180.0f);
-		eyeZ_ = eyeZ_ + m_PosIncr*(GLfloat)sin(m_AngleX*PI/180.0f);
-		centX_ = eyeX_ - 0.5f*(GLfloat)cos(m_AngleX*PI/180.0f);
-		eyeX_ = eyeX_ + m_PosIncr*(GLfloat)cos(m_AngleX*PI/180.0f);
 		InvalidateRect(NULL,FALSE);
 		break;
 	case VK_LEFT:
-		m_AngleX = m_AngleX - m_AngIncr;
-		centZ_ = eyeZ_ - 0.5f*(GLfloat)sin(m_AngleX*PI/180.0f);
-		centX_ = eyeX_ - 0.5f*(GLfloat)cos(m_AngleX*PI/180.0f);
 		InvalidateRect(NULL,FALSE);
 		break;
 	case VK_RIGHT:
-		m_AngleX = m_AngleX + m_AngIncr;	
-		centZ_ = eyeZ_ - 0.5f*(GLfloat)sin(m_AngleX*PI/180.0f);
-		centX_ = eyeX_ - 0.5f*(GLfloat)cos(m_AngleX*PI/180.0f);
 		InvalidateRect(NULL,FALSE);
 		break;
-	case 'A':
-    eyeY_ = eyeY_ + m_PosIncr;
-		centY_ = eyeY_;
-		InvalidateRect(NULL,FALSE);
-		break;
-	case 'Z':
-		eyeY_ = eyeY_ - m_PosIncr;
-		centY_ = eyeY_;
-		InvalidateRect(NULL,FALSE);
-		break;
-
-  case 'S':
-    eyeX_ = eyeX_ - m_PosIncr;
-    centX_ = eyeX_;
-    InvalidateRect(NULL, FALSE);
-    break;
-  case 'D':
-    eyeX_ = eyeX_ + m_PosIncr;
-    centX_ = eyeX_;
-    InvalidateRect(NULL, FALSE);
-    break;
 	}
-#endif
 	CView::OnKeyDown(nChar, nRepCnt, nFlags);
 }
 
@@ -920,9 +777,9 @@ void BigHouseView::DrawRoom() {
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, m_texture[0]);
 
-  float longs = 1500;
-  float width = 1500;
-  float height = 0;
+  float longs = LONG_ROOM;
+  float width = WIDTH_ROOM;
+  float height = HEIGHT_ROOM;
 
 
   glColor3f(0.0f, 1.0f, 1.0f);
@@ -949,89 +806,6 @@ void BigHouseView::DrawRoom() {
 	glPopMatrix();
 
 }
-
-//void BigHouseView::DrawRoom() { 
-//	glPushMatrix();
-//  glTranslatef(-1*ROOM_LENGTH /2.0, -1*ROOM_WIDTH/2.0, 0);
-//
-//	//glDisable(GL_CULL_FACE);
-//	glEnable(GL_TEXTURE_2D);
-//	glBindTexture(GL_TEXTURE_2D, m_texture[0]);
-//
-//	// A
-//	//glPushMatrix();
-//	glBegin(GL_POLYGON);
-//	//glNormal3f(0, 1.0, 0.0);
-//	glTexCoord2f(0.0f, 0.0f);
-//	glVertex3f(0.0, 0.0f, 0.0f);
-//	glTexCoord2f(1.0f, 0.0f);
-//  glVertex3f(0.0f, 0.0f, ROOM_HEIGHT);
-//	glTexCoord2f(1.0f, 1.0f);
-//	glVertex3f(ROOM_LENGTH, 0.0f, ROOM_HEIGHT);
-//	glTexCoord2f(0.0f, 1.0f);
-//	glVertex3f(ROOM_LENGTH, 0.0f, 0.0f);
-//	glEnd();
-//	//glPopMatrix();
-//	//glPushMatrix();
-//	// B
-//	glBegin(GL_POLYGON);
-//	//glNormal3f(0, - 1.0, 0.0);
-//	glTexCoord2f(0.0f, 0.0f);
-//  glVertex3f(0.0, ROOM_WIDTH, 0.0f);
-//	glTexCoord2f(1.0f, 0.0f);
-//	glVertex3f(0.0f, ROOM_WIDTH, ROOM_HEIGHT);
-//	glTexCoord2f(1.0f, 1.0f);
-//	glVertex3f(ROOM_LENGTH, ROOM_WIDTH, ROOM_HEIGHT);
-//	glTexCoord2f(0.0f, 1.0f);
-//	glVertex3f(ROOM_LENGTH, ROOM_WIDTH, 0.0f);
-//	glEnd();
-//	// C
-//	//glPopMatrix();
-//	//glPushMatrix();
-//	glBegin(GL_POLYGON);
-//	//glNormal3f(1.0,  0.0, 0.0);
-//	glTexCoord2f(0.0f, 0.0f);
-//	glVertex3f(0.0f, 0.0f, 0.0f);
-//	glTexCoord2f(1.0f, 0.0f);
-//	glVertex3f(0.0f, 0.0f, ROOM_HEIGHT);
-//	glTexCoord2f(1.0f, 1.0f);
-//	glVertex3f(0.0f, ROOM_WIDTH, ROOM_HEIGHT);
-//	glTexCoord2f(0.0f, 1.0f);
-//	glVertex3f(0.0f, ROOM_WIDTH, 0.0f);
-//	glEnd();
-//	//D
-//	//glPopMatrix();
-//	//glPushMatrix();
-//	glBegin(GL_POLYGON);
-//	// plane
-//	//glNormal3f( - 1.0, 0.0, 0.0);
-//	glTexCoord2f(0.0f, 0.0f);
-//	glVertex3f(ROOM_LENGTH, 0.0f, 0.0f);
-//	glTexCoord2f(1.0f, 0.0f);
-//  glVertex3f(ROOM_LENGTH, 0.0f, ROOM_HEIGHT);
-//	glTexCoord2f(1.0f, 1.0f);
-//	glVertex3f(ROOM_LENGTH, ROOM_WIDTH, ROOM_HEIGHT);
-//	glTexCoord2f(0.0f, 1.0f);
-//	glVertex3f(ROOM_LENGTH, ROOM_WIDTH, 0.0f);
-//	glEnd();
-//	//glPopMatrix();
-//
-//	//glPushMatrix();
-//	glBegin(GL_POLYGON);
-//	//glNormal3f(0, 0, 0.0);
-//	glTexCoord2f(0.0f, 0.0f);
-//	glVertex3f(0.0, 0.0f, 0.0f);
-//	glTexCoord2f(1.0f, 0.0f);
-//	glVertex3f(ROOM_LENGTH, 0.0f, 0.0f);
-//	glTexCoord2f(1.0f, 1.0f);
-//	glVertex3f(ROOM_LENGTH, ROOM_WIDTH, 0.0f);
-//	glTexCoord2f(0.0f, 1.0f);
-//	glVertex3f(0.0f, ROOM_WIDTH, 0.0f);
-//	glEnd();
-//	//glPopMatrix();
-//	glDisable(GL_TEXTURE_2D);
-//	glPopMatrix();
-//}
 
 void BigHouseView::GetVectorPerpendicularToThescreen(Vector3D &v_oz) {
 	float m[16];
@@ -1129,7 +903,9 @@ bool BigHouseView::LineCutBoundingBox(Vector3D &dir, Vector3D &pos, Vector3D &bb
 	return has_a_point;
 }
 
-bool BigHouseView::LineCutSurface(Vector3D &dir, Vector3D &pos, Vector3D &n, Vector3D &A, Vector3D &B, Vector3D &E) {
+bool BigHouseView::LineCutSurface(Vector3D &dir, Vector3D &pos,
+                                  Vector3D &n, Vector3D &A,
+                                  Vector3D &B, Vector3D &E) {
 	if(n.scalar(dir) == 0 ) {
 		return false;
 	}
@@ -1155,11 +931,13 @@ void BigHouseView::SetCadToView(std::pair<Floor, std::vector<Triangle3D*>> &body
 
 }
 
-void BigHouseView::MakeShelf(int width, int length, int height, int count_floor, int count_shelf) {
+void BigHouseView::MakeShelf(int width, int length, int height,
+                             int count_floor, int count_shelf,
+                             float angle) {
 	Shelf *shelf = new Shelf(width, length, height, count_floor);
 	shelf_.push_back(shelf);
 	int size = shelf_.size();
-	if(size > 1) {
+	if (size > 1) {
 		Vector3D bbmin;
 		shelf_.at(size - 2)->GetBBmin(bbmin);
 		bbmin.v[1] = bbmin.v[1] + length + 50;

@@ -37,7 +37,8 @@ void FormBar::DoDataExchange(CDataExchange* pDX)
   DDX_Text(pDX, IDC_EDIT_SHELF_WIDTH, edit_shelf_width_);
   DDX_Text(pDX, IDC_EDIT_SHELF_HEIGH, edit_shelf_height_);
   DDX_Text(pDX, IDC_EDIT_NUMBER_FLOOR, edit_number_of_floor_);
-  DDX_Check(pDX, IDC_CHECK_IS_TURNNING_BACK, is_turning_back_);
+  DDX_Text(pDX, IDC_EDIT_SHELF_ANGLE, edit_shelf_angle_);
+  DDX_Check(pDX, IDC_CHECK_SHOW_COORDIANTE, show_coordinate_);
   DDX_Control(pDX, IDC_LIST_FILE_OBJ, list_box_ctrl_);
 }
 
@@ -51,9 +52,11 @@ BEGIN_MESSAGE_MAP(FormBar, CFormView)
   ON_EN_CHANGE(IDC_EDIT_SHELF_WIDTH, &FormBar::OnEditShelfWidth)
   ON_EN_CHANGE(IDC_EDIT_SHELF_HEIGH, &FormBar::OnEditShelfHeight)
   ON_EN_CHANGE(IDC_EDIT_NUMBER_FLOOR, &FormBar::OnNumberOfFloor)
+  ON_EN_CHANGE(IDC_EDIT_SHELF_ANGLE, &FormBar::OnEditShelfAngle)
   ON_WM_PAINT()
   ON_WM_SIZE()
   ON_LBN_SELCHANGE(IDC_LIST_FILE_OBJ, FormBar::OnLBSelChange)
+  ON_BN_CLICKED(IDC_CHECK_SHOW_COORDIANTE, &FormBar::OnShowCoordinate)
 END_MESSAGE_MAP()
 
 
@@ -86,15 +89,15 @@ void FormBar::OnInitialUpdate() {
   edit_shelf_width_ = L"100";
   edit_shelf_height_ = L"200";
   edit_number_of_floor_ = L"5";
+  edit_shelf_angle_ = L"0";
 
   str_number_of_shelf_ = L"1";
   str_shelf_long_ = L"100";
   str_shelf_width_ = L"100";
   str_shelf_height_ = L"200";
   str_number_of_floor_ = L"5";
+  str_shelf_angle_ = L"0";
 
-
-  is_turning_back_ = 0;
 
   CButton* btn = reinterpret_cast<CButton*>(GetDlgItem(IDC_OBJECT_NEXT));
   btn->EnableWindow(FALSE);
@@ -131,8 +134,8 @@ void FormBar::OnInitialUpdate() {
     option_btn->EnableWindow(FALSE);
   }
 
-
   UpdateData(FALSE);
+  show_coordinate_ = 0;
 }
 
 void FormBar::OnPaint() {
@@ -157,9 +160,6 @@ void FormBar::OnBnNext() {
 void FormBar::UpdateBitmap(int index_bitmap) {
   switch(index_bitmap) {
   case 0: {
-    CBitmap cbitmap;
-    cbitmap.LoadBitmap(IDB_BITMAP_TABLE);
-    bitmap_image_ctrl.SetBitmap((HBITMAP)cbitmap);
     break;
   }
   case 1: {
@@ -208,15 +208,9 @@ void FormBar::OnSelectShelf() {
   float width = _ttof(str_shelf_width_);
   float nums = _ttof(str_number_of_shelf_);
   float numf = _ttof(str_number_of_floor_);
-  bool is_tb = false;
+  float shelf_angle = _ttof(str_shelf_angle_);
 
-  UpdateData(TRUE);
-  if (is_turning_back_ == 1) 
-    is_tb = true;
-  else 
-    is_tb = false;
-
-  GetBigHouseView()->MakeShelf((int)width, (int)longs, (int)height, (int)numf, (int)nums);
+  GetBigHouseView()->MakeShelf((int)width, (int)longs, (int)height, (int)numf, (int)nums, shelf_angle);
 }
 
 void FormBar::ClearShelf() {
@@ -258,6 +252,11 @@ void FormBar::OnEditShelfHeight() {
   str_shelf_height_ = edit_shelf_height_;
 }
 
+void FormBar::OnEditShelfAngle() {
+  UpdateData(TRUE);
+  str_shelf_angle_ = edit_shelf_angle_;
+}
+
 void FormBar::OnLBSelChange() {
   CButton *option_btn = reinterpret_cast<CButton*>(GetDlgItem(IDC_OBJECT_OPTION));
   int index = list_box_ctrl_.GetCurSel();
@@ -270,4 +269,10 @@ void FormBar::OnLBSelChange() {
   } else {
      option_btn->EnableWindow(FALSE);
   }
+}
+
+void FormBar::OnShowCoordinate() {
+  UpdateData(TRUE);
+  int state = show_coordinate_;
+  GetBigHouseView()->SetShowHideCoordinate(state);
 }

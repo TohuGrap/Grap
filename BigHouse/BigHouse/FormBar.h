@@ -42,6 +42,7 @@ protected:
   CString str_shelf_height_;
   CString str_number_of_shelf_;
   CString str_number_of_floor_;
+  CString str_shelf_angle_;
 
 protected:
   virtual void OnPaint();
@@ -58,6 +59,8 @@ protected:
   afx_msg void OnEditShelfHeight();
   afx_msg void OnNumberOfShelf();
   afx_msg void OnNumberOfFloor();
+  afx_msg void OnEditShelfAngle();
+  afx_msg void OnShowCoordinate();
 	DECLARE_MESSAGE_MAP()
 private:
   int object_index_;
@@ -67,8 +70,9 @@ protected:
   CString edit_shelf_width_;
   CString edit_shelf_height_;
   CString edit_number_of_floor_;
-  int is_turning_back_;
+  CString edit_shelf_angle_;
   CListBox list_box_ctrl_;
+  int show_coordinate_;
 };
 
 

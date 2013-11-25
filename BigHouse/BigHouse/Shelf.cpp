@@ -128,8 +128,6 @@ void Shelf::DrawPoint() {
 	glBegin(GL_POINTS);
 	glVertex3fv(point_on_floor_.v);
 	glEnd();
-
-
 }
 
 void Shelf::GetBoundingBox(Vector3D &bbmin, Vector3D &bbmax) const{

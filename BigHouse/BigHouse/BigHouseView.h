@@ -51,8 +51,6 @@ public:
   void DrawCoordinate();
   void DrawRectangle(int length);
   void SetFormView(FormBar* form_bar) {form_bar_ = form_bar;}
-  void DrawObject();
-  void DrawSample();
   void SetIndexObject(int index) {object_index_ = index; InvalidateRect(NULL, FALSE);}
   void OnLoadTexture();
   void LoadTexture(CString file_name, int text_name);
@@ -78,9 +76,9 @@ public:
   void SetShefHeight(float height) {shelf_height_ = height;};
   void SetNumberOfShelf(float nums) {number_shelf_ = nums;};
   void SetNumberOfFloor(float numf) {number_floor_ = numf;};
-  void SetIsTurningBack(bool is_tb) {is_turnning_back_ = is_tb;}
-	void MakeShelf(int width, int length, int height, int count_floor, int count_shelf);
+	void MakeShelf(int width, int length, int height, int count_floor, int count_shelf, float angle);
   void ClearShelf();
+  void SetShowHideCoordinate(bool is_show) {show_coordinate_ = is_show; InvalidateRect(NULL, FALSE);}
 protected:
   float pos[3];
 
@@ -117,6 +115,12 @@ protected:
 	GLfloat m_OrthoRangeBottom;
 	GLfloat m_OrthoRangeNear;
 	GLfloat m_OrthoRangeFar;
+
+  GLfloat lef_pos_;
+  GLfloat right_pos_;
+  GLfloat bottom_pos;
+  GLfloat top_pos_;
+
   GLfloat m_scaling;
 
   GLuint m_texture[4];
@@ -133,7 +137,8 @@ protected:
   float shelf_height_;
   int number_shelf_;
   int number_floor_;
-  int is_turnning_back_;
+
+  bool show_coordinate_;
 // Generated message map functions
 private:
 	bool right_button_down_;
