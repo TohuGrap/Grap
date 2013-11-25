@@ -121,10 +121,13 @@ void BigHouseView::OnDraw(CDC* /*pDC*/)
  ::glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
 
   //glPushMatrix();
+ 	CClientDC clienDC(this);
+	wglMakeCurrent(clienDC.m_hDC, m_hRC);
   SetViewFrustum();
   RenderScene();
+	wglMakeCurrent(NULL, m_hRC);
   //glPopMatrix();
-
+	glFlush();
   ::glFinish();
   ::SwapBuffers(m_pDC->GetSafeHdc());
 }
@@ -189,27 +192,25 @@ BigHouseDoc* BigHouseView::GetDocument() const // non-debug version is inline
 // BigHouseView message handlers
 void BigHouseView::OnSize(UINT nType, int cx, int cy) {
   CView::OnSize(nType, cx, cy);
-
   if (cx <= 0 || cy <= 0)
     return;
-
   cx_ = cx;
   cy_ = cy;
+	CClientDC clienDC(this);
+	wglMakeCurrent(clienDC.m_hDC, m_hRC);
   // Define viewport = size window
-  glViewport(0, 0, cx, cy);
+ /* glViewport(0, 0, cx, cy);*/
   GLfloat aspect_ratio = (GLdouble)cx/(GLdouble)cy;
-
-  // Select the projection matrix
-  // here, option aspection view
   ::glMatrixMode(GL_PROJECTION);
   ::glLoadIdentity();
   //::gluPerspective(45.0f, aspect_ratio, 0.01f,-200.0f);
-	 gluPerspective(0,aspect_ratio,0.01,200);
+	 gluPerspective(0,aspect_ratio,3.5, 20);
+	  glViewport(0, 0, cx, cy);
   // SetViewFrustum();
 
   // Select MatrixModelView
-  ::glMatrixMode(GL_MODELVIEW);
-  ::glLoadIdentity();
+  //::glMatrixMode(GL_MODELVIEW);
+	 wglMakeCurrent(NULL, NULL);
 }
 
 void BigHouseView::SetViewFrustum() {
@@ -263,7 +264,8 @@ BOOL BigHouseView::InitializeOpenGL() {
 
   // Enable color tracking
   ::glEnable(GL_COLOR_MATERIAL);
-  //::glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+  ::glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+	::glColorMaterial(GL_FRONT_AND_BACK, GL_SPECULAR);
 
   ::glShadeModel(GL_SMOOTH);
   // Setup lighting and material
@@ -316,13 +318,14 @@ void BigHouseView::SetupLight() {
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_CULL_FACE);
 	glEnable(GL_DIFFUSE);
-  glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_FALSE);
+  //glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_FALSE);
   glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_FALSE);
 
-  GLfloat m_SceneAmbient1[]  = {0.3f,0.4f,0.3f,1.0f};
-	GLfloat m_SceneDiffuse1[]  = {0.4f,1.0f,0.5f,1.0f};
+  GLfloat m_SceneAmbient1[]  = {0.3f,0.3f,0.3f,1.0f};
+	GLfloat m_SceneDiffuse1[]  = {0.7f,0.7f,0.7f,1.0f};
 	GLfloat m_SceneSpecular1[] = {1.0f,1.0f,1.0f,1.0f};
-	GLfloat m_ScenePosition1[] = {0.0f,0.0f, 200.0f,0.0f};
+	//GLfloat m_ScenePosition1[] = {gradient_.v[0], gradient_.v[1], gradient_.v[2],0.0f};
+	GLfloat m_ScenePosition1[] = {-1.0f, -1.0f, -1.0f,0.0f};
 	GLfloat m_SceneDirection1[]= {0.0f,0.0f,1.0f,0.0f};
 	GLfloat whiteSpecularLight[] = {1.0, 1.0, 1.0}; 
 	GLfloat blackAmbientLight[] = {0.0, 0.0, 0.0};
@@ -333,7 +336,13 @@ void BigHouseView::SetupLight() {
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, m_SceneDiffuse1); 
 	glLightfv(GL_LIGHT0, GL_SPECULAR, m_SceneSpecular1); 
 	glLightfv(GL_LIGHT0, GL_POSITION, m_ScenePosition1);
- 	glLightf(GL_LIGHT0, GL_SPOT_CUTOFF,100.0f);
+ 	glLightf(GL_LIGHT0, GL_SPOT_CUTOFF,150.0f);
+
+	GLfloat material_ambient[] = {0.0f ,0.1f , 0.0f ,1.0f};
+	GLfloat material_specular[] = {1.0f ,1.0f ,1.0f ,1.0f};
+	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, material_ambient);
+	glMaterialfv(GL_FRONT, GL_SPECULAR, material_specular);
+
 	glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mShininess);
 }
 
@@ -370,13 +379,7 @@ void BigHouseView::RenderScene() {
 
 
 	glEnable(GL_LIGHTING);
-  //glScalef(m_scaling, m_scaling, m_scaling);
-  //SetupLight();
 	glPushMatrix();
-	 DisableLight();
-	 //Shelf shelf;
-	 //SetupLight();
-	 //shelf.DrawShelf();
   DrawCad();
 	glPopMatrix();
   DisableLight();
@@ -386,8 +389,7 @@ void BigHouseView::RenderScene() {
 }
 
 void BigHouseView::DrawCad() {
-	SetupLight();
-  //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   glColor3f(1.0, 1.0, 1.0);
  // std::vector<std::pair<RectBody, std::vector<Triangle3D*>>> all_body;
  // all_body = theApp.GetCadBoy();
@@ -409,7 +411,7 @@ void BigHouseView::DrawCad() {
 		if(left_button_down_ && move_count_ == i) {
 			glTranslatef (move_body_.v[0], move_body_.v[1], move_body_.v[2]);
 		}
-		SetupLight();
+		//SetupLight();
 		shelf_.at(i)->DrawShelf();
 		//glBegin(GL_TRIANGLES); 
 		//for(int j = 0; j < body.size(); j ++) {
@@ -685,6 +687,7 @@ void BigHouseView::ViewDirection() {
 	gradien.v[0] = cos(phi)*sin(theta);
 	gradien.v[1] = sin(phi)*sin(theta);
 	gradien.v[2] = cos(theta);
+	/*gradient_ = gradien;*/
 	Vector3D oz(0,0,1);	
 	Vector3D cam_up;
 	Vector3D temp;
@@ -693,6 +696,9 @@ void BigHouseView::ViewDirection() {
 	} else {
 		temp = gradien*oz;
 	}
+	gradient_ = gradien*3;
+	gradient_ = gradient_ + temp.Unit();
+	//gradient_ = gradient_ .Unit();
 	if(temp.abs() < 0.01) {
 	  cam_up.v[0] = - cos(phi);
 		cam_up.v[1] =  - sin(phi);

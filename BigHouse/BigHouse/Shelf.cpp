@@ -46,9 +46,9 @@ void Shelf::DrawCube(double width, double length, double height) {
 
 	rec.n.Set(0, 0, -1);
   rec.p[0].Set(0, 0 , 0);
-	rec.p[1].Set(width, 0, 0);
+	rec.p[1].Set(0, length, 0);
 	rec.p[2].Set(width, length, 0);
-	rec.p[3].Set(0, length, 0);
+	rec.p[3].Set(width, 0, 0);
 	DrawFaceShelf(rec);
 
   rec.n.Set(1, 0, 0);
@@ -60,19 +60,20 @@ void Shelf::DrawCube(double width, double length, double height) {
 
 	rec.n.Set(-1, 0, 0);
   rec.p[0].Set(0, 0 , 0);
-	rec.p[1].Set(0, length, 0);
+	rec.p[1].Set(0, 0, height);
 	rec.p[2].Set(0, length, height);
-	rec.p[3].Set(0, 0, height);
+	rec.p[3].Set(0, length, 0);
 	DrawFaceShelf(rec);
 
   rec.n.Set(0, 1, 0);
 	rec.p[0].Set(0, length , 0);
-	rec.p[1].Set(width, length, 0);
+	rec.p[1].Set(0, length, height);
 	rec.p[2].Set(width, length, height);
-	rec.p[3].Set(0, length, height);
+  rec.p[3].Set(width, length, 0);
+
 	DrawFaceShelf(rec);
 
-  rec.n.Set(0, 1, 0);
+  rec.n.Set(0, -1, 0);
 	rec.p[0].Set(0, 0 , 0);
 	rec.p[1].Set(width, 0, 0);
 	rec.p[2].Set(width, 0, height);
@@ -102,7 +103,7 @@ void Shelf::DrawShelfFloor() {
 		if(count_floor_ == i && stocks_.at(i).second.empty()) {
 			glColor3f(0, 0, 1);
 		} else {
-		  glColor3f(1, 1, 1);
+		  glColor3f(1, 1, 0);
 		}
 	  DrawCube(width_, length_, 1);
 	}
@@ -191,6 +192,7 @@ void Shelf::PointMouseOnFloor(Vector3D &dir, Vector3D &pos) {
 void Shelf::DrawCommodity() {
 	glPushMatrix();
 	glColor3f(0, 0, 1);
+	glShadeModel(GL_SMOOTH);
 	for(int i = 0 ; i < stocks_.size(); i ++) {
 
 		glTranslated(0, 0, stocks_.at(i).first.height_floor); // trans z

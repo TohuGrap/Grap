@@ -151,6 +151,7 @@ private:
 	Vector3D move_body_;
 	int move_count_;
 	int old_move_count_;
+	Vector3D gradient_;
 
 protected:
 	afx_msg void OnFilePrintPreview();
