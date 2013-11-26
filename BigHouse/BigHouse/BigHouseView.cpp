@@ -131,6 +131,7 @@ void BigHouseView::OnDraw(CDC* /*pDC*/)
   //glPushMatrix();
  	CClientDC clienDC(this);
 	wglMakeCurrent(clienDC.m_hDC, m_hRC);
+  SetViewFrustum();
   RenderScene();
 	wglMakeCurrent(NULL, m_hRC);
   //glPopMatrix();
@@ -203,20 +204,22 @@ void BigHouseView::OnSize(UINT nType, int cx, int cy) {
     return;
   cx_ = cx;
   cy_ = cy;
+
 	CClientDC clienDC(this);
 	wglMakeCurrent(clienDC.m_hDC, m_hRC);
+
   // Define viewport = size window
- /* glViewport(0, 0, cx, cy);*/
+  glViewport(0, 0, cx, cy);
+
   GLfloat aspect_ratio = (GLdouble)cx/(GLdouble)cy;
   ::glMatrixMode(GL_PROJECTION);
-  ::glLoadIdentity();
+
   //::gluPerspective(45.0f, aspect_ratio, 0.01f,-200.0f);
 	// gluPerspective(0,aspect_ratio,0.01,200);
-	  glViewport(0, 0, cx, cy);
-  // SetViewFrustum();
+
+  ::glMatrixMode(GL_MODELVIEW);
 
   // Select MatrixModelView
-  //::glMatrixMode(GL_MODELVIEW);
 	 wglMakeCurrent(NULL, NULL);
 }
 
@@ -328,8 +331,8 @@ void BigHouseView::SetupLight() {
   GLfloat m_SceneAmbient1[]  = {0.3f,0.3f,0.3f,1.0f};
 	GLfloat m_SceneDiffuse1[]  = {0.7f,0.7f,0.7f,1.0f};
 	GLfloat m_SceneSpecular1[] = {1.0f,1.0f,1.0f,1.0f};
-	//GLfloat m_ScenePosition1[] = {gradient_.v[0], gradient_.v[1], gradient_.v[2],0.0f};
-	GLfloat m_ScenePosition1[] = {-1.0f, -1.0f, -1.0f,0.0f};
+	GLfloat m_ScenePosition1[] = {gradient_.v[0], gradient_.v[1], gradient_.v[2],0.0f};
+	//GLfloat m_ScenePosition1[] = {-1.0f, -1.0f, -1.0f,0.0f};
 	GLfloat m_SceneDirection1[]= {0.0f,0.0f,1.0f,0.0f};
 	GLfloat whiteSpecularLight[] = {1.0, 1.0, 1.0}; 
 	GLfloat blackAmbientLight[] = {0.0, 0.0, 0.0};
@@ -361,6 +364,7 @@ void BigHouseView::DisableLight() {
 
 void BigHouseView::RenderScene() {
   glLoadIdentity();
+
   glEnable(GL_POINT_SMOOTH);
 	glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
 	glEnable(GL_LINE_SMOOTH);
@@ -391,16 +395,10 @@ void BigHouseView::RenderScene() {
 
 	glPushMatrix();
   SetupLight(); // only used for cad
-#if 0
-	 Shelf shelf;
-	 SetupLight();
-	 shelf.DrawShelf();
-#endif
   // Draw Cad
   DrawCad();
   // Then draw cad is complelted, so disable light
   DisableLight();
-
 	glPopMatrix();
 
   // Draw Room 
@@ -409,22 +407,10 @@ void BigHouseView::RenderScene() {
 
 void BigHouseView::DrawCad() {
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-  glColor3f(1.0, 1.0, 1.0);
-#if 0
-  std::vector<std::pair<RectBody, std::vector<Triangle3D*>>> all_body;
-  all_body = theApp.GetCadBoy();
-	if(all_body.size() != all_body_.size()) {
-		int size_bd = all_body_.size();
-		for(int i = size_bd; i < all_body.size(); i ++) {
-			all_body_.push_back(all_body.at(i));
-		}
-	}
-#endif
+
 	for(int i = 0; i < shelf_.size(); i ++) {
-		//std::vector<Triangle3D*> body = all_body_.at(i).second;
 		Vector3D cen ;
 		shelf_.at(i)->GetBBmin(cen);
-    //  cen = cen*0.5;
 
 		glPushMatrix();
 		glTranslatef(cen.v[0], cen.v[1], cen.v[2]);
@@ -432,17 +418,6 @@ void BigHouseView::DrawCad() {
 			glTranslatef (move_body_.v[0], move_body_.v[1], move_body_.v[2]);
 		}
 		shelf_.at(i)->DrawShelf();
-#if 0
-		glBegin(GL_TRIANGLES); 
-		for(int j = 0; j < body.size(); j ++) {
-			glNormal3fv(body.at(j)->normal.v);
-			glVertex3fv(body.at(j)->m_v0.v);
-			glVertex3fv(body.at(j)->m_v1.v);
-			glVertex3fv(body.at(j)->m_v2.v);
-		}
-		glPopMatrix();
-		glEnd();
-#endif
 		glPopMatrix();
 	}
 }
@@ -461,10 +436,6 @@ void BigHouseView::DrawCoordinate() {
   glVertex3f(0.0f, 0.0, -LENGTH_AXIS);
   glVertex3f(0.0f, 0.0f, LENGTH_AXIS);
   glEnd();
-}
-
-void BigHouseView::DrawRectangle(int length) {
-  glutSolidCube(length);
 }
 
 
@@ -613,9 +584,7 @@ void BigHouseView::ViewDirection() {
 	cam_up = cam_up.Unit();
 
   
-  gluLookAt(eyeX_ + gradien.v[0], eyeX_ + gradien.v[1], eyeX_ + gradien.v[2],
-            eyeX_, eyeY_, eyeX_, cam_up.v[0], cam_up.v[1],
-            cam_up.v[2]);
+  gluLookAt(gradien.v[0], gradien.v[1], gradien.v[2], 0, 0, 0, cam_up.v[0],cam_up.v[1],cam_up.v[2]);
 }
 
 
