@@ -173,7 +173,7 @@ void Shelf::PointMouseOnFloor(Vector3D &dir, Vector3D &pos) {
 				has_point = true;
 			} else {
 				Vector3D u = point_floor - temp;
-				if(u.scalar(dir) > 0) {
+				if(u.scalar(dir) < 0) {
 					count_floor_ = i;
 					point_floor = temp;
 				}

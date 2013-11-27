@@ -279,7 +279,7 @@ BOOL BigHouseView::InitializeOpenGL() {
   ::glShadeModel(GL_SMOOTH);
   // Setup lighting and material
 
-  SetupLight();
+  //SetupLight();
   OnLoadTexture();
   return TRUE;
 }
@@ -325,32 +325,39 @@ void BigHouseView::SetupLight() {
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_CULL_FACE);
 	glEnable(GL_DIFFUSE);
-  //glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_FALSE);
-  glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_FALSE);
 
-  GLfloat m_SceneAmbient1[]  = {0.3f,0.3f,0.3f,1.0f};
+  glEnable(GL_POINT_SMOOTH);
+	//glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
+	//glEnable(GL_LINE_SMOOTH);
+	glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  //glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_FALSE);
+ // glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_FALSE);
+
+  GLfloat m_SceneAmbient1[]  = {0.2f,0.2f,0.2f,1.0f};
 	GLfloat m_SceneDiffuse1[]  = {0.7f,0.7f,0.7f,1.0f};
-	GLfloat m_SceneSpecular1[] = {1.0f,1.0f,1.0f,1.0f};
-	GLfloat m_ScenePosition1[] = {gradient_.v[0], gradient_.v[1], gradient_.v[2],0.0f};
-	//GLfloat m_ScenePosition1[] = {-1.0f, -1.0f, -1.0f,0.0f};
+	GLfloat m_SceneSpecular1[] = {0.2f,0.2f,0.2f,1.0f};
+	//GLfloat m_ScenePosition1[] = {gradient_.v[0], gradient_.v[1], gradient_.v[2],0.0f};
+	GLfloat m_ScenePosition1[] = {0.0f, 0.5f, -1.0f,0.0f};
 	GLfloat m_SceneDirection1[]= {0.0f,0.0f,1.0f,0.0f};
 	GLfloat whiteSpecularLight[] = {1.0, 1.0, 1.0}; 
 	GLfloat blackAmbientLight[] = {0.0, 0.0, 0.0};
 	GLfloat whiteDiffuseLight[] = {1.0, 1.0, 1.0};
-	GLfloat mShininess[] = {128}; //set the shininess of the 
+	GLfloat mShininess[] = {60}; //set the shininess of the 
 
 	glLightfv(GL_LIGHT0, GL_AMBIENT, m_SceneAmbient1); 
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, m_SceneDiffuse1); 
 	glLightfv(GL_LIGHT0, GL_SPECULAR, m_SceneSpecular1); 
-	glLightfv(GL_LIGHT0, GL_POSITION, m_ScenePosition1);
- 	glLightf(GL_LIGHT0, GL_SPOT_CUTOFF,150.0f);
+//	glLightfv(GL_LIGHT0, GL_POSITION, m_ScenePosition1);
+ 	glLightf(GL_LIGHT0, GL_SPOT_CUTOFF,20.0f);
 
-	GLfloat material_ambient[] = {0.0f ,0.1f , 0.0f ,1.0f};
+	GLfloat material_ambient[] = {1.0f ,1.0f , 1.0f ,1.0f};
 	GLfloat material_specular[] = {1.0f ,1.0f ,1.0f ,1.0f};
 	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, material_ambient);
 	glMaterialfv(GL_FRONT, GL_SPECULAR, material_specular);
 
-	glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mShininess);
+	glMaterialfv(GL_FRONT, GL_SHININESS, mShininess);
 }
 
 void BigHouseView::DisableLight() {
@@ -363,18 +370,16 @@ void BigHouseView::DisableLight() {
 }
 
 void BigHouseView::RenderScene() {
+	glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-
-  glEnable(GL_POINT_SMOOTH);
-	glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
-	glEnable(GL_LINE_SMOOTH);
-	glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
   // Setup Projection for BigHouse
+	SetupLight();
 	SetViewFrustum();
-
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	//glClearColor(1.0, 1.0, 1.0, 1.0);
+	//glClear(GL_COLOR_BUFFER_BIT);
+  //SetupLight();
   // Setup View for Bighouse
 	ViewDirection();
   
@@ -394,7 +399,7 @@ void BigHouseView::RenderScene() {
 #endif
 
 	glPushMatrix();
-  SetupLight(); // only used for cad
+  //SetupLight(); // only used for cad
   // Draw Cad
   DrawCad();
   // Then draw cad is complelted, so disable light
@@ -800,25 +805,12 @@ int BigHouseView::MoveBody(Vector3D &dir,Vector3D &pos, Vector3D &point_m_on_pla
 				has_point = true;
 			} else {
 				Vector3D u = point_on_bb - temp;
-				if(u.scalar(dir) > 0) {
+				if(u.scalar(dir) < 0) {
 					point_on_bb = temp;
 					count = i;
 				} 
 			}
 		}
-		//Vector3D M = all_body_.at(i).first.bbmax + all_body_.at(i).first.bbmin;
-		//M = M*0.5;
-		//Vector3D temp = M - pos;
-		//Vector3D temp1 = temp*dir;
-		//if(i == 0) {
-		//	d = temp1.abs()/dir.abs();
-		//} else {
-		//	double dis = temp1.abs()/dir.abs();
-		//	if(d > dis) {
-		//		d = dis;
-		//		count = i;
-		//	}
-		//}
 		
 	}//
 	Vector3D oz(0, 0, 1);
@@ -846,7 +838,7 @@ bool BigHouseView::LineCutBoundingBox(Vector3D &dir, Vector3D &pos, Vector3D &bb
 			  has_a_point = true;
 			} else {
 				Vector3D temp = p_on_bb - E;
-				if(temp.scalar(dir) > 0) {
+				if(temp.scalar(dir) < 0) {
 					p_on_bb = E;
 				}
 			}
@@ -863,7 +855,7 @@ bool BigHouseView::LineCutBoundingBox(Vector3D &dir, Vector3D &pos, Vector3D &bb
 			  has_a_point = true;
 			} else {
 				Vector3D temp = p_on_bb - E;
-				if(temp.scalar(dir) > 0) {
+				if(temp.scalar(dir) < 0) {
 					p_on_bb = E;
 				}
 			}
