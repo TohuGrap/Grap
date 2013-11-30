@@ -8,6 +8,7 @@
 #include "Vector3D.h"
 #include "Triangle3D.h"
 #include "Shelf.h"
+#include "Struct.h"
 
 #define PI 3.1415926535
 class BigHouseView : public CView
@@ -78,7 +79,18 @@ public:
   void SetNumberOfFloor(float numf) {number_floor_ = numf;};
 	void MakeShelf(int width, int length, int height, int count_floor, int count_shelf, float angle);
   void ClearShelf();
-  void SetShowHideCoordinate(bool is_show) {show_coordinate_ = is_show; InvalidateRect(NULL, FALSE);}
+
+  void OnViewTop();
+  void OnViewBottom();
+  void OnViewLeft();
+  void OnViewRight();
+  void OnViewFront();
+  void OnViewBack();
+  void OnViewIso();
+  void OnShowCoordinate();
+  void OnUpdateShowCoordinate(CCmdUI* cmd);
+	void SetRoomSize(RoomSize room_size) {room_size_ = room_size;}
+	RoomSize GetRoomSize() {return room_size_;}
 protected:
   float pos[3];
 
@@ -139,7 +151,9 @@ protected:
   int number_floor_;
 
   bool show_coordinate_;
-// Generated message map functions
+
+	RoomSize room_size_;
+// Generated message map functions 
 private:
 	bool right_button_down_;
 	bool left_button_down_;

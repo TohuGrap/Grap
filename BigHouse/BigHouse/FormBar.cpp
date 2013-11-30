@@ -9,6 +9,8 @@
 #include "MainFrm.h"
 #include "BigHouse.h"
 #include "base.h"
+#include "SettingRoomDlg.h"
+#include "Struct.h"
 // FormBar
 
 IMPLEMENT_DYNCREATE(FormBar, CFormView)
@@ -38,15 +40,14 @@ void FormBar::DoDataExchange(CDataExchange* pDX)
   DDX_Text(pDX, IDC_EDIT_SHELF_HEIGH, edit_shelf_height_);
   DDX_Text(pDX, IDC_EDIT_NUMBER_FLOOR, edit_number_of_floor_);
   DDX_Text(pDX, IDC_EDIT_SHELF_ANGLE, edit_shelf_angle_);
-  DDX_Check(pDX, IDC_CHECK_SHOW_COORDIANTE, show_coordinate_);
   DDX_Control(pDX, IDC_LIST_FILE_OBJ, list_box_ctrl_);
 }
 
 BEGIN_MESSAGE_MAP(FormBar, CFormView)
-  ON_COMMAND(IDC_OBJECT_NEXT, FormBar::OnBnNext)
   ON_COMMAND(IDC_OBJECT_OPTION, FormBar::OnOption)
   ON_COMMAND(IDC_OBJECT_OPTION_SHELF, FormBar::OnSelectShelf)
   ON_COMMAND(IDC_CLEAR_SHELF,  FormBar::ClearShelf)
+  ON_COMMAND(IDC_BTN_ROOM_SIZE, FormBar::OnSettingRoom)
   ON_EN_CHANGE(IDC_EDIT_NUMBER_SHELF, &FormBar::OnNumberOfShelf)
   ON_EN_CHANGE(IDC_EDIT_SHELF_LONG, &FormBar::OnEditShelfLong)
   ON_EN_CHANGE(IDC_EDIT_SHELF_WIDTH, &FormBar::OnEditShelfWidth)
@@ -56,7 +57,6 @@ BEGIN_MESSAGE_MAP(FormBar, CFormView)
   ON_WM_PAINT()
   ON_WM_SIZE()
   ON_LBN_SELCHANGE(IDC_LIST_FILE_OBJ, FormBar::OnLBSelChange)
-  ON_BN_CLICKED(IDC_CHECK_SHOW_COORDIANTE, &FormBar::OnShowCoordinate)
 END_MESSAGE_MAP()
 
 
@@ -99,11 +99,6 @@ void FormBar::OnInitialUpdate() {
   str_shelf_angle_ = L"0";
 
 
-  CButton* btn = reinterpret_cast<CButton*>(GetDlgItem(IDC_OBJECT_NEXT));
-  btn->EnableWindow(FALSE);
-  UpdateData(FALSE);
-
-
   CString str = Base::GetPathModule();
   str = str + _T("\\cad\\");
   std::string str_cad = CStringA(str);
@@ -135,7 +130,6 @@ void FormBar::OnInitialUpdate() {
   }
 
   UpdateData(FALSE);
-  show_coordinate_ = 0;
 }
 
 void FormBar::OnPaint() {
@@ -154,8 +148,6 @@ BigHouseView *FormBar::GetBigHouseView() {
   return pView;
 }
 
-void FormBar::OnBnNext() {
-}
 
 void FormBar::UpdateBitmap(int index_bitmap) {
   switch(index_bitmap) {
@@ -271,8 +263,13 @@ void FormBar::OnLBSelChange() {
   }
 }
 
-void FormBar::OnShowCoordinate() {
-  UpdateData(TRUE);
-  int state = show_coordinate_;
-  GetBigHouseView()->SetShowHideCoordinate(state);
+void FormBar::OnSettingRoom() {
+  
+	RoomSize room_size_;
+	room_size_ = GetBigHouseView()->GetRoomSize();
+	SettingRoomDlg dlg(room_size_);
+	if (IDOK == dlg.DoModal()) {
+		room_size_ = dlg.GetRoomSize();
+	  GetBigHouseView()->SetRoomSize(room_size_);
+	}
 }

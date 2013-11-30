@@ -216,6 +216,11 @@ void BigHouseApp::SaveCustomState()
 {
 }
 
+
+
+BOOL BigHouseApp::LoadState(LPCTSTR lpszSectionName, CFrameImpl *pFrameImpl) {
+  return TRUE;
+}
 // BigHouseApp message handlers
 
 

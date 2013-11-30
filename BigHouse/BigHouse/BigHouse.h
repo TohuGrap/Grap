@@ -73,7 +73,7 @@ public:
 	virtual void PreLoadState();
 	virtual void LoadCustomState();
 	virtual void SaveCustomState();
-
+  virtual BOOL LoadState(LPCTSTR lpszSectionName = NULL, CFrameImpl *pFrameImpl = NULL);
 	afx_msg void OnAppAbout();
 	DECLARE_MESSAGE_MAP()
 };

@@ -87,6 +87,14 @@ int MainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	// Allow user-defined toolbars operations:
 	InitUserToolbars(NULL, uiFirstUserToolBarId, uiLastUserToolBarId);
 
+  // Create View toolbar
+  if (!m_wndViewBar.CreateEx(this, TBSTYLE_FLAT, WS_CHILD | WS_VISIBLE | CBRS_TOP | CBRS_GRIPPER | CBRS_TOOLTIPS | CBRS_FLYBY | CBRS_SIZE_DYNAMIC) ||
+    !m_wndViewBar.LoadToolBar(IDR_VIEW_TOOLBAR))
+	{
+		TRACE0("Failed to create View bar\n");
+		return -1;      // fail to create
+	}
+
 	if (!m_wndStatusBar.Create(this))
 	{
 		TRACE0("Failed to create status bar\n");
@@ -96,9 +104,10 @@ int MainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	// TODO: Delete these five lines if you don't want the toolbar and menubar to be dockable
 	m_wndToolBar.EnableDocking(CBRS_ALIGN_ANY);
+  m_wndViewBar.EnableDocking(CBRS_ALIGN_ANY);
 	EnableDocking(CBRS_ALIGN_ANY);
-	DockPane(&m_wndToolBar);
-
+	DockPane(&m_wndViewBar);
+  DockPaneLeftOf(&m_wndToolBar, &m_wndViewBar);
 
 	// enable Visual Studio 2005 style docking window behavior
 	CDockingManager::SetDockingMode(DT_SMART);
@@ -149,7 +158,7 @@ BOOL MainFrame::OnCreateClient(LPCREATESTRUCT lpCreateStruct, CCreateContext *pC
   }
 
   if (!splitter_.CreateView(0, 0, RUNTIME_CLASS(FormBar),
-                                CSize(300, 400),
+                                CSize(350, 400),
                                 pContext)) {
     TRACE0("Failed to view 0");
     return FALSE;

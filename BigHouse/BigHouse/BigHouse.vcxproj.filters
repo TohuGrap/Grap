@@ -105,6 +105,12 @@
     <ClInclude Include="Shelf.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SettingRoomDlg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Struct.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BigHouse.cpp">
@@ -132,6 +138,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Shelf.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SettingRoomDlg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

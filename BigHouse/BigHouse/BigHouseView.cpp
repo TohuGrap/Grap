@@ -20,10 +20,6 @@
 // BigHouseView
 #define LENGTH_AXIS 10000
 
-#define LONG_ROOM 1500
-#define WIDTH_ROOM 1500
-#define HEIGHT_ROOM 0
-
 #define M_PI 3.1415
 IMPLEMENT_DYNCREATE(BigHouseView, CView)
 
@@ -32,6 +28,15 @@ BEGIN_MESSAGE_MAP(BigHouseView, CView)
 	ON_COMMAND(ID_FILE_PRINT, &CView::OnFilePrint)
 	ON_COMMAND(ID_FILE_PRINT_DIRECT, &CView::OnFilePrint)
 	ON_COMMAND(ID_FILE_PRINT_PREVIEW, &BigHouseView::OnFilePrintPreview)
+  ON_COMMAND(ID_VIEW_TOP, &BigHouseView::OnViewTop)
+  ON_COMMAND(ID_VIEW_BOTTOM, &BigHouseView::OnViewBottom)
+  ON_COMMAND(ID_VIEW_LEFT, &BigHouseView::OnViewLeft)
+  ON_COMMAND(ID_VIEW_RIGHT, &BigHouseView::OnViewRight)
+  ON_COMMAND(ID_VIEW_FRONT, &BigHouseView::OnViewFront)
+  ON_COMMAND(ID_VIEW_BACK, &BigHouseView::OnViewBack)
+  ON_COMMAND(ID_VIEW_ISO, &BigHouseView::OnViewIso)
+  ON_COMMAND(ID_VIEW_COORDINATE, &BigHouseView::OnShowCoordinate)
+  ON_UPDATE_COMMAND_UI(ID_VIEW_COORDINATE, &BigHouseView::OnUpdateShowCoordinate)
 	ON_WM_CONTEXTMENU()
 	ON_WM_RBUTTONUP()
 	ON_WM_LBUTTONUP()
@@ -98,6 +103,11 @@ BigHouseView::BigHouseView():
 	old_move_count_ = -1;
 
   show_coordinate_ = false;
+
+	room_size_.longs = 1500.0f;
+	room_size_.width = 1500.0f;
+	room_size_.height = 0.0f;
+	room_size_.depth = 5.0f;
 }
 
 BigHouseView::~BigHouseView()
@@ -751,30 +761,30 @@ void BigHouseView::DrawRoom() {
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, m_texture[0]);
 
-  float longs = LONG_ROOM;
-  float width = WIDTH_ROOM;
-  float height = HEIGHT_ROOM;
-
+	float longs = room_size_.longs;
+	float width = room_size_.width;
+	float height = room_size_.height;
+	float depth = room_size_.depth;
 
   glColor3f(0.0f, 1.0f, 1.0f);
-  DrawRectangleBox(longs, width, 5, 1);  // Bottom face
+  DrawRectangleBox(longs, width, depth, 1);  // Bottom face
 
   glPushMatrix();                    // left wall
-  glTranslatef(0.0f, -1*(width/2), (height/2)-2.5);
+  glTranslatef(0.0f, -1*(width/2), (height/2) - depth/2.0f);
   glRotatef(90.0, 1.0, 0.0, 0.0);
-  DrawRectangleBox(longs, height, 5, 1);
+  DrawRectangleBox(longs, height, depth, 1);
   glPopMatrix();
 
   glPushMatrix();                    // right wall
-  glTranslatef(0.0f, width/2, (height/2)-2.5);
+  glTranslatef(0.0f, width/2, (height/2) - depth/2.0f);
   glRotatef(-90.0, 1.0, 0.0, 0.0);
-  DrawRectangleBox(longs, height, 5, 1);
+  DrawRectangleBox(longs, height, depth, 1);
   glPopMatrix();
 
   glPushMatrix();    // Back wall
-  glTranslatef(-1*(longs/2), 0.0, (height/2)-2.5);
+  glTranslatef(-1*(longs/2), 0.0, (height/2) - depth/2.0f);
   glRotatef(-90.0, 0.0, 1.0, 0.0);
-  DrawRectangleBox(height, width + 5, 5, 1);
+  DrawRectangleBox(height, width + depth, depth, 1);
   glPopMatrix();
 	glDisable(GL_TEXTURE_2D);
 	glPopMatrix();
@@ -913,4 +923,44 @@ void BigHouseView::MakeShelf(int width, int length, int height,
 void BigHouseView::ClearShelf() {
   if (shelf_.empty() == false)
     shelf_.clear();
+}
+
+
+void BigHouseView::OnViewTop() {
+  
+}
+
+void BigHouseView::OnViewBottom() {
+  
+}
+
+void BigHouseView::OnViewLeft() {
+  
+}
+
+void BigHouseView::OnViewRight() {
+  
+}
+
+void BigHouseView::OnViewFront() {
+  
+}
+
+void BigHouseView::OnViewBack() {
+  
+}
+
+void BigHouseView::OnViewIso() {
+  
+}
+
+void BigHouseView::OnShowCoordinate() {
+  if (show_coordinate_ == true)
+    show_coordinate_ = false;
+  else
+    show_coordinate_ = true;
+}
+
+void BigHouseView::OnUpdateShowCoordinate(CCmdUI* cmd) {
+  cmd->SetCheck(show_coordinate_ ? 1 : 0);
 }

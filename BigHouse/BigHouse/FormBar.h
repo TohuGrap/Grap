@@ -61,6 +61,7 @@ protected:
   afx_msg void OnNumberOfFloor();
   afx_msg void OnEditShelfAngle();
   afx_msg void OnShowCoordinate();
+  afx_msg void OnSettingRoom();
 	DECLARE_MESSAGE_MAP()
 private:
   int object_index_;
@@ -72,7 +73,6 @@ protected:
   CString edit_number_of_floor_;
   CString edit_shelf_angle_;
   CListBox list_box_ctrl_;
-  int show_coordinate_;
 };
 
 
