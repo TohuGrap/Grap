@@ -50,6 +50,8 @@ public:
   void RenderScene();
   void DrawGround();
   void DrawCoordinate();
+	void DrawSizeLine();
+	void DrawStringAt(double x, double y, double z, char* s);
   void DrawRectangle(int length);
   void SetFormView(FormBar* form_bar) {form_bar_ = form_bar;}
   void SetIndexObject(int index) {object_index_ = index; InvalidateRect(NULL, FALSE);}
@@ -91,6 +93,9 @@ public:
   void OnUpdateShowCoordinate(CCmdUI* cmd);
 	void SetRoomSize(RoomSize room_size) {room_size_ = room_size;}
 	RoomSize GetRoomSize() {return room_size_;}
+	void CreateOpenGLFont();
+	void SetShowSize(bool is_show) {is_show_size_ = is_show; InvalidateRect(NULL, FALSE);} 
+	void SetIsLbuttonDown(bool is_left_down) {left_button_down_ = is_left_down;}
 protected:
   float pos[3];
 
@@ -153,6 +158,9 @@ protected:
   bool show_coordinate_;
 
 	RoomSize room_size_;
+	GLuint m_textTip;
+	GLuint m_editCLTip;
+	bool is_show_size_;
 // Generated message map functions 
 private:
 	bool right_button_down_;

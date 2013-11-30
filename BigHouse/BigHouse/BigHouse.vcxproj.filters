@@ -67,6 +67,12 @@
     <None Include="res\bkgn.bmp">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="res\mainfram.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\icon1.ico">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BigHouse.h">
@@ -111,6 +117,12 @@
     <ClInclude Include="Struct.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="DlgSettingShelf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DlgProduction.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BigHouse.cpp">
@@ -141,6 +153,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SettingRoomDlg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DlgSettingShelf.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DlgProduction.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

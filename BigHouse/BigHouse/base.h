@@ -45,6 +45,14 @@ namespace Base {
     full_path = full_path.Left(full_path.ReverseFind('\\'));
     return full_path;
   }
+
+	static char* CStringToChar(CString str) {
+		char * chstr = new char [MAX_PATH];
+		long nsize = str.GetLength();
+		memset(chstr, 0, nsize);
+		wcstombs(chstr, str, nsize+1);
+		return chstr;
+	}
 }
 
 

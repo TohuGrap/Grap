@@ -27,52 +27,29 @@ public:
 public:
   int ObjectIndex() {return object_index_;}
   BigHouseView* GetBigHouseView();
-  void UpdateBitmap(int index_bitmap);
-  int CheckBitmap(CString str);
   enum ObjectShape {
     OBJ_TABLE = 0,
     OBJ_DESK = 1,
   };
-protected:
-  CStatic bitmap_image_ctrl;
-  CBitmap cbitmap_;
-
-  CString str_shelf_long_;
-  CString str_shelf_width_;
-  CString str_shelf_height_;
-  CString str_number_of_shelf_;
-  CString str_number_of_floor_;
-  CString str_shelf_angle_;
 
 protected:
   virtual void OnPaint();
   virtual void OnInitialUpdate();
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-  afx_msg void OnLBSelChange();
   afx_msg void OnBnNext();
   afx_msg void OnSize(UINT nType, int cx, int cy);
   afx_msg void OnOption();
   afx_msg void OnSelectShelf();
   afx_msg void ClearShelf();
-  afx_msg void OnEditShelfLong();
-  afx_msg void OnEditShelfWidth();
-  afx_msg void OnEditShelfHeight();
-  afx_msg void OnNumberOfShelf();
-  afx_msg void OnNumberOfFloor();
-  afx_msg void OnEditShelfAngle();
   afx_msg void OnShowCoordinate();
   afx_msg void OnSettingRoom();
+	afx_msg void ShowSizeRoom();
+	afx_msg void OnLButtonUp(UINT nFlags, CPoint pt);
 	DECLARE_MESSAGE_MAP()
 private:
   int object_index_;
 protected:
-  CString edit_number_of_shelf_;
-  CString edit_shelf_long_;
-  CString edit_shelf_width_;
-  CString edit_shelf_height_;
-  CString edit_number_of_floor_;
-  CString edit_shelf_angle_;
-  CListBox list_box_ctrl_;
+	int show_size_;
 };
 
 

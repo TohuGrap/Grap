@@ -1,4 +1,8 @@
-#pragma once
+
+
+#ifndef TRIANGLE_3D_H_
+#define TRIANGLE_3D_H_
+
 #include "Vector3D.h"
 class Triangle3D {
 public:
@@ -11,5 +15,6 @@ public:
 	Vector3D m_v2;
 	Vector3D normal;
 private:
-
 }; 
+
+#endif // TRIANGLE_3D_H_

@@ -1,13 +1,12 @@
 #include "stdafx.h"
 #include "Shelf.h"
-#include <gl/GL.h>
-
 
 Shelf::Shelf(int width, int length, int height, int count_floor)
-	:height_(height),
-	length_(length),
-	width_(width),
-	count_floor_(count_floor) {
+	: height_(height),
+		length_(length),
+		width_(width),
+		count_floor_(count_floor) 
+{
 	height_floor_ = (int)height/(count_floor_ + 1);
 	std::pair<Floor, std::vector<Triangle3D*>> stock;
 	for(int i = 0; i < count_floor_; i ++) {
@@ -23,71 +22,73 @@ Shelf::~Shelf() {
 
 }
 
-void Shelf::DrawFaceShelf(Rec &rec) {
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	//glDisable(GL_CULL_FACE);
+void Shelf::DrawFaceShelf(Rect &rect) {
 	glBegin(GL_POLYGON);
-  	glNormal3fv(rec.n.v);
-	  glVertex3fv(rec.p[0].v);
-		glVertex3fv(rec.p[1].v);
-		glVertex3fv(rec.p[2].v);
-		glVertex3fv(rec.p[3].v);
+  	glNormal3fv(rect.n.v);
+	  glVertex3fv(rect.p[0].v);
+		glVertex3fv(rect.p[1].v);
+		glVertex3fv(rect.p[2].v);
+		glVertex3fv(rect.p[3].v);
 	glEnd();
 }
 
 void Shelf::DrawCube(double width, double length, double height) {
-	Rec rec;
-	rec.n.Set(0, 0, 1);
-	rec.p[0].Set(0, 0 , height);
-	rec.p[1].Set(width, 0, height);
-	rec.p[2].Set(width, length, height);
-	rec.p[3].Set(0, length, height);
-	DrawFaceShelf(rec);
+	Rect rect;
+	// Plane 1
+	rect.n.Set(0, 0, 1);
+	rect.p[0].Set(0, 0, height);
+	rect.p[1].Set(width, 0, height);
+	rect.p[2].Set(width, length, height);
+	rect.p[3].Set(0, length, height);
+	DrawFaceShelf(rect);
 
-	rec.n.Set(0, 0, -1);
-  rec.p[0].Set(0, 0 , 0);
-	rec.p[1].Set(0, length, 0);
-	rec.p[2].Set(width, length, 0);
-	rec.p[3].Set(width, 0, 0);
-	DrawFaceShelf(rec);
+	// Plane 2
+	rect.n.Set(0, 0, -1);
+  rect.p[0].Set(0, 0 , 0);
+	rect.p[1].Set(0, length, 0);
+	rect.p[2].Set(width, length, 0);
+	rect.p[3].Set(width, 0, 0);
+	DrawFaceShelf(rect);
 
-  rec.n.Set(1, 0, 0);
-  rec.p[0].Set(width, 0 , 0);
-	rec.p[1].Set(width, length, 0);
-	rec.p[2].Set(width, length, height);
-	rec.p[3].Set(width, 0, height);
-	DrawFaceShelf(rec);
+	// Plane 3
+  rect.n.Set(1, 0, 0);
+  rect.p[0].Set(width, 0 , 0);
+	rect.p[1].Set(width, length, 0);
+	rect.p[2].Set(width, length, height);
+	rect.p[3].Set(width, 0, height);
+	DrawFaceShelf(rect);
 
-	rec.n.Set(-1, 0, 0);
-  rec.p[0].Set(0, 0 , 0);
-	rec.p[1].Set(0, 0, height);
-	rec.p[2].Set(0, length, height);
-	rec.p[3].Set(0, length, 0);
-	DrawFaceShelf(rec);
+	// Plane 4
+	rect.n.Set(-1, 0, 0);
+  rect.p[0].Set(0, 0 , 0);
+	rect.p[1].Set(0, 0, height);
+	rect.p[2].Set(0, length, height);
+	rect.p[3].Set(0, length, 0);
+	DrawFaceShelf(rect);
 
-  rec.n.Set(0, 1, 0);
-	rec.p[0].Set(0, length , 0);
-	rec.p[1].Set(0, length, height);
-	rec.p[2].Set(width, length, height);
-  rec.p[3].Set(width, length, 0);
+	// Plane 5
+  rect.n.Set(0, 1, 0);
+	rect.p[0].Set(0, length , 0);
+	rect.p[1].Set(0, length, height);
+	rect.p[2].Set(width, length, height);
+  rect.p[3].Set(width, length, 0);
+	DrawFaceShelf(rect);
 
-	DrawFaceShelf(rec);
-
-  rec.n.Set(0, -1, 0);
-	rec.p[0].Set(0, 0 , 0);
-	rec.p[1].Set(width, 0, 0);
-	rec.p[2].Set(width, 0, height);
-	rec.p[3].Set(0, 0, height);
-	DrawFaceShelf(rec);
+	// Plane 6
+  rect.n.Set(0, -1, 0);
+	rect.p[0].Set(0, 0 , 0);
+	rect.p[1].Set(width, 0, 0);
+	rect.p[2].Set(width, 0, height);
+	rect.p[3].Set(0, 0, height);
+	DrawFaceShelf(rect);
 }
 
-void Shelf::ShelfStructure() {
+void Shelf::DrawShelfFrame() {
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-  glDisable(GL_CULL_FACE);
 	glColor3f(1, 0, 0);
 	glPushMatrix();
 	glTranslated(0,0,1);
-	DrawCube(width_, length_, 10); // de
+	DrawCube(width_, length_, 10);
 	glPopMatrix();
 	glPushMatrix();
 	DrawCube(4, 4, height_);
@@ -116,11 +117,10 @@ void Shelf::ReSetSelectFloor() {
 
 void Shelf::DrawShelf() {
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-  ShelfStructure();
+  DrawShelfFrame();
 	DrawShelfFloor();
-	glPushMatrix();
-	DrawCommodity();
-	glPopMatrix();
+
+	DrawProduction();
 }
 void Shelf::DrawPoint() {
 	glPointSize(6.0);
@@ -187,12 +187,11 @@ void Shelf::PointMouseOnFloor(Vector3D &dir, Vector3D &pos) {
 
 }
 
-void Shelf::DrawCommodity() {
+void Shelf::DrawProduction() {
 	glPushMatrix();
-	glColor3f(0, 0, 1);
+	glColor3f(0.0f, 0.0f, 1.0f);
 	glShadeModel(GL_SMOOTH);
 	for(int i = 0 ; i < stocks_.size(); i ++) {
-
 		glTranslated(0, 0, stocks_.at(i).first.height_floor); // trans z
 	  glPushMatrix();
 		if(!stocks_.at(i).second.empty()) {
@@ -218,7 +217,6 @@ void Shelf::DrawCommodity() {
 		glPopMatrix();
 	}
 	glPopMatrix();
-	//glBegin()
 }
 
 bool Shelf::LineCutSurface(Vector3D &dir,

@@ -4,28 +4,17 @@
 #include "BigHouse.h"
 
 class Shelf {
-	struct Rec {
+	struct Rect {
 		Vector3D n;
 		Vector3D p[4];
 	};
-	//struct Size_rec {
-	//	int i;
-	//	int j;
-	//};
-	//struct Floor {
-	//	Vector3D color;
-	//	int height_floor;
-	//	Size_rec s_r;
-	//	RectBody s_b;
-	//};
-
 public:
 	Shelf(int width, int length, int height, int count_floor);
 	~Shelf();
-	void DrawFaceShelf(Rec &rec);
+	void DrawFaceShelf(Rect &rect);
 	void DrawCube(double width, double length, double height);
 	void DrawShelf();
-	void ShelfStructure();
+	void DrawShelfFrame();
 	void DrawShelfFloor();
 	void GetBoundingBox(Vector3D &bbmin, Vector3D &bbmax) const;
 	void GetBBmin(Vector3D &bbmin) const;
@@ -39,7 +28,7 @@ public:
 											Vector3D &E);
 	void SetCadToShelf(std::pair<Floor , std::vector<Triangle3D*>> &body);
 	void DrawPoint();
-	void DrawCommodity();
+	void DrawProduction();
 	void ReSetSelectFloor();
 private:
 	int length_;

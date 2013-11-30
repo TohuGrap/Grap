@@ -54,20 +54,13 @@ std::vector<std::pair<RectBody, std::vector<Triangle3D*>>> GetCadBoy();
 private:
 	void GetRectBody(std::vector<Triangle3D*> &cad_body);
 
-  long number_of_point_;
-  BOOL allow_draw_data_;
-  Triangle *gl_point_;
-  Vector *normal_vector_;
 	std::vector<Triangle3D*> cad_body_;
 	std::vector<std::pair<RectBody, std::vector<Triangle3D*>>> list_cad_boydy_;
-
+	Triangle3D *tr_;
 // Implementation
 	BOOL  m_bHiColorIcons;
 public:
   void FreePoint();
-  Vector* GetNormalVector () {return normal_vector_;} 
-  long GetNumberOfPoint() { return number_of_point_;}
-  Triangle* GetTrianglePoint() {return gl_point_;}
   void OnFileOpen();
   void LoadFileCad(CString str_file);
 	virtual void PreLoadState();

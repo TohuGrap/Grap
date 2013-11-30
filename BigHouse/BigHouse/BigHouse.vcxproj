@@ -104,6 +104,8 @@
     <None Include="res\bm_desk.bmp" />
     <None Include="res\cone.bmp" />
     <None Include="res\desk.bmp" />
+    <None Include="res\icon1.ico" />
+    <None Include="res\mainfram.bmp" />
     <None Include="res\Rect.bmp" />
     <None Include="res\Sphere.bmp" />
     <None Include="res\table.bmp" />
@@ -119,6 +121,8 @@
     <ClInclude Include="BigHouse.h" />
     <ClInclude Include="BigHouseDoc.h" />
     <ClInclude Include="BigHouseView.h" />
+    <ClInclude Include="DlgProduction.h" />
+    <ClInclude Include="DlgSettingShelf.h" />
     <ClInclude Include="FormBar.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="Resource.h" />
@@ -134,6 +138,8 @@
     <ClCompile Include="BigHouse.cpp" />
     <ClCompile Include="BigHouseDoc.cpp" />
     <ClCompile Include="BigHouseView.cpp" />
+    <ClCompile Include="DlgProduction.cpp" />
+    <ClCompile Include="DlgSettingShelf.cpp" />
     <ClCompile Include="FormBar.cpp" />
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="SettingRoomDlg.cpp" />

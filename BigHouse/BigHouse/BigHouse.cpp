@@ -1,4 +1,4 @@
-
+﻿
 // BigHouse.cpp : Defines the class behaviors for the application.
 //
 
@@ -34,7 +34,7 @@ END_MESSAGE_MAP()
 BigHouseApp::BigHouseApp()
 {
 	m_bHiColorIcons = TRUE;
-
+	tr_ = NULL;
 	// support Restart Manager
 	m_dwRestartManagerSupportFlags = AFX_RESTART_MANAGER_SUPPORT_ALL_ASPECTS;
 #ifdef _MANAGED
@@ -240,132 +240,68 @@ void BigHouseApp::OnFileOpen() {
 
 }
 
-//void BigHouseApp::LoadFileCad (CString strs) {
-//  UINT n_size = 0;
-//  char str[MAX_PATH];
-//  FILE *pFile = NULL;
-//  Point *value_stl = NULL;
-//  Point *asscii_value_stl = NULL;
-//
-//  CString str_file = Base::GetPathModule() + _T("\\cad\\") + strs;
-//  // convert CString to char*
-//  char file_name[MAX_PATH];
-//  n_size = str_file .GetLength();
-//  memset(file_name, 0, n_size + 1);
-//  wcstombs(file_name, str_file, n_size);
-//
-//  pFile = fopen(file_name, "r");
-//  if (pFile == NULL)
-//    return;
-//  fclose(pFile);
-//
-//    pFile = fopen(file_name, "r");
-//    if (pFile == NULL)
-//      return;
-//    while(!feof(pFile)) {
-//      fscanf(pFile, "%s", str);
-//      if (strcmp(str, "vertex") == 0 || strcmp(str, "VERTEX") == 0) {
-//        number_of_point_ += 1;
-//      }
-//    }
-//    fclose(pFile);
-//    // check number_of_point
-//    if (number_of_point_ == 0) {
-//      ::MessageBox(NULL, L"Can not read STL file", L"Inform", MB_OK | MB_ICONWARNING);
-//      return;
-//    }
-//
-//    static long count_normal_vector = 0;
-//    if (gl_point_ != NULL) {
-//      delete [] gl_point_;
-//      gl_point_ = NULL;
-//    }
-//    if (normal_vector_ != NULL) {
-//      delete [] normal_vector_;
-//      count_normal_vector = 0;
-//      normal_vector_ = NULL;
-//    }
-//    gl_point_ = new Triangle[number_of_point_];
-//    value_stl = new Point[number_of_point_];
-//    normal_vector_ = new Vector[number_of_point_ /3];
-//    // read data form stl file
-//    pFile = fopen(file_name, "r");
-//    fgets(str, MAX_PATH, pFile);
-//    while(!feof(pFile)) {
-//      fscanf(pFile, "%s%s%f%f%f", str, str,
-//             &normal_vector_[count_normal_vector][0],
-//             &normal_vector_[count_normal_vector][1],
-//             &normal_vector_[count_normal_vector][2]);
-//      count_normal_vector = 1;
-//      fgets(str, MAX_PATH, pFile);
-//      fgets(str, MAX_PATH, pFile);
-//      for (long i = 0; i< number_of_point_; i++) {
-//        fscanf(pFile,"%s%f%f%f",str, &value_stl[i][0],
-//              &value_stl[i][1],
-//              &value_stl[i][2]);
-//        gl_point_->Vertex[i][0] = value_stl[i][0];
-//        gl_point_->Vertex[i][1] = value_stl[i][1];
-//			  gl_point_->Vertex[i][2] = value_stl[i][2];
-//			  if((i+1)%3 == 0) {
-//				  fgets(str,100,pFile);
-//				  fgets(str,100,pFile);
-//				  fgets(str,100,pFile);
-//				  fscanf(pFile,"%s%s%f%f%f", str, str,
-//                 &normal_vector_[count_normal_vector][0],
-//                 &normal_vector_[count_normal_vector][1],
-//                 &normal_vector_[count_normal_vector][2]);
-//          count_normal_vector ++;
-//				  fgets(str,100,pFile);
-//				  fgets(str,100,pFile);
-//        }
-//      }
-//    }
-//    allow_draw_data_ = TRUE ;
-//	  InvalidateRect(NULL,NULL,FALSE);
-//    if (value_stl != NULL) {
-//      delete [] value_stl;
-//      value_stl = NULL;
-//    }
-//	  fclose(pFile);
-//}
-
 void BigHouseApp::LoadFileCad (CString strs) {
-  UINT n_size = 0;
+  unsigned int n_size = 0;
+	unsigned int number_of_point = 0;
   char str[MAX_PATH];
   FILE *pFile = NULL;
   CString str_file = Base::GetPathModule() + _T("\\cad\\") + strs;
-  // convert CString to char*
+  
+	// convert CString to char*
   char file_name[MAX_PATH];
   n_size = str_file .GetLength();
   memset(file_name, 0, n_size + 1);
   wcstombs(file_name, str_file, n_size);
-    // read data form stl file
+
+	 pFile = fopen(file_name, "r");
+   if (pFile == NULL) {
+     AfxMessageBox(L"Sản Phẩm Không tồn tại");
+		 return;
+	 }
+   while(!feof(pFile)) {
+      fscanf(pFile, "%s", str);
+      if (strcmp(str, "vertex") == 0 || strcmp(str, "VERTEX") == 0) {
+        number_of_point += 1;
+      }
+   }
+
+  if (tr_ != NULL) {
+	  delete [] tr_;
+		tr_ = NULL;
+	}
+	tr_ = new Triangle3D[number_of_point]; 
+  long count = 0;
+
+  // read data form stl file
   pFile = fopen(file_name, "r");
+
   fgets(str, MAX_PATH, pFile);
 	std::vector<Triangle3D*> cad;
-  while(!feof(pFile)) {
-		Triangle3D *tr = new Triangle3D(); 
+
+  while (!feof(pFile)) {
     fscanf(pFile, "%s%s%f%f%f", str, str,
-				    &tr->normal.v[0],
-						&tr->normal.v[1],
-						&tr->normal.v[2]);
+			     &(tr_ + count)->normal.v[0],
+						&(tr_ + count)->normal.v[1],
+						&(tr_ + count)->normal.v[2]);
     fgets(str, MAX_PATH, pFile);
     fgets(str, MAX_PATH, pFile);
-		fscanf(pFile, "%s%f%f%f", str, &tr->m_v0.v[0], &tr->m_v0.v[1], &tr->m_v0.v[2]);
-		fscanf(pFile, "%s%f%f%f", str, &tr->m_v1.v[0], &tr->m_v1.v[1], &tr->m_v1.v[2]);
-		fscanf(pFile, "%s%f%f%f", str, &tr->m_v2.v[0], &tr->m_v2.v[1], &tr->m_v2.v[2]);
-		cad.push_back(tr);
+		fscanf(pFile, "%s%f%f%f", str, &(tr_ + count)->m_v0.v[0], &(tr_ + count)->m_v0.v[1], &(tr_ + count)->m_v0.v[2]);
+		fscanf(pFile, "%s%f%f%f", str, &(tr_ + count)->m_v1.v[0], &(tr_ + count)->m_v1.v[1], &(tr_ + count)->m_v1.v[2]);
+		fscanf(pFile, "%s%f%f%f", str, &(tr_ + count)->m_v2.v[0], &(tr_ + count)->m_v2.v[1], &(tr_ + count)->m_v2.v[2]);
+		cad.push_back((tr_ + count));
 		fgets(str, MAX_PATH, pFile);// end string of fscanf 
     fgets(str, MAX_PATH, pFile);
     fgets(str, MAX_PATH, pFile);
+
+		count++;
   }
 	int size = cad.size();
 	cad.erase(cad.begin() + size - 1);
 
-	fclose(pFile);
   GetRectBody(cad);
-	InvalidateRect(NULL,NULL,FALSE);
-
+	
+	fclose(pFile);
+	InvalidateRect(NULL, NULL, FALSE);
 }
 
 std::vector<std::pair<RectBody, std::vector<Triangle3D*>>> BigHouseApp::GetCadBoy() {
@@ -419,13 +355,9 @@ void BigHouseApp::GetRectBody(std::vector<Triangle3D*> &cad_body) {
 }
 
 void BigHouseApp::FreePoint() {
-  if (gl_point_ != NULL) {
-    delete [] gl_point_;
-    gl_point_ = NULL;
-  }
-  if (normal_vector_ != NULL) {
-    delete [] normal_vector_;
-    normal_vector_ = NULL;
-  }
+	if (tr_ != NULL) {
+	  delete [] tr_;
+		tr_ = NULL;
+	}
 }
 

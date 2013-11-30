@@ -91,8 +91,8 @@ BigHouseView::BigHouseView():
   m_scaling = 1.0f;
 	right_button_down_ = false;
 	left_button_down_ = false;
-	phi_ = 0;
-	theta_ = 45;
+	phi_ = 60;
+	theta_ = 60;
 
   shelf_long_ = 0.0;
   shelf_width_ = 0.0;
@@ -106,8 +106,10 @@ BigHouseView::BigHouseView():
 
 	room_size_.longs = 1500.0f;
 	room_size_.width = 1500.0f;
-	room_size_.height = 0.0f;
-	room_size_.depth = 5.0f;
+	room_size_.height = 150.0f;
+	room_size_.depth = 10.0f;
+
+	is_show_size_ = false;
 }
 
 BigHouseView::~BigHouseView()
@@ -291,6 +293,7 @@ BOOL BigHouseView::InitializeOpenGL() {
 
   //SetupLight();
   OnLoadTexture();
+	CreateOpenGLFont();
   return TRUE;
 }
 
@@ -382,23 +385,30 @@ void BigHouseView::DisableLight() {
 void BigHouseView::RenderScene() {
 	glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
+
   // Setup Projection for BigHouse
 	SetupLight();
 	SetViewFrustum();
+
+	glTranslatef(x_position_, y_position_, 0.0);
+
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	//glClearColor(1.0, 1.0, 1.0, 1.0);
-	//glClear(GL_COLOR_BUFFER_BIT);
-  //SetupLight();
   // Setup View for Bighouse
 	ViewDirection();
   
   if (show_coordinate_ == true) {
     glPushMatrix();
-    glTranslatef(0.0f, 0.0f, 3.5f);
+		glTranslatef(0.0f, 0.0f, room_size_.depth/2 + 2);
     DrawCoordinate();
     glPopMatrix();
   }
+
+	if (is_show_size_) {
+		glPushMatrix();
+		DrawSizeLine();
+		glPushMatrix();
+	}
 
 #ifdef ENABLE_DRAW_POINT
 	glColor3f(1,0,0);
@@ -442,18 +452,72 @@ void BigHouseView::DrawCoordinate() {
   glLineWidth(2.0f);
   glBegin(GL_LINES);
   glColor3f(1.0f, 0.0, 0.0);
-  glVertex3f(-LENGTH_AXIS, 0.0, 0.0f);
+  glVertex3f(0, 0.0, 0.0f);
   glVertex3f(LENGTH_AXIS, 0.0, 0.0f);
   glColor3f(0.0f, 1.0, 0.0);
-  glVertex3f(0.0f, -LENGTH_AXIS, 0.0f);
+  glVertex3f(0.0f, 0, 0.0f);
   glVertex3f(0.0f, LENGTH_AXIS, 0.0f);
   glColor3f(0.0f, 0.0, 1.0);
-  glVertex3f(0.0f, 0.0, -LENGTH_AXIS);
+  glVertex3f(0.0f, 0.0, 0);
   glVertex3f(0.0f, 0.0f, LENGTH_AXIS);
   glEnd();
 }
 
+void BigHouseView::DrawSizeLine() {
 
+	DisableLight();
+	// width Size Line
+	glPushMatrix();
+	glTranslatef(0.0, room_size_.longs/2 + 100, 0.0);
+  glLineWidth(3.0f);
+  glBegin(GL_LINES);
+  glColor3f(1.0f, 1.0, 0.0);
+	glVertex3f(-room_size_.width/2, 0.0, 0.0f);
+	glVertex3f(room_size_.width/2, 0.0, 0.0f);
+	glEnd();
+	glPopMatrix();
+
+	// long Size Line
+	glPushMatrix();
+	glTranslatef(room_size_.width/2 + 100, 0.0 , 0.0);
+  glLineWidth(3.0f);
+  glBegin(GL_LINES);
+  glColor3f(1.0f, 1.0, 0.0);
+	glVertex3f(0.0, -room_size_.width/2, 0.0f);
+	glVertex3f(0.0, room_size_.width/2, 0.0f);
+	glEnd();
+	glPopMatrix();
+
+	// height Size Line
+	glPushMatrix();
+	glTranslatef(room_size_.width/2 + 100, room_size_.longs/2 + 100 , 0.0);
+  glLineWidth(3.0f);
+  glBegin(GL_LINES);
+  glColor3f(1.0f, 1.0, 0.0);
+	glVertex3f(0.0, 0.0, 0.0f);
+	glVertex3f(0.0, 0.0, room_size_.height);
+	glEnd();
+	glPopMatrix();
+
+		//Draw LineSize
+		CString str_longs;
+		CString str_width;
+		CString str_height;
+
+		str_longs.Format(L"%.2f", room_size_.longs);
+		str_width.Format(L"%.2f", room_size_.width);
+		str_height.Format(L"%.2f", room_size_.height);
+
+		char* ch_longs = Base::CStringToChar(str_longs);
+		char* ch_width = Base::CStringToChar(str_width);
+		char* ch_height = Base::CStringToChar(str_height);
+
+		glColor3ub(255, 255, 255);
+		DrawStringAt(0.0, room_size_.longs/2 + 150, 0.0, ch_longs);
+		DrawStringAt(room_size_.width/2 + 150, 0.0, 0.0, ch_width);
+		DrawStringAt(room_size_.width/2 + 150, room_size_.longs/2 + 150, room_size_.height/2.0, ch_height);
+	SetupLight();
+}
 void BigHouseView::OnRButtonUp(UINT nFlags, CPoint point)
 {
 	//ClientToScreen(&point);
@@ -545,14 +609,14 @@ void BigHouseView::OnMouseMove(UINT nFlags, CPoint point) {
 		 	MoveBody(dir, pos, point_plane);
 			move_body_ = point_plane - l_point_button_down_;
 			point_m_in_opengl_ = pos;
-		} else if(!body_.second.empty()) {
+		} else if (!body_.second.empty()) {
 		  move_count_ = MoveBody(dir, pos, point_plane);
-			if(move_count_ != -1) {
+			if (move_count_ != -1) {
 				shelf_.at(move_count_)->PointMouseOnFloor(dir, pos);
 			}
 		}
-		if(old_move_count_ != - 1 && old_move_count_ != move_count_) {
-			if(shelf_.size() > old_move_count_) {
+		if (old_move_count_ != - 1 && old_move_count_ != move_count_) {
+			if (shelf_.size() > old_move_count_) {
 				shelf_.at(old_move_count_)->ReSetSelectFloor();
 			}
 		}
@@ -599,7 +663,7 @@ void BigHouseView::ViewDirection() {
 	cam_up = cam_up.Unit();
 
   
-  gluLookAt(gradien.v[0], gradien.v[1], gradien.v[2], 0, 0, 0, cam_up.v[0],cam_up.v[1],cam_up.v[2]);
+  gluLookAt(gradien.v[0], gradien.v[1], gradien.v[2], 0, 0, 0, cam_up.v[0], cam_up.v[1], cam_up.v[2]);
 }
 
 
@@ -627,15 +691,19 @@ void BigHouseView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
 	switch (nChar) {
 	//Processing Arrow Keys to Synchronise with Movement
 	case VK_UP:
+		y_position_ += 15.0f;
 		InvalidateRect(NULL,FALSE);
 		break;
 	case VK_DOWN:
+		y_position_ -= 15.0f;
 		InvalidateRect(NULL,FALSE);
 		break;
 	case VK_LEFT:
+		x_position_ -= 15.0f;
 		InvalidateRect(NULL,FALSE);
 		break;
 	case VK_RIGHT:
+		x_position_ += 15.0f;
 		InvalidateRect(NULL,FALSE);
 		break;
 	}
@@ -769,7 +837,7 @@ void BigHouseView::DrawRoom() {
   glColor3f(0.0f, 1.0f, 1.0f);
   DrawRectangleBox(longs, width, depth, 1);  // Bottom face
 
-  glPushMatrix();                    // left wall
+  glPushMatrix();  // left wall
   glTranslatef(0.0f, -1*(width/2), (height/2) - depth/2.0f);
   glRotatef(90.0, 1.0, 0.0, 0.0);
   DrawRectangleBox(longs, height, depth, 1);
@@ -783,6 +851,13 @@ void BigHouseView::DrawRoom() {
 
   glPushMatrix();    // Back wall
   glTranslatef(-1*(longs/2), 0.0, (height/2) - depth/2.0f);
+  glRotatef(-90.0, 0.0, 1.0, 0.0);
+  DrawRectangleBox(height, width + depth, depth, 1);
+  glPopMatrix();
+
+
+  glPushMatrix();    // Front wall
+  glTranslatef((longs/2), 0.0, (height/2) - depth/2.0f);
   glRotatef(-90.0, 0.0, 1.0, 0.0);
   DrawRectangleBox(height, width + depth, depth, 1);
   glPopMatrix();
@@ -926,32 +1001,60 @@ void BigHouseView::ClearShelf() {
 }
 
 
-void BigHouseView::OnViewTop() {
-  
+void BigHouseView::OnViewTop() { 
+	phi_ = 0.0;
+  theta_ = 0.0;
+  ::glMatrixMode( GL_MODELVIEW );
+  ::glLoadIdentity();
+	InvalidateRect(NULL, FALSE);
 }
 
 void BigHouseView::OnViewBottom() {
-  
+	phi_ = 0.0;
+  theta_ = 180.0;
+  ::glMatrixMode( GL_MODELVIEW );
+  ::glLoadIdentity();
+	InvalidateRect(NULL, FALSE);
 }
 
 void BigHouseView::OnViewLeft() {
-  
+  phi_ = -90.0;
+  theta_ = 90.0;
+  ::glMatrixMode( GL_MODELVIEW );
+  ::glLoadIdentity();
+	InvalidateRect(NULL, FALSE);
 }
 
 void BigHouseView::OnViewRight() {
-  
+	phi_ = 90.0;
+  theta_ = 90.0;
+  ::glMatrixMode( GL_MODELVIEW );
+  ::glLoadIdentity();
+	InvalidateRect(NULL, FALSE);
 }
 
 void BigHouseView::OnViewFront() {
-  
+  phi_ = 0.0;
+  theta_ = 90.0;
+  ::glMatrixMode( GL_MODELVIEW );
+  ::glLoadIdentity();
+	InvalidateRect(NULL, FALSE);
 }
 
 void BigHouseView::OnViewBack() {
-  
+	phi_ = -180.0;
+  theta_ = 90.0;
+  ::glMatrixMode( GL_MODELVIEW );
+  ::glLoadIdentity();
+	InvalidateRect(NULL, FALSE);
 }
 
 void BigHouseView::OnViewIso() {
-  
+  phi_ = 60.0;
+  theta_ = 60.0;
+  ::glMatrixMode( GL_MODELVIEW );
+  ::glLoadIdentity();
+	InvalidateRect(NULL, FALSE);
 }
 
 void BigHouseView::OnShowCoordinate() {
@@ -963,4 +1066,38 @@ void BigHouseView::OnShowCoordinate() {
 
 void BigHouseView::OnUpdateShowCoordinate(CCmdUI* cmd) {
   cmd->SetCheck(show_coordinate_ ? 1 : 0);
+}
+
+// draw label "X" "Y" "Z"
+void BigHouseView::CreateOpenGLFont() {
+  CFont m_font;
+  m_font.CreateFont( -16,               // Height Of Font 
+                       0,               // Width Of Font 
+                       0,               // Angle Of Escapement 
+                       0,               // Orientation Angle 
+                       FW_NORMAL,       // Font Weight 
+                       FALSE,           // Italic 
+                       FALSE,           // Underline 
+                       FALSE,           // Strikeout 
+                       ANSI_CHARSET,              // Character Set Identifier 
+                       OUT_TT_PRECIS,             // Output Precision 
+                       CLIP_DEFAULT_PRECIS,       // Clipping Precision 
+                       DEFAULT_QUALITY,           // Output Quality 
+                       FF_DONTCARE|DEFAULT_PITCH, // Family And Pitch 
+                       _T("Arial"));
+  CFont* m_pOldFont = GetDC()->SelectObject(&m_font); 
+  m_editCLTip = glGenLists(256);
+  m_textTip = glGenLists(256);
+  wglUseFontBitmaps(m_pDC->m_hDC, 0, 255, m_editCLTip);
+  wglUseFontBitmaps(m_pDC->m_hDC, 0, 255, m_textTip);
+  GetDC()->SelectObject(m_pOldFont); 
+} 
+
+void BigHouseView::DrawStringAt(double x, double y, double z, char* s) {
+  size_t length = strlen(s);
+  if (length > 0 && s) {
+    glRasterPos3d(x, y , z);
+    glListBase(m_textTip);
+    glCallLists(length, GL_UNSIGNED_BYTE, (const GLvoid*)s);
+  }
 }
