@@ -1,5 +1,6 @@
 #pragma once
 #include"Shelf.h"
+#include "Struct.h"
 enum TypeRecShelf {
 	FONT = 0,
 	BACK,
@@ -11,7 +12,7 @@ public :
 	RecShelf(int width, int length, int height, int count_floor , TypeRecShelf type);
 	RecShelf();
 	~RecShelf();
-	void DrawFaceShelf(Rec &rec);
+	void DrawFaceShelf(Rect &rec);
 	void DrawCube(double width, double length, double height);
 
 	void ShelfStructure(double width,

@@ -5,22 +5,22 @@
 Shelf::Shelf(/*int width, int length, int height, int count_floor*/) {
 }
 
-Shelf::Shelf(int width, int length, int height, int count_floor)
-	: height_(height),
-		length_(length),
-		width_(width),
-		count_floor_(count_floor) 
-{
-	height_floor_ = (int)height/(count_floor_ + 1);
-	std::pair<Floor, std::vector<Triangle3D*>> stock;
-	for(int i = 0; i < count_floor_; i ++) {
-		stock.first.height_floor = height_floor_;
-		stock.first.color.Set(1, 1, 1);
-		stocks_.push_back(stock);
-	}
-	bbmin_.Set(0, 0, 0);
-	bbmax_.Set(width_, length_, height_);
-}
+//Shelf::Shelf(int width, int length, int height, int count_floor)
+//	: height_(height),
+//		length_(length),
+//		width_(width),
+//		count_floor_(count_floor) 
+//{
+//	height_floor_ = (int)height/(count_floor_ + 1);
+//	std::pair<Floor, std::vector<Triangle3D*>> stock;
+//	for(int i = 0; i < count_floor_; i ++) {
+//		stock.first.height_floor = height_floor_;
+//		stock.first.color.Set(1, 1, 1);
+//		stocks_.push_back(stock);
+//	}
+//	bbmin_.Set(0, 0, 0);
+//	bbmax_.Set(width_, length_, height_);
+//}
 
 Shelf::~Shelf() {
 

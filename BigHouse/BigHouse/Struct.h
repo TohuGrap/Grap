@@ -17,4 +17,8 @@ struct ShelfInfo {
   float numf;
   float shelf_angle;
 };
+	struct Rect {
+		Vector3D n;
+		Vector3D p[4];
+	};
 #endif // STRUCT_H_

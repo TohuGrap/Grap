@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include"RecShelf.h"
+#include "Struct.h"
 
 RecShelf::RecShelf(int width, int length, int height, int count_floor, TypeRecShelf type) 
 	:height_(height),
@@ -25,7 +26,7 @@ RecShelf::RecShelf() {
 RecShelf::~RecShelf() {
 
 }
-void RecShelf::DrawFaceShelf(Rec &rec) {
+void RecShelf::DrawFaceShelf(Rect &rec) {
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	//glDisable(GL_CULL_FACE);
 	glBegin(GL_POLYGON);
@@ -38,7 +39,7 @@ void RecShelf::DrawFaceShelf(Rec &rec) {
 }
 
 void RecShelf::DrawCube(double width, double length, double height) {
-	Rec rec;
+	Rect rec;
 	rec.n.Set(0, 0, 1);
 	rec.p[0].Set(0, 0 , height);
 	rec.p[1].Set(width, 0, height);
