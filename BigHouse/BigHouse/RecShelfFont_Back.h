@@ -9,7 +9,7 @@ enum DirectionShelf {
 class RecShelfFont_Back :public Shelf, RecShelf {
 
 public:
-	RecShelfFont_Back(int width, int length, int height, int count_floor, DirectionShelf d_shelf ,TypeRecShelf type);
+	RecShelfFont_Back(int width, int length, int height, int count_floor, DirectionShelf d_shelf /*,TypeRecShelf type*/);
   ~RecShelfFont_Back();
 
 	virtual bool IsLineCutBody(const Vector3D &dir, const Vector3D& pos, Vector3D &p);

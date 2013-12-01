@@ -2,6 +2,7 @@
 #include "Vector3D.h"
 #include "Triangle3D.h"
 #include "BigHouse.h"
+#include "Struct.h"
 class Shelf {
 public:
   Shelf();
@@ -14,6 +15,9 @@ public:
 	virtual void SetOriginBody(Vector3D &p_move) = 0;
 	virtual void PointMouseOnFloor(Vector3D &dir, Vector3D &pos) = 0;
 	virtual void ReSetSelectFloor() = 0;
+protected:
+	void DrawFaceShelf(Rect &rec);
+	void DrawCylinder(double r, double h, double sp, double ep, double angle);
 	private:
 
 protected:

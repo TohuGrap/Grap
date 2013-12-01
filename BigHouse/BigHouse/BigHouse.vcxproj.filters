@@ -114,7 +114,6 @@
     <ClInclude Include="RecShelf.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-
     <ClInclude Include="RecShelfFont_Back.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -128,6 +127,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="DlgProduction.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CircleShelf.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -162,7 +164,6 @@
     <ClCompile Include="RectShelf.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-
     <ClCompile Include="RecShelfFont_Back.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -173,6 +174,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="DlgProduction.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CircleShelf.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

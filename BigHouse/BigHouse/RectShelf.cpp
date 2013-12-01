@@ -2,21 +2,25 @@
 #include"RecShelf.h"
 #include "Struct.h"
 
-RecShelf::RecShelf(int width, int length, int height, int count_floor, TypeRecShelf type) 
+RecShelf::RecShelf(int width,  // kt
+	                 int length, // kt
+									 int height, //kt
+									 int count_floor, // so san 
+									 TypeRecShelf type) // huong cua ke
 	:height_(height),
 	length_(length),
 	width_(width),
-	count_floor_(count_floor),
   type_(type){
 	height_floor_ = (int)height/(count_floor_ + 1);
 	std::pair<Floor, std::vector<Triangle3D*>> stock;
-	for(int i = 0; i < count_floor_; i ++) {
+	for(int i = 0; i < count_floor; i ++) {
 		stock.first.height_floor = height_floor_;
-		stock.first.color.Set(1, 1, 1);
+		///stock.first.color.Set(1, 1, 1);
 		stocks_.push_back(stock);
 	}
 	bbmin_.Set(0, 0, 0);
 	bbmax_.Set(width_, length_, height_);
+	count_floor_ = - 1;
 }
 
 RecShelf::RecShelf() {
@@ -85,7 +89,7 @@ void RecShelf::DrawCube(double width, double length, double height) {
 }
 
 void RecShelf::ShelfStructure(double width, double length, double height, TypeRecShelf type) {
-  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   glDisable(GL_CULL_FACE);
 	glColor3f(1, 0, 0);
 	glPushMatrix();
@@ -140,7 +144,9 @@ void RecShelf::DrawShelfFloor(int width,
 
 void RecShelf::DrawShelf() {
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  glDisable(GL_CULL_FACE);
 	ShelfStructure(width_ ,length_, height_, type_);
+	DrawSnare(1,height_, 0, 360, 60, width_, type_);
 	DrawShelfFloor(width_, length_, 1, count_floor_, stocks_);
 	DrawCommodity(stocks_);
 }
@@ -314,7 +320,11 @@ void RecShelf::SetCadToShelf(std::pair<Floor, std::vector<Triangle3D*>> &body) {
 
 //**********************************&&*************************
 
-bool RecShelf::LineCutBoundingBox(const Vector3D &dir, const Vector3D &pos, Vector3D &bbmin, Vector3D &bbmax, Vector3D &p_on_bb) {
+bool RecShelf::LineCutBoundingBox(const Vector3D &dir,
+	                                const Vector3D &pos,
+																	Vector3D &bbmin,
+																	Vector3D &bbmax,
+																	Vector3D &p_on_bb) {
 	Vector3D normal;
 	Vector3D E;
 	bool has_a_point = false;
@@ -369,4 +379,29 @@ void RecShelf::SetOriginBody(Vector3D &p_move) {
   Vector3D p(width_, length_, height_);
 	bbmax_ = bbmin_ + p;
 
+}
+
+
+void RecShelf::DrawSnare(double r, 
+	                       double h, 
+												 double sp,
+												 double ep,
+												 double angle,
+												 double lenght,
+												 TypeRecShelf type) {
+													 float temp = lenght/10.0;
+	glPushMatrix();
+	for(int i = 0; i < 9; i ++) {
+		if(type == FONT) {
+				glTranslatef(0, temp ,0);
+				DrawCylinder(r, h, sp, ep, angle);
+		} else if(type == BACK) {
+	
+		} else if(type == LEFT) {
+	
+		} else {
+		
+		}
+	}
+	glPopMatrix();
 }

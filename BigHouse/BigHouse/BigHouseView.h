@@ -10,6 +10,7 @@
 #include "Shelf.h"
 #include "RecShelf.h"
 #include "RecShelfFont_Back.h"
+#include "CircleShelf.h"
 #include "Struct.h"
 
 #define PI 3.1415926535
