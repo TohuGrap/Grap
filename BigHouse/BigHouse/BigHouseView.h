@@ -8,6 +8,8 @@
 #include "Vector3D.h"
 #include "Triangle3D.h"
 #include "Shelf.h"
+#include "RecShelf.h"
+#include "RecShelfFont_Back.h"
 #include "Struct.h"
 
 #define PI 3.1415926535
@@ -67,10 +69,9 @@ public:
   void DrawCad();
 	void ViewDirection();
 	void GetVectorPerpendicularToThescreen(Vector3D &v_oz);
-	int MoveBody(Vector3D &dir, Vector3D &pos, Vector3D &point_m_on_plane);
+	int SelecteShelf(Vector3D &dir, Vector3D &pos);
 	void ConvertScrenToOpengl(CPoint &point2D, Vector3D &point_3D);
-	bool LineCutSurface(Vector3D &dir, Vector3D &pos,Vector3D &n, Vector3D &A, Vector3D &B, Vector3D &E);
-	bool LineCutBoundingBox(Vector3D &dir, Vector3D &pos, Vector3D &bbmin, Vector3D &bbmax, Vector3D &p_on_bb);
+	void GetPointMouseOnPlane(Vector3D &dir, Vector3D &pos, Vector3D &n, Vector3D &p, Vector3D &point);
 	void ResetColor();
 	void SetCadToView(std::pair<Floor, std::vector<Triangle3D*>> &body);
 
@@ -169,16 +170,12 @@ private:
 	double theta_;
 	Vector3D point_m_in_opengl_;
 	Vector3D dr_oz_;
-	std::vector<Vector3D> list_body_;
-	Vector3D first_post_;
-	std::vector<std::pair<RectBody, std::vector<Triangle3D*>>> all_body_;
 	std::pair<Floor, std::vector<Triangle3D*>> body_;
 	std::vector<Shelf*> shelf_;
-	Vector3D l_point_button_down_;
-	Vector3D move_body_;
-	int move_count_;
-	int old_move_count_;
-	Vector3D gradient_;
+	Vector3D point_left_button_down_;
+	Vector3D move_shelf_;
+	int old_count_selecte_;
+	int count_selected_;
 
 protected:
 	afx_msg void OnFilePrintPreview();

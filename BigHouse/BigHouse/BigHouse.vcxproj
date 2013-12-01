@@ -125,6 +125,8 @@
     <ClInclude Include="DlgSettingShelf.h" />
     <ClInclude Include="FormBar.h" />
     <ClInclude Include="MainFrm.h" />
+    <ClInclude Include="RecShelf.h" />
+    <ClInclude Include="RecShelfFont_Back.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="SettingRoomDlg.h" />
     <ClInclude Include="Shelf.h" />
@@ -142,6 +144,8 @@
     <ClCompile Include="DlgSettingShelf.cpp" />
     <ClCompile Include="FormBar.cpp" />
     <ClCompile Include="MainFrm.cpp" />
+    <ClCompile Include="RecShelfFont_Back.cpp" />
+    <ClCompile Include="RectShelf.cpp" />
     <ClCompile Include="SettingRoomDlg.cpp" />
     <ClCompile Include="Shelf.cpp" />
     <ClCompile Include="stdafx.cpp">

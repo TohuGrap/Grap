@@ -111,6 +111,13 @@
     <ClInclude Include="Shelf.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="RecShelf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+
+    <ClInclude Include="RecShelfFont_Back.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="SettingRoomDlg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -150,6 +157,13 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Shelf.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RectShelf.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+
+    <ClCompile Include="RecShelfFont_Back.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SettingRoomDlg.cpp">
