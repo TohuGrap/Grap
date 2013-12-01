@@ -56,7 +56,6 @@ private:
 
 	std::vector<Triangle3D*> cad_body_;
 	std::vector<std::pair<RectBody, std::vector<Triangle3D*>>> list_cad_boydy_;
-	Triangle3D *tr_;
 // Implementation
 	BOOL  m_bHiColorIcons;
 public:

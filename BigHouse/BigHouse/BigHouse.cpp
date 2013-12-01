@@ -34,7 +34,6 @@ END_MESSAGE_MAP()
 BigHouseApp::BigHouseApp()
 {
 	m_bHiColorIcons = TRUE;
-	tr_ = NULL;
 	// support Restart Manager
 	m_dwRestartManagerSupportFlags = AFX_RESTART_MANAGER_SUPPORT_ALL_ASPECTS;
 #ifdef _MANAGED
@@ -265,13 +264,6 @@ void BigHouseApp::LoadFileCad (CString strs) {
       }
    }
 
-  if (tr_ != NULL) {
-	  delete [] tr_;
-		tr_ = NULL;
-	}
-	tr_ = new Triangle3D[number_of_point]; 
-  long count = 0;
-
   // read data form stl file
   pFile = fopen(file_name, "r");
 
@@ -279,21 +271,20 @@ void BigHouseApp::LoadFileCad (CString strs) {
 	std::vector<Triangle3D*> cad;
 
   while (!feof(pFile)) {
+		Triangle3D * tr_ = new Triangle3D();
     fscanf(pFile, "%s%s%f%f%f", str, str,
-			     &(tr_ + count)->normal.v[0],
-						&(tr_ + count)->normal.v[1],
-						&(tr_ + count)->normal.v[2]);
+			     &tr_->normal.v[0],
+						&tr_->normal.v[1],
+						&tr_->normal.v[2]);
     fgets(str, MAX_PATH, pFile);
     fgets(str, MAX_PATH, pFile);
-		fscanf(pFile, "%s%f%f%f", str, &(tr_ + count)->m_v0.v[0], &(tr_ + count)->m_v0.v[1], &(tr_ + count)->m_v0.v[2]);
-		fscanf(pFile, "%s%f%f%f", str, &(tr_ + count)->m_v1.v[0], &(tr_ + count)->m_v1.v[1], &(tr_ + count)->m_v1.v[2]);
-		fscanf(pFile, "%s%f%f%f", str, &(tr_ + count)->m_v2.v[0], &(tr_ + count)->m_v2.v[1], &(tr_ + count)->m_v2.v[2]);
-		cad.push_back((tr_ + count));
+		fscanf(pFile, "%s%f%f%f", str, &tr_->m_v0.v[0], &tr_ ->m_v0.v[1], &tr_->m_v0.v[2]);
+		fscanf(pFile, "%s%f%f%f", str, &tr_->m_v1.v[0], &tr_ ->m_v1.v[1], &tr_->m_v1.v[2]);
+		fscanf(pFile, "%s%f%f%f", str, &tr_->m_v2.v[0], &tr_ ->m_v2.v[1], &tr_ ->m_v2.v[2]);
+		cad.push_back(tr_);
 		fgets(str, MAX_PATH, pFile);// end string of fscanf 
     fgets(str, MAX_PATH, pFile);
     fgets(str, MAX_PATH, pFile);
-
-		count++;
   }
 	int size = cad.size();
 	cad.erase(cad.begin() + size - 1);
@@ -355,9 +346,5 @@ void BigHouseApp::GetRectBody(std::vector<Triangle3D*> &cad_body) {
 }
 
 void BigHouseApp::FreePoint() {
-	if (tr_ != NULL) {
-	  delete [] tr_;
-		tr_ = NULL;
-	}
 }
 
