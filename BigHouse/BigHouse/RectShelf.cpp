@@ -11,11 +11,10 @@ RecShelf::RecShelf(int width,  // kt
 	length_(length),
 	width_(width),
   type_(type){
-	height_floor_ = (int)height/(count_floor_ + 1);
+	height_floor_ = (int)(height-10)/(count_floor);
 	std::pair<Floor, std::vector<Triangle3D*>> stock;
 	for(int i = 0; i < count_floor; i ++) {
 		stock.first.height_floor = height_floor_;
-		///stock.first.color.Set(1, 1, 1);
 		stocks_.push_back(stock);
 	}
 	bbmin_.Set(0, 0, 0);
@@ -89,14 +88,10 @@ void RecShelf::DrawCube(double width, double length, double height) {
 }
 
 void RecShelf::ShelfStructure(double width, double length, double height, TypeRecShelf type) {
-  //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-  glDisable(GL_CULL_FACE);
+  glPushMatrix();
 	glColor3f(1, 0, 0);
-	glPushMatrix();
-	glTranslated(0,0,1);
+
 	DrawCube(width, length, 10); // de
-	glPopMatrix();
-	glPushMatrix();
 	if(type == BACK || type == FONT) {
 		if(type == BACK) {
 			glTranslatef(width, 0, 0);
@@ -116,7 +111,10 @@ void RecShelf::ShelfStructure(double width, double length, double height, TypeRe
 		glTranslated(width - 4, 0, 0);
 		DrawCube(4, 4, height);
 	}
-
+	//glPushMatrix();
+	//glTranslatef(0, 0 , height- 10);
+	//DrawCube(4, length, 10);
+	//glPopMatrix();
 	glPopMatrix();
 }
 
@@ -126,7 +124,12 @@ void RecShelf::DrawShelfFloor(int width,
 															int count,
 															std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks) {
 	glPushMatrix();
-	for(int i = 0; i < stocks.size(); i ++){
+	glTranslated(0, 0, 11);
+	if(count == 0) {
+		glColor3f(0, 0, 1);
+		DrawCube(width, length, heigth);
+	}
+	for(int i = 1; i < stocks.size(); i ++){
 		glTranslated(0, 0, stocks.at(i).first.height_floor);
 		if(count == i && stocks.at(i).second.empty()) {
 			glColor3f(0, 0, 1);
@@ -138,15 +141,12 @@ void RecShelf::DrawShelfFloor(int width,
 	glPopMatrix();
 }
 
-//void RecShelf::ReSetSelectFloor() {
-//	count_floor_ = -1;
-//}
 
 void RecShelf::DrawShelf() {
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   glDisable(GL_CULL_FACE);
 	ShelfStructure(width_ ,length_, height_, type_);
-	DrawSnare(1,height_, 0, 360, 60, width_, type_);
+	DrawSnare(1,height_, 0, 360, 60, width_, length_, height_, type_);
 	DrawShelfFloor(width_, length_, 1, count_floor_, stocks_);
 	DrawCommodity(stocks_);
 }
@@ -190,8 +190,8 @@ int RecShelf::FindPointMouseOnFloor(Vector3D &dir,
 	int height = 0;
 	bool has_point = false;
 	Vector3D point_floor;
+	height = 10;
 	for(int i = 0; i < stocks.size(); i ++) {
-		height  += stocks.at(i).first.height_floor;
 		Vector3D P1 = bbmin;
 		P1.v[2] = height;
 		Vector3D P2 = bbmax;
@@ -210,6 +210,7 @@ int RecShelf::FindPointMouseOnFloor(Vector3D &dir,
 				}
 			}
 		}
+		height  += stocks.at(i).first.height_floor;
 	}
 	return count;
 }
@@ -257,8 +258,11 @@ void RecShelf::DrawCommodity(std::vector<std::pair<Floor, std::vector<Triangle3D
 	glColor3f(0, 0, 1);
 	glShadeModel(GL_SMOOTH);
 	for(int i = 0 ; i < stocks.size(); i ++) {
-
-		glTranslated(0, 0, stocks.at(i).first.height_floor); // trans z
+		if(i ==  0) {
+      glTranslated(0, 0, 10);
+		} else {
+		  glTranslated(0, 0, stocks.at(i).first.height_floor); // trans z
+		}
 	  glPushMatrix();
 		if(!stocks.at(i).second.empty()) {
 			for(int j = 0; j < stocks.at(i).first.s_r.i; j++) {
@@ -387,21 +391,28 @@ void RecShelf::DrawSnare(double r,
 												 double sp,
 												 double ep,
 												 double angle,
+												 double width,
 												 double lenght,
+												 double height,
 												 TypeRecShelf type) {
-													 float temp = lenght/10.0;
+	float temp = lenght/10.0;
+	float temp2 = width /10.0;
+
 	glPushMatrix();
+	if(type == BACK) {
+		glTranslatef(width, 0 ,0);
+
+	} else if(type == RIGHT) {
+		glTranslatef(0, lenght ,0);
+	} 
 	for(int i = 0; i < 9; i ++) {
-		if(type == FONT) {
-				glTranslatef(0, temp ,0);
-				DrawCylinder(r, h, sp, ep, angle);
-		} else if(type == BACK) {
-	
-		} else if(type == LEFT) {
-	
+		if(type == FONT || type == BACK) {
+			glTranslatef(0, temp ,0);
+
 		} else {
-		
-		}
+	    glTranslatef(temp2, 0 ,0);
+		} 
+	  DrawCylinder(r, h, sp, ep, angle);
 	}
 	glPopMatrix();
 }

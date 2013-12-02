@@ -913,9 +913,9 @@ void BigHouseView::SetCadToView(std::pair<Floor, std::vector<Triangle3D*>> &body
 void BigHouseView::MakeShelf(int width, int length, int height,
                              int count_floor, int count_shelf,
                              float angle) {
-	// RecShelfFont_Back *rec_shelf = new RecShelfFont_Back(width, length, height, count_floor ,LEFT_RIGHT, FONT);
-	//RecShelf *rec_shelf = new RecShelf(width, length, height, count_floor , FONT);
-	 CirclShelf *rec_shelf = new CirclShelf(100, 200,0, 360, 50, 4);
+//	 RecShelfFont_Back *rec_shelf = new RecShelfFont_Back(width, length, height, count_floor ,LEFT_RIGHT);
+															 RecShelf *rec_shelf = new RecShelf(width, length, height, count_floor , FONT);
+	 //CirclShelf *rec_shelf = new CirclShelf(100, 200,0, 360, 50, 4);
 	shelf_.push_back(rec_shelf);
 	int size = shelf_.size();
 	if (size > 1) {

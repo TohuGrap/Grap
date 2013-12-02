@@ -55,7 +55,15 @@ protected:
 														 Vector3D &bbmin,
 														 Vector3D &bbmax,
 														 std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks);
-	void DrawSnare(double r, double h, double sp, double ep, double angle, double lenght, TypeRecShelf type);
+	void DrawSnare(double r,
+		             double h,
+								 double sp,
+								 double ep,
+								 double angle,
+								 double width,
+								 double lenght,
+								 double height,
+								 TypeRecShelf type);
 
 private:
   int length_;

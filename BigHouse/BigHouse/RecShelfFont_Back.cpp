@@ -4,14 +4,12 @@ RecShelfFont_Back::RecShelfFont_Back(int width,
 	                                   int length,
 																		 int height, 
 																		 int count_floor,
-																		 DirectionShelf d_shelf
-																		 /*TypeRecShelf type*/) // bo cai nay di cung dc
+																		 DirectionShelf d_shelf) // bo cai nay di cung dc
 	:height_(height),
 	length_(length),
 	width_(width),
-  //type_(type),
 	d_shelf_(d_shelf){
-	height_floor_ = (int)height/(count_floor_ + 1);
+	height_floor_ = (int)height/(count_floor);
 	std::pair<Floor, std::vector<Triangle3D*>> stock;
 	for(int i = 0; i < count_floor; i ++) {
 		stock.first.height_floor = height_floor_;
@@ -19,10 +17,7 @@ RecShelfFont_Back::RecShelfFont_Back(int width,
 		stocks_back_.push_back(stock);
 	}
 	bbmin_back_.Set(0, 0, 0);
-		count_floor_ = -1;
-	//SetOriginBody(bbmin);
-	//bbmin_.Set(0, 0, 0);
-	//bbmax_.Set(width_, length_, height_);
+  count_floor_ = -1;
 }
 
 RecShelfFont_Back::~RecShelfFont_Back() {
