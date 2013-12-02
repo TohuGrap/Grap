@@ -22,6 +22,14 @@ FormBar::FormBar()
 	, show_size_(0)
 {
   object_index_ = -1;
+	shelf_info_.longs = 200;
+	shelf_info_.width = 200;
+	shelf_info_.height = 400;
+	shelf_info_.numf = 5;
+	shelf_info_.nums = 1;
+	shelf_info_.shelf_angle = 0;
+
+	 str_production_ = _T("");
 }
 
 FormBar::~FormBar()
@@ -32,14 +40,17 @@ void FormBar::DoDataExchange(CDataExchange* pDX)
 {
 	CFormView::DoDataExchange(pDX);
 	DDX_Check(pDX, IDC_CHECK_SHOW_SIZE, show_size_);
+	DDX_Control(pDX, IDC_BKGN_COLOR, background_color_);
 }
 
 BEGIN_MESSAGE_MAP(FormBar, CFormView)
-  ON_COMMAND(IDC_OBJECT_OPTION, FormBar::OnOption)
-  ON_COMMAND(IDC_OBJECT_OPTION_SHELF, FormBar::OnSelectShelf)
+  ON_COMMAND(IDC_OBJECT_OPTION, FormBar::OnGetProduction)
+  ON_COMMAND(IDC_OBJECT_OPTION_SHELF, FormBar::OnSettingShelf)
   ON_COMMAND(IDC_CLEAR_SHELF,  FormBar::ClearShelf)
   ON_COMMAND(IDC_BTN_ROOM_SIZE, FormBar::OnSettingRoom)
 	ON_BN_CLICKED(IDC_CHECK_SHOW_SIZE, &FormBar::ShowSizeRoom)
+	ON_BN_CLICKED(IDC_BTN_SHELF_SELECTED, &FormBar::OnBnShelfSelected)
+	ON_BN_CLICKED(IDC_BTN_PRODUCTION_SELECTED, &FormBar::OnBnProductionSelected)
   ON_WM_PAINT()
   ON_WM_SIZE()
 	ON_WM_LBUTTONUP()
@@ -68,11 +79,23 @@ void FormBar::Dump(CDumpContext& dc) const
 
 void FormBar::OnInitialUpdate() {
   CFormView::OnInitialUpdate();
+
+	CButton* production_btn = reinterpret_cast<CButton*>(GetDlgItem(IDC_BTN_PRODUCTION_SELECTED));
+	production_btn->EnableWindow(FALSE);
   return ;
 }
 
 void FormBar::OnPaint() {
-  CFormView::OnPaint();
+ // CFormView::OnPaint();
+
+	CPaintDC dc(this);
+	BigHouseApp *pApp = (BigHouseApp*)AfxGetApp();
+
+	CRect rect;
+	background_color_.GetWindowRect(&rect);
+	ScreenToClient(&rect);
+	CBrush BrushBack(pApp->option_color_glback);
+	dc.FillRect(&rect, &BrushBack);
 }
 
 void FormBar::OnSize(UINT nType, int cx, int cy) {
@@ -88,24 +111,36 @@ BigHouseView *FormBar::GetBigHouseView() {
 }
 
 
-void FormBar::OnOption() {
+void FormBar::OnGetProduction() {
 	DlgProduction dlg;
 	if (dlg.DoModal() == IDOK) {
-		CString str_production = dlg.GetCurrentStrProduction();
-    theApp.LoadFileCad(str_production);
+		str_production_ = dlg.GetCurrentStrProduction();
+		CButton* production_btn= reinterpret_cast<CButton*>(GetDlgItem(IDC_BTN_PRODUCTION_SELECTED));
+		production_btn->EnableWindow(TRUE);
 	}
 }
 
-void FormBar::OnSelectShelf() {
 
+void FormBar::OnBnProductionSelected()
+{
+	theApp.LoadFileCad(str_production_);
+}
+
+void FormBar::OnSettingShelf() {
 	DlgSettingShelf dlg;
-	ShelfInfo shelf_info;
 	if (dlg.DoModal() == IDOK) {
-		shelf_info = dlg.GetShelfInfo();
-		GetBigHouseView()->MakeShelf((int)shelf_info.width, (int)shelf_info.longs, (int)shelf_info.height,
-			                           (int)shelf_info.numf, (int)shelf_info.nums, shelf_info.shelf_angle);
+		shelf_info_ = dlg.GetShelfInfo();
 	}
 }
+
+void FormBar::OnBnShelfSelected()
+{
+	GetBigHouseView()->MakeShelf((int)shelf_info_.width, (int)shelf_info_.longs,
+		(int)shelf_info_.height, (int)shelf_info_.numf,
+		(int)shelf_info_.nums, shelf_info_.shelf_angle);
+
+}
+
 
 void FormBar::ClearShelf() {
   GetBigHouseView()->ClearShelf();
@@ -137,5 +172,33 @@ void FormBar::ShowSizeRoom() {
 
 void FormBar::OnLButtonUp(UINT nFlags, CPoint pt) {
 	GetBigHouseView()->SetIsLbuttonDown(false);
+  
+	float red_color = 0.0f;
+	float green_color = 0.0f;
+	float blue_color = 0.0f;
+	CRect rect;
+
+	BigHouseApp *pApp = (BigHouseApp*)AfxGetApp();
+	// option custom color for background
+	background_color_.GetWindowRect(&rect);
+	ScreenToClient(&rect);
+	if (rect.PtInRect(pt)) {
+		CColorDialog dlg(pApp->option_color_glback);
+		if (dlg.DoModal() == IDOK) {
+			pApp->option_color_glback = dlg.GetColor();
+			BigHouseView *pView = (BigHouseView*)GetBigHouseView();
+			red_color = GetRValue(pApp->option_color_glback)/255.0F;
+			green_color = GetGValue(pApp->option_color_glback)/255.0f;
+			blue_color = GetBValue(pApp->option_color_glback)/255.0f;
+			pView->SetColorForBackGround(red_color, green_color, blue_color);
+
+			this->InvalidateRect(&rect,FALSE);
+			pView->InvalidateRect(NULL,FALSE); 
+		}
+	}
+
+
 	CFormView::OnLButtonDown(nFlags, pt);
 }
+
+

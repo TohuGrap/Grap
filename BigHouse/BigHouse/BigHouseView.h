@@ -98,8 +98,13 @@ public:
 	void CreateOpenGLFont();
 	void SetShowSize(bool is_show) {is_show_size_ = is_show; InvalidateRect(NULL, FALSE);} 
 	void SetIsLbuttonDown(bool is_left_down) {left_button_down_ = is_left_down;}
+	void SetColorForBackGround(float red_value, float green_value, float blue_value);
 protected:
   float pos[3];
+
+	float red_color_;
+	float green_color_;
+	float blue_color_;
 
   int object_index_;
   int pixel_format_;

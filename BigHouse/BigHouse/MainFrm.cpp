@@ -158,7 +158,7 @@ BOOL MainFrame::OnCreateClient(LPCREATESTRUCT lpCreateStruct, CCreateContext *pC
   }
 
   if (!splitter_.CreateView(0, 0, RUNTIME_CLASS(FormBar),
-                                CSize(350, 400),
+                                CSize(250, 400),
                                 pContext)) {
     TRACE0("Failed to view 0");
     return FALSE;

@@ -10,7 +10,7 @@
 #include "resource.h"       // main symbols
 #include "Triangle3D.h"
 #include <vector>
-
+#include <afxtempl.h>
 // BigHouseApp:
 // See BigHouse.cpp for the implementation of this class
 //
@@ -50,18 +50,27 @@ public:
 public:
 	virtual BOOL InitInstance();
 	virtual int ExitInstance();
-std::vector<std::pair<RectBody, std::vector<Triangle3D*>>> GetCadBoy();
+  std::vector<std::pair<RectBody, std::vector<Triangle3D*>>> GetCadBoy();
 private:
 	void GetRectBody(std::vector<Triangle3D*> &cad_body);
 
-	std::vector<Triangle3D*> cad_body_;
+	// Passion88 TODO
+	std::vector<Triangle3D*> production_triangle_list_;
+	std::vector<CString> opened_file_list_;
+	std::vector<std::vector<Triangle3D*>> production_list_;
+
 	std::vector<std::pair<RectBody, std::vector<Triangle3D*>>> list_cad_boydy_;
+
+
 // Implementation
 	BOOL  m_bHiColorIcons;
+public:
+	COLORREF option_color_glback;
 public:
   void FreePoint();
   void OnFileOpen();
   void LoadFileCad(CString str_file);
+	bool IsOpenedFile(CString str, int &index);
 	virtual void PreLoadState();
 	virtual void LoadCustomState();
 	virtual void SaveCustomState();

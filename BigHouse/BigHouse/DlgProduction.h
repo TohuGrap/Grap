@@ -12,7 +12,7 @@ public:
 	virtual ~DlgProduction();
 
 // Dialog Data
-	enum { IDD = IDD_DIALOG1 };
+	enum { IDD = IDD_DLG_PRODUCTION };
 	void UpdateBitmap(int index_bitmap);
   int CheckBitmap(CString str);
 	CString GetCurrentStrProduction() {return str_current_production_;}

@@ -87,6 +87,10 @@ BigHouseView::BigHouseView():
   bottom_pos = 0.0f;
   top_pos_ = 0.0f;
 
+	red_color_ = 0.0f;
+	green_color_ = 0.0f;
+	blue_color_ = 0.0f;
+
 
   m_scaling = 1.0f;
 	right_button_down_ = false;
@@ -137,6 +141,7 @@ void BigHouseView::OnDraw(CDC* /*pDC*/)
 
 // Empty color buffer and depth buffer
   ::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClearColor(red_color_, green_color_, blue_color_, 1.0f);
   // Call render function 
  ::glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
 
@@ -296,6 +301,15 @@ BOOL BigHouseView::InitializeOpenGL() {
 	CreateOpenGLFont();
   return TRUE;
 }
+
+
+void BigHouseView::SetColorForBackGround(float red_value, float green_value, float blue_value) {
+	red_color_ = red_value;
+	green_color_ = green_value;
+	blue_color_ = blue_value;
+	InvalidateRect(NULL, FALSE);
+}
+
 
 BOOL BigHouseView::SetupPixelFormat() {
   static PIXELFORMATDESCRIPTOR pfd = 
@@ -483,6 +497,39 @@ void BigHouseView::DrawSizeLine() {
 	glEnd();
 	glPopMatrix();
 
+	// make width left Arrow 
+	glPushMatrix();
+	glColor3ub(255, 0, 0);
+	glTranslatef(room_size_.width/2 - 20, room_size_.longs/2 + 100, 0.0);
+	glRotatef(90.0, 0.0, 1.0, 0.0);
+	glutSolidCone(10, 40, 16, 100);
+	glPopMatrix();
+
+	// make width right Arrow 
+	glPushMatrix();
+	glColor3ub(255, 0, 0);
+	glTranslatef(-room_size_.width/2 + 20, room_size_.longs/2 + 100, 0.0);
+	glRotatef(-90.0, 0.0, 1.0, 0.0);
+	glutSolidCone(10, 40, 16, 100);
+	glPopMatrix();
+
+
+	// make longs left Arrow 
+	glPushMatrix();
+	glColor3ub(255, 0, 0);
+	glTranslatef(room_size_.width/2 + 100, -room_size_.longs/2 + 20, 0.0);
+	glRotatef(90.0, 1.0, 0.0, 0.0);
+	glutSolidCone(10, 40, 16, 100);
+	glPopMatrix();
+
+	// make longs right Arrow 
+	glPushMatrix();
+	glColor3ub(255, 0, 0);
+	glTranslatef(room_size_.width/2 + 100, room_size_.longs/2 - 20, 0.0);
+	glRotatef(-90.0, 1.0, 0.0, 0.0);
+	glutSolidCone(10, 40, 16, 100);
+	glPopMatrix();
+
 	// height Size Line
 	glPushMatrix();
 	glTranslatef(room_size_.width/2 + 100, room_size_.longs/2 + 100 , 0.0);
@@ -493,6 +540,23 @@ void BigHouseView::DrawSizeLine() {
 	glVertex3f(0.0, 0.0, room_size_.height);
 	glEnd();
 	glPopMatrix();
+
+	// make height top Arrow 
+	glPushMatrix();
+	glColor3ub(255, 0, 0);
+	glTranslatef(room_size_.width/2 + 100, room_size_.longs/2 + 100, room_size_.height-30);
+	glRotatef(0.0, 1.0, 0.0, 0.0);
+	glutSolidCone(10, 40, 16, 100);
+	glPopMatrix();
+
+	// make height bottom Arrow 
+	glPushMatrix();
+	glColor3ub(255, 0, 0);
+	glTranslatef(room_size_.width/2 + 100, room_size_.longs/2 + 100, 30.0);
+	glRotatef(180.0, 1.0, 0.0, 0.0);
+	glutSolidCone(10, 40, 16, 100);
+	glPopMatrix();
+
 
 		//Draw LineSize
 		CString str_longs;
@@ -507,10 +571,12 @@ void BigHouseView::DrawSizeLine() {
 		char* ch_width = Base::CStringToChar(str_width);
 		char* ch_height = Base::CStringToChar(str_height);
 
-		glColor3ub(255, 255, 255);
-		DrawStringAt(0.0, room_size_.longs/2 + 150, 0.0, ch_longs);
-		DrawStringAt(room_size_.width/2 + 150, 0.0, 0.0, ch_width);
-		DrawStringAt(room_size_.width/2 + 150, room_size_.longs/2 + 150, room_size_.height/2.0, ch_height);
+		if (rendering_rate_ > 0.05) {
+		  glColor3ub(255, 255, 255);
+		  DrawStringAt(0.0, room_size_.longs/2 + 150, -100.0, ch_longs);
+		  DrawStringAt(room_size_.width/2 + 150, 0.0, -100.0, ch_width);
+		  DrawStringAt(room_size_.width/2 + 150, room_size_.longs/2 + 150, -50, ch_height);
+		}
 	SetupLight();
 }
 void BigHouseView::OnRButtonUp(UINT nFlags, CPoint point)
@@ -520,7 +586,7 @@ void BigHouseView::OnRButtonUp(UINT nFlags, CPoint point)
   mouse_down_point_ = CPoint(0, 0);
   ReleaseCapture();
 	right_button_down_ = false;
-  //CView::OnLButtonUp(nFlags, point);
+  //CView::OnRButtonUp(nFlags, point);
 }
 
 void BigHouseView::OnLButtonUp(UINT nFlags, CPoint point) {
@@ -532,8 +598,6 @@ void BigHouseView::OnLButtonUp(UINT nFlags, CPoint point) {
 			shelf_.at(count_selected_)->SetOriginBody(move_shelf_);
 		}
 	}
-	body_.second.clear();
-
 	count_selected_ = - 1;
 }
 
@@ -541,6 +605,10 @@ void BigHouseView::OnRButtonDown(UINT nFlags, CPoint point) {
   mouse_down_point_ = point;
   SetCapture();
 	right_button_down_ = true;
+
+	// Clear creating production when right mouse is down
+	body_.second.clear();
+
   //CView::OnLButtonDown(nFlags, point);
 }
 

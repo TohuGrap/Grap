@@ -23,7 +23,7 @@ BEGIN_MESSAGE_MAP(BigHouseApp, CWinAppEx)
 	ON_COMMAND(ID_APP_ABOUT, &BigHouseApp::OnAppAbout)
 	// Standard file based document commands
 	ON_COMMAND(ID_FILE_NEW, &CWinAppEx::OnFileNew)
-  ON_COMMAND(ID_FILE_OPEN, &BigHouseApp::OnFileOpen)
+ // ON_COMMAND(ID_FILE_OPEN, &BigHouseApp::OnFileOpen)
 	// Standard print setup command
 	ON_COMMAND(ID_FILE_PRINT_SETUP, &CWinAppEx::OnFilePrintSetup)
 END_MESSAGE_MAP()
@@ -52,9 +52,9 @@ BigHouseApp::BigHouseApp()
 }
 
 BigHouseApp::~BigHouseApp() {
-	for(int i = 0; i <cad_body_.size(); i ++) {
-		delete cad_body_.at(i);
-	}
+	//for(int i = 0; i <cad_body_.size(); i ++) {
+	//	delete cad_body_.at(i);
+	//}
 }
 
 // The one and only BigHouseApp object
@@ -224,24 +224,10 @@ BOOL BigHouseApp::LoadState(LPCTSTR lpszSectionName, CFrameImpl *pFrameImpl) {
 
 
 // handle reading file stl
-void BigHouseApp::OnFileOpen() {
-  UINT n_size = 0;
-  char str[MAX_PATH];
-  FILE *pFile = NULL;
-  Point *value_stl = NULL;
-  Point *asscii_value_stl = NULL;
-  CFileDialog Dlg(TRUE);
-  CString file_name_stl = L"";
-  // Get file name 
-  if (IDOK == Dlg.DoModal()) {
-    file_name_stl = Dlg.GetPathName();
-  }
 
-}
 
 void BigHouseApp::LoadFileCad (CString strs) {
   unsigned int n_size = 0;
-	unsigned int number_of_point = 0;
   char str[MAX_PATH];
   FILE *pFile = NULL;
   CString str_file = Base::GetPathModule() + _T("\\cad\\") + strs;
@@ -252,45 +238,54 @@ void BigHouseApp::LoadFileCad (CString strs) {
   memset(file_name, 0, n_size + 1);
   wcstombs(file_name, str_file, n_size);
 
-	 pFile = fopen(file_name, "r");
+
+	pFile = fopen(file_name, "r");
    if (pFile == NULL) {
-     AfxMessageBox(L"Sản Phẩm Không tồn tại");
+     AfxMessageBox(L"Sản phẩm không tồn tại");
 		 return;
 	 }
-   while(!feof(pFile)) {
-      fscanf(pFile, "%s", str);
-      if (strcmp(str, "vertex") == 0 || strcmp(str, "VERTEX") == 0) {
-        number_of_point += 1;
-      }
-   }
 
-  // read data form stl file
-  pFile = fopen(file_name, "r");
+	int index = -1;
+  bool ret = IsOpenedFile(strs, index);
+	if (ret == true) {
+   	GetRectBody(production_list_[index]);	
+	} else {
+		// if production is not opened
+		// Save name production into list
+		production_triangle_list_.clear(); // clear data old production 
+		opened_file_list_.push_back(strs);
 
-  fgets(str, MAX_PATH, pFile);
-	std::vector<Triangle3D*> cad;
+		// read data form stl file
+		pFile = fopen(file_name, "r");
 
-  while (!feof(pFile)) {
-		Triangle3D * tr_ = new Triangle3D();
-    fscanf(pFile, "%s%s%f%f%f", str, str,
-			     &tr_->normal.v[0],
-						&tr_->normal.v[1],
-						&tr_->normal.v[2]);
-    fgets(str, MAX_PATH, pFile);
-    fgets(str, MAX_PATH, pFile);
-		fscanf(pFile, "%s%f%f%f", str, &tr_->m_v0.v[0], &tr_ ->m_v0.v[1], &tr_->m_v0.v[2]);
-		fscanf(pFile, "%s%f%f%f", str, &tr_->m_v1.v[0], &tr_ ->m_v1.v[1], &tr_->m_v1.v[2]);
-		fscanf(pFile, "%s%f%f%f", str, &tr_->m_v2.v[0], &tr_ ->m_v2.v[1], &tr_ ->m_v2.v[2]);
-		cad.push_back(tr_);
-		fgets(str, MAX_PATH, pFile);// end string of fscanf 
-    fgets(str, MAX_PATH, pFile);
-    fgets(str, MAX_PATH, pFile);
-  }
-	int size = cad.size();
-	cad.erase(cad.begin() + size - 1);
+		fgets(str, MAX_PATH, pFile);
 
-  GetRectBody(cad);
-	
+		//std::vector<Triangle3D*> cad;
+
+		while (!feof(pFile)) {
+			Triangle3D * tr_ = new Triangle3D();
+			fscanf(pFile, "%s%s%f%f%f", str, str,
+						 &tr_->normal.v[0],
+							&tr_->normal.v[1],
+							&tr_->normal.v[2]);
+			fgets(str, MAX_PATH, pFile);
+			fgets(str, MAX_PATH, pFile);
+			fscanf(pFile, "%s%f%f%f", str, &tr_->m_v0.v[0], &tr_ ->m_v0.v[1], &tr_->m_v0.v[2]);
+			fscanf(pFile, "%s%f%f%f", str, &tr_->m_v1.v[0], &tr_ ->m_v1.v[1], &tr_->m_v1.v[2]);
+			fscanf(pFile, "%s%f%f%f", str, &tr_->m_v2.v[0], &tr_ ->m_v2.v[1], &tr_ ->m_v2.v[2]);
+			production_triangle_list_.push_back(tr_);
+			fgets(str, MAX_PATH, pFile);
+			fgets(str, MAX_PATH, pFile);
+			fgets(str, MAX_PATH, pFile);
+		}
+		int size = production_triangle_list_.size();
+		production_triangle_list_.erase(production_triangle_list_.begin() + size - 1);
+		GetRectBody(production_triangle_list_);
+		
+		// save number of project
+		production_list_.push_back(production_triangle_list_);
+	}
+
 	fclose(pFile);
 	InvalidateRect(NULL, NULL, FALSE);
 }
@@ -346,5 +341,33 @@ void BigHouseApp::GetRectBody(std::vector<Triangle3D*> &cad_body) {
 }
 
 void BigHouseApp::FreePoint() {
+	if (!production_triangle_list_.empty()) {
+		for (int i = 0; i < production_triangle_list_.size(); i++) {
+	   delete production_triangle_list_.at(i);
+		}
+		production_triangle_list_.clear();
+	}
+
+	if (!opened_file_list_.empty()) {
+	  opened_file_list_.clear();
+	}
+
+	if (!production_list_.empty()) {
+	  production_list_.clear();
+	}
+}
+
+bool BigHouseApp::IsOpenedFile( CString str, int& index ) {
+	bool ret = false;
+	if ( opened_file_list_.empty() == false) {
+		for (size_t i = 0; i < opened_file_list_.size(); ++i) {
+			if (opened_file_list_[i] == str) {
+				ret = true;
+				index = i;
+				break;
+			}
+		}
+	}
+	return ret;
 }
 
