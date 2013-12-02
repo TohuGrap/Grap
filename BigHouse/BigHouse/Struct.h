@@ -16,6 +16,12 @@ struct ShelfInfo {
   float nums;
   float numf;
   float shelf_angle;
+	float shelf_radius;
+	float shelf_start_angle_;
+  float shelf_end_angle_;
+	float shelf_flat_angle_;
+	UINT shelf_type;
+	UINT shelf_shape;
 };
 	struct Rect {
 		Vector3D n;

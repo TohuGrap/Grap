@@ -33,6 +33,12 @@ public:
     OBJ_DESK = 1,
   };
 
+	enum ShelfType {
+		SIMPLE_SHELF = 0,
+		DOUBLE_SHELF = 1,
+		CIRCLE_SHELF = 2
+	};
+
 protected:
   virtual void OnPaint();
   virtual void OnInitialUpdate();

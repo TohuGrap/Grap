@@ -81,7 +81,10 @@ public:
   void SetShefHeight(float height) {shelf_height_ = height;};
   void SetNumberOfShelf(float nums) {number_shelf_ = nums;};
   void SetNumberOfFloor(float numf) {number_floor_ = numf;};
-	void MakeShelf(int width, int length, int height, int count_floor, int count_shelf, float angle);
+	void MakeSimpleShelf(int width, int length, int height, int count_floor, int count_shelf, float angle);
+	void MakeDoubleShelf(int width, int length, int height, int count_floor, int shelf_shape);
+	void MakeCircleShelf(int radius, int height, int start_angle, int end_angle, int flat_angle, int floor);
+	void RenderShelf(Shelf* sh);
   void ClearShelf();
 
   void OnViewTop();

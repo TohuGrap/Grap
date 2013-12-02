@@ -2,11 +2,11 @@
 #include"RecShelf.h"
 #include "Struct.h"
 
-RecShelf::RecShelf(int width,  // kt
-	                 int length, // kt
-									 int height, //kt
-									 int count_floor, // so san 
-									 TypeRecShelf type) // huong cua ke
+RecShelf::RecShelf(int width,
+	                 int length,
+									 int height,
+									 int count_floor,
+									 TypeRecShelf type)
 	:height_(height),
 	length_(length),
 	width_(width),

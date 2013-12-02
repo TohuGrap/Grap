@@ -1,12 +1,14 @@
 #pragma once
 #include"Shelf.h"
 #include "Struct.h"
+
 enum TypeRecShelf {
 	FONT = 0,
 	BACK,
 	LEFT,
 	RIGHT
 };
+
 class RecShelf: public Shelf {
 public :
 	RecShelf(int width, int length, int height, int count_floor , TypeRecShelf type);
@@ -71,8 +73,8 @@ private:
 	int width_;
 	int height_floor_;
 	int count_floor_;
+	TypeRecShelf type_;
 	std::vector<std::pair<Floor, std::vector<Triangle3D*>>> stocks_;
 	Vector3D bbmin_;
 	Vector3D bbmax_;
-	TypeRecShelf type_;
 };

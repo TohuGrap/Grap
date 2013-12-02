@@ -1,4 +1,4 @@
-// FormBar.cpp : implementation file
+﻿// FormBar.cpp : implementation file
 //
 
 #include "stdafx.h"
@@ -135,10 +135,20 @@ void FormBar::OnSettingShelf() {
 
 void FormBar::OnBnShelfSelected()
 {
-	GetBigHouseView()->MakeShelf((int)shelf_info_.width, (int)shelf_info_.longs,
+	UINT shelf_type = shelf_info_.shelf_type;
+
+	if (shelf_type == ShelfType::SIMPLE_SHELF) {
+	GetBigHouseView()->MakeSimpleShelf((int)shelf_info_.width, (int)shelf_info_.longs,
 		(int)shelf_info_.height, (int)shelf_info_.numf,
 		(int)shelf_info_.nums, shelf_info_.shelf_angle);
-
+	  
+	} else if (shelf_type == ShelfType::DOUBLE_SHELF) {
+	  
+	} else if (shelf_type == ShelfType::CIRCLE_SHELF) {
+	  
+	} else {
+	  AfxMessageBox(L"Không tạo được kệ sản phẩm");
+	}
 }
 
 
