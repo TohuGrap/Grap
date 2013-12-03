@@ -14,19 +14,27 @@ IMPLEMENT_DYNAMIC(DlgSettingShelf, CDialogEx)
 DlgSettingShelf::DlgSettingShelf(CWnd* pParent /*=NULL*/)
 	: CDialogEx(DlgSettingShelf::IDD, pParent)
 {
-	str_number_of_shelf_ = L"1";
   str_shelf_long_ = L"200";
   str_shelf_width_ = L"200";
   str_shelf_height_ = L"400";
   str_number_of_floor_ = L"5";
-  str_shelf_angle_ = L"0";
+
+	str_shelf_radius_ = L"100";
+	str_shelf_start_angle_ = L"0";
+	str_shelf_end_angle_  = L"360";
+	str_shelf_flat_angle_ = L"50";
+
+
 
 	shelf_info_.longs = 200;
 	shelf_info_.width = 200;
 	shelf_info_.height = 400;
 	shelf_info_.numf = 5;
-	shelf_info_.nums = 1;
-	shelf_info_.shelf_angle = 0;
+	shelf_info_.shelf_radius = 100;
+	shelf_info_.shelf_start_angle_ = 0.0;
+	shelf_info_.shelf_end_angle_ = 360.0;
+	shelf_info_.shelf_flat_angle_ = 50.0;
+
 	shelf_info_.shelf_type = ShelfType::SIMPLE_SHELF;
 	shelf_info_.shelf_shape = shelf_shape_ = ShelfShape::FRONT_DRIECTION;
 }
@@ -39,12 +47,10 @@ DlgSettingShelf::~DlgSettingShelf()
 void DlgSettingShelf::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
-	DDX_Control(pDX, IDC_EDIT_NUMBER_SHELF, edit_number_of_shelf_);
 	DDX_Control(pDX, IDC_EDIT_SHELF_LONG,  edit_shelf_long_);
 	DDX_Control(pDX, IDC_EDIT_SHELF_WIDTH, edit_shelf_width_);
 	DDX_Control(pDX, IDC_EDIT_SHELF_HEIGH, edit_shelf_height_);
 	DDX_Control(pDX, IDC_EDIT_NUMBER_FLOOR, edit_number_of_floor_);
-	DDX_Control(pDX, IDC_EDIT_SHELF_ANGLE, edit_shelf_angle_);
 
 	DDX_Control(pDX, IDC_EDIT_SHELF_RADIUS, edit_shelf_radius_);
 	DDX_Control(pDX, IDC_EDIT_SHELF_START_ANGLE, edit_shelf_start_angle_);
@@ -61,12 +67,10 @@ void DlgSettingShelf::DoDataExchange(CDataExchange* pDX)
 
 
 BEGIN_MESSAGE_MAP(DlgSettingShelf, CDialogEx)
-	ON_EN_CHANGE(IDC_EDIT_NUMBER_SHELF, &DlgSettingShelf::OnNumberOfShelf)
   ON_EN_CHANGE(IDC_EDIT_SHELF_LONG, &DlgSettingShelf::OnEditShelfLong)
   ON_EN_CHANGE(IDC_EDIT_SHELF_WIDTH, &DlgSettingShelf::OnEditShelfWidth)
   ON_EN_CHANGE(IDC_EDIT_SHELF_HEIGH, &DlgSettingShelf::OnEditShelfHeight)
   ON_EN_CHANGE(IDC_EDIT_NUMBER_FLOOR, &DlgSettingShelf::OnNumberOfFloor)
-  ON_EN_CHANGE(IDC_EDIT_SHELF_ANGLE, &DlgSettingShelf::OnEditShelfAngle)
 	ON_CBN_SELENDOK(IDC_COMBO_SHELF_TYPE, &DlgSettingShelf::OnComboxShelfType)
 	ON_BN_CLICKED(IDC_RADIO_FRONT, &DlgSettingShelf::OnBnClickedRadioFront)
 	ON_BN_CLICKED(IDC_RADIO_BACK, &DlgSettingShelf::OnBnClickedRadioBack)
@@ -79,14 +83,16 @@ END_MESSAGE_MAP()
 
 BOOL  DlgSettingShelf::OnInitDialog() {
 	CDialogEx::OnInitDialog();
-  
-	edit_number_of_shelf_.SetWindowText(str_number_of_shelf_);
+
   edit_shelf_long_.SetWindowText(str_shelf_long_);
   edit_shelf_width_.SetWindowText(str_shelf_width_);
   edit_shelf_height_.SetWindowText(str_shelf_height_);
   edit_number_of_floor_.SetWindowText(str_number_of_floor_);
-  edit_shelf_angle_.SetWindowText(str_shelf_angle_);
 
+	edit_shelf_radius_.SetWindowText(str_shelf_radius_);
+	edit_shelf_start_angle_.SetWindowText(str_shelf_start_angle_);
+	edit_shelf_end_angle_.SetWindowText(str_shelf_end_angle_);
+	edit_shelf_flat_angle_.SetWindowText(str_shelf_flat_angle_);
 
 	combox_shelf_type_.AddString(_T("Kệ Đơn"));
 	combox_shelf_type_.AddString(_T("Kệ Đôi"));
@@ -107,11 +113,6 @@ void DlgSettingShelf::OnNumberOfFloor() {
 	shelf_info_.numf = _ttof(str_number_of_floor_);
 }
 
-void DlgSettingShelf::OnNumberOfShelf() {
-  UpdateData(TRUE);
-  edit_number_of_shelf_.GetWindowText(str_number_of_shelf_);
-	shelf_info_.nums = _ttof(str_number_of_shelf_);
-}
 
 void DlgSettingShelf::OnEditShelfLong() {
   UpdateData(TRUE);
@@ -131,12 +132,6 @@ void DlgSettingShelf::OnEditShelfHeight() {
 	shelf_info_.height = _ttof(str_shelf_height_);
 }
 
-void DlgSettingShelf::OnEditShelfAngle() {
-  UpdateData(TRUE);
-  edit_shelf_angle_.GetWindowText(str_shelf_angle_);
-	shelf_info_.shelf_angle = _ttof(str_shelf_angle_);
-}
-
 void DlgSettingShelf::OnEditShelfRadius()
 {
 	UpdateData(TRUE);
@@ -149,7 +144,7 @@ void DlgSettingShelf::OnEditShelfStartAngle()
 {
 	UpdateData(TRUE);
 	edit_shelf_start_angle_.GetWindowText(str_shelf_start_angle_);
-	shelf_info_.shelf_angle= _ttof(str_shelf_start_angle_);
+	shelf_info_.shelf_start_angle_= _ttof(str_shelf_start_angle_);
 
 }
 
@@ -264,12 +259,12 @@ void DlgSettingShelf::SetStatusShelfShape( UINT shelf_type )
 {
 	switch (shelf_type) {
 	case ShelfType::SIMPLE_SHELF: {
-		shelf_left_.EnableWindow(TRUE);
+		shelf_back_.EnableWindow(TRUE);
 		shelf_right_.EnableWindow(TRUE);
 		break;
 	}
 	case ShelfType::DOUBLE_SHELF: {
-		shelf_left_.EnableWindow(FALSE);
+		shelf_back_.EnableWindow(FALSE);
 		shelf_right_.EnableWindow(FALSE);
 		break;
 																}

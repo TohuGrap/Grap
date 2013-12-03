@@ -13,9 +13,7 @@ struct ShelfInfo {
   float longs;
   float height;
   float width;
-  float nums;
   float numf;
-  float shelf_angle;
 	float shelf_radius;
 	float shelf_start_angle_;
   float shelf_end_angle_;

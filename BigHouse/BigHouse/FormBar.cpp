@@ -26,8 +26,6 @@ FormBar::FormBar()
 	shelf_info_.width = 200;
 	shelf_info_.height = 400;
 	shelf_info_.numf = 5;
-	shelf_info_.nums = 1;
-	shelf_info_.shelf_angle = 0;
 
 	 str_production_ = _T("");
 }
@@ -138,14 +136,22 @@ void FormBar::OnBnShelfSelected()
 	UINT shelf_type = shelf_info_.shelf_type;
 
 	if (shelf_type == ShelfType::SIMPLE_SHELF) {
-	GetBigHouseView()->MakeSimpleShelf((int)shelf_info_.width, (int)shelf_info_.longs,
-		(int)shelf_info_.height, (int)shelf_info_.numf,
-		(int)shelf_info_.nums, shelf_info_.shelf_angle);
+	GetBigHouseView()->MakeSimpleShelf(shelf_info_.width, shelf_info_.longs,
+																		 shelf_info_.height, shelf_info_.numf,
+																		 (TypeRecShelf)shelf_info_.shelf_shape);
 	  
 	} else if (shelf_type == ShelfType::DOUBLE_SHELF) {
+		GetBigHouseView()->MakeDoubleShelf(shelf_info_.width, shelf_info_.longs,
+																			 shelf_info_.height, shelf_info_.numf,
+																			 (DirectionShelf)shelf_info_.shelf_shape);
 	  
 	} else if (shelf_type == ShelfType::CIRCLE_SHELF) {
-	  
+	  GetBigHouseView()->MakeCircleShelf(shelf_info_.shelf_radius,
+																			 shelf_info_.height,
+																			 shelf_info_.shelf_start_angle_,
+																			 shelf_info_.shelf_end_angle_,
+																			 shelf_info_.shelf_flat_angle_,
+																			 shelf_info_.numf);
 	} else {
 	  AfxMessageBox(L"Không tạo được kệ sản phẩm");
 	}

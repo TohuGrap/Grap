@@ -978,32 +978,41 @@ void BigHouseView::SetCadToView(std::pair<Floor, std::vector<Triangle3D*>> &body
 
 }
 
-void BigHouseView::MakeSimpleShelf(int width, int length, int height,
-                             int count_floor, int count_shelf,
-                             float angle) {
-
-	RecShelf *rec_shelf = new RecShelf(width, length, height, count_floor , FONT);
-	RenderShelf(rec_shelf);
+void BigHouseView::MakeSimpleShelf( float width, float length, float height, int count_floor, TypeRecShelf direction )
+{
+	RecShelf *rec_shelf = new RecShelf(width, length, height, count_floor , direction);
+	UINT space_distance = length;
+	RenderShelf(rec_shelf, space_distance);
 }
 	
 
-void BigHouseView::MakeDoubleShelf(int width, int length, int height, int count_floor, int shelf_shape) {
-  RecShelfFont_Back *double_shelf = new RecShelfFont_Back(width, length, height, count_floor ,LEFT_RIGHT);
-	RenderShelf(double_shelf);
+void BigHouseView::MakeDoubleShelf( float width, float length, float height, int count_floor, DirectionShelf direction )
+{
+  RecShelfFont_Back *double_shelf = new RecShelfFont_Back(width, length, height,
+																													count_floor, direction);
+	UINT space_distance = length;
+	RenderShelf(double_shelf, space_distance);
 }
 
-void BigHouseView::MakeCircleShelf(int radius, int height, int start_angle, int end_angle, int flat_angle, int floor) {
-	CirclShelf *circle_shelf = new CirclShelf(radius, height, start_angle, end_angle, flat_angle, floor); //(100, 200,0, 360, 50, 4);
-  RenderShelf(circle_shelf);
+void BigHouseView::MakeCircleShelf(float radius, float height,
+	                                 float start_angle, float end_angle,
+																	 float flat_angle, int floor )
+{
+	CirclShelf *circle_shelf = new CirclShelf(radius, height,
+																						start_angle, end_angle,
+																						flat_angle, floor);
+	UINT space_distance = 2*radius;
+  RenderShelf(circle_shelf, space_distance);
 }
 
-void BigHouseView::RenderShelf(Shelf* rec_shelf) {
-	shelf_.push_back(rec_shelf);
+void BigHouseView::RenderShelf( Shelf* sh, UINT space_distance )
+{
+	shelf_.push_back(sh);
 	int size = shelf_.size();
 	if (size > 1) {
 		Vector3D bbmin;
 		shelf_.at(size - 2)->GetOriginBody(bbmin);
-		bbmin.v[1] = bbmin.v[1] + 100 + 50;
+		bbmin.v[1] = bbmin.v[1] + space_distance + 50;
 		shelf_.at(size - 1)->SetOriginBody(bbmin);
 
 	} else {

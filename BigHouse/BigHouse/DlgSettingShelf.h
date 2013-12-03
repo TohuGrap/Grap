@@ -28,10 +28,10 @@ public:
 	};
 
 	enum ShelfShape {
-		FRONT_DRIECTION = 10,
-		BACK_DRIECTION = 11,
-		LEFT_DIRECTION = 12,
-		RIGHT_DIRECTION = 13
+		FRONT_DRIECTION = 0,
+		BACK_DRIECTION = 1,
+		LEFT_DIRECTION = 2,
+		RIGHT_DIRECTION = 3
 	};
 
 protected:
@@ -42,7 +42,6 @@ protected:
   afx_msg void OnEditShelfHeight();
   afx_msg void OnNumberOfShelf();
   afx_msg void OnNumberOfFloor();
-  afx_msg void OnEditShelfAngle();
 	afx_msg void OnEditShelfRadius();
 	afx_msg void OnEditShelfStartAngle();
 	afx_msg void OnEditShelfEndAngle();
@@ -60,9 +59,8 @@ protected:
 	CString str_shelf_long_;
   CString str_shelf_width_;
   CString str_shelf_height_;
-  CString str_number_of_shelf_;
   CString str_number_of_floor_;
-  CString str_shelf_angle_;
+
 	CString str_shelf_radius_;
 	CString str_shelf_start_angle_;
 	CString str_shelf_end_angle_;
