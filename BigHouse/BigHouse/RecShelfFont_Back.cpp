@@ -18,6 +18,7 @@ RecShelfFont_Back::RecShelfFont_Back(int width,
 	}
 	bbmin_back_.Set(0, 0, 0);
   count_floor_ = -1;
+	type_ = FLOOR_FONT;
 }
 
 RecShelfFont_Back::~RecShelfFont_Back() {
@@ -26,28 +27,29 @@ RecShelfFont_Back::~RecShelfFont_Back() {
 
 bool RecShelfFont_Back::IsLineCutBody(const Vector3D &dir, const Vector3D& pos, Vector3D &p) {
 	bool has_point = LineCutBoundingBox(dir, pos, bbmin_back_, bbmax_back_, p);
-	type_ = BACK;
+	type_ = FLOOR_BACK;
 	if(has_point) {
 		Vector3D temp;
 		if(LineCutBoundingBox(dir, pos, bbmin_font_, bbmax_font_, temp)) {
 			Vector3D u = p - temp;
 			if(u.scalar(dir) < 0) {
 				p = temp;
-			  type_ = FONT;
+			  type_ = FLOOR_FONT;
 			}
 		} 
 	} else {
 			has_point = LineCutBoundingBox(dir, pos, bbmin_font_, bbmax_font_, p);
-			type_ = FONT;
+			type_ = FLOOR_FONT;
 	}
 	return has_point;
 }
 
 void RecShelfFont_Back::DrawShelf() {
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  glDisable(GL_CULL_FACE);
 	if(d_shelf_ == FONT_BACK) {
-		ShelfStructure(width_ ,length_, height_,BACK);
-		if(type_ == BACK) { 
+		ShelfStructure(width_ ,length_, height_,stocks_back_.size(), height_floor_, BACK);
+		if(type_ == FLOOR_BACK) { 
 			DrawShelfFloor(width_, length_, 1 , count_floor_, stocks_back_);
 		} else {
 			DrawShelfFloor(width_, length_, 1 , -1, stocks_back_);
@@ -55,8 +57,8 @@ void RecShelfFont_Back::DrawShelf() {
 		DrawCommodity(stocks_back_);
 		glPushMatrix();
 		glTranslatef(width_ + 4, 0, 0 );
-		ShelfStructure(width_ ,length_, height_,FONT);
-		if(type_ == FONT) { 
+		ShelfStructure(width_ ,length_, height_,stocks_back_.size(), height_floor_, FONT, false);
+		if(type_ == FLOOR_FONT) { 
 			DrawShelfFloor(width_, length_, 1 , count_floor_, stocks_font_);
 		} else {
 			DrawShelfFloor(width_, length_, 1 , -1, stocks_font_);
@@ -64,8 +66,8 @@ void RecShelfFont_Back::DrawShelf() {
 		DrawCommodity(stocks_font_);
 		glPopMatrix();
 	} else {
-		ShelfStructure(width_ ,length_, height_,RIGHT);
-		if(type_ == BACK) { 
+		ShelfStructure(width_ ,length_, height_,stocks_back_.size(), height_floor_, LEFT);
+		if(type_ == FLOOR_BACK) { 
 			DrawShelfFloor(width_, length_, 1 , count_floor_, stocks_back_);
 		} else {
 			DrawShelfFloor(width_, length_, 1 , -1, stocks_back_);
@@ -73,8 +75,8 @@ void RecShelfFont_Back::DrawShelf() {
 		DrawCommodity(stocks_back_);
 		glPushMatrix();
 		glTranslatef(0, length_ + 4, 0 );
-		ShelfStructure(width_ ,length_, height_,LEFT);
-		if(type_ == FONT) { 
+		ShelfStructure(width_ ,length_, height_,stocks_back_.size(), height_floor_, RIGHT, false);
+		if(type_ == FLOOR_FONT) { 
 			DrawShelfFloor(width_, length_, 1 , count_floor_, stocks_font_);
 		} else {
 			DrawShelfFloor(width_, length_, 1 , -1, stocks_font_);
@@ -86,13 +88,13 @@ void RecShelfFont_Back::DrawShelf() {
 }
 void RecShelfFont_Back::SetCadToShelf(std::pair<Floor , std::vector<Triangle3D*>> &body) {
 	if(count_floor_ != -1) {
-	  if(type_ == FONT) {
+	  if(type_ == FLOOR_FONT) {
 			stocks_font_.at(count_floor_).first.s_r.i = (int)width_/body.first.s_b.x;
 			stocks_font_.at(count_floor_).first.s_r.j = (int)length_/body.first.s_b.y;
 			stocks_font_.at(count_floor_).first.s_b = body.first.s_b;
 			stocks_font_.at(count_floor_).second = body.second;
 			//stocks_.assign
-		} else if(type_ == BACK) {
+		} else if(type_ == FLOOR_BACK) {
 			stocks_back_.at(count_floor_).first.s_r.i = (int)width_/body.first.s_b.x;
 			stocks_back_.at(count_floor_).first.s_r.j = (int)length_/body.first.s_b.y;
 			stocks_back_.at(count_floor_).first.s_b = body.first.s_b;
@@ -120,7 +122,7 @@ void RecShelfFont_Back::SetOriginBody(Vector3D &p_move) {
 	}
 }
 void RecShelfFont_Back::PointMouseOnFloor(Vector3D &dir, Vector3D &pos) {
-	if(type_ == FONT) {
+	if(type_ == FLOOR_FONT) {
 		count_floor_ = FindPointMouseOnFloor(dir, pos, bbmin_font_, bbmax_font_, stocks_font_);
 	} else {
 	  count_floor_ = FindPointMouseOnFloor(dir, pos, bbmin_back_, bbmax_back_, stocks_back_);

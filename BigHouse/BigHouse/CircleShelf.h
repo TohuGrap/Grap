@@ -15,6 +15,7 @@ public:
 	virtual void PointMouseOnFloor(Vector3D &dir, Vector3D &pos);
 	virtual void ReSetSelectFloor();
 
+
 private:
   void ShelfStructure(double r, double h, double sp, double ep, double angle);
 	void DrawFloor(double r, double h, double sp, double ep, double angle);

@@ -6,6 +6,12 @@ enum DirectionShelf {
 	FONT_BACK = 0,
 	LEFT_RIGHT
 };
+
+enum TypeFloor {
+	FLOOR_FONT = 0,
+	FLOOR_BACK
+};
+
 class RecShelfFont_Back :public Shelf, RecShelf {
 
 public:
@@ -26,7 +32,7 @@ private:
 	int width_;
 	int height_floor_;
 	int count_floor_;
-  TypeRecShelf type_;
+	TypeFloor type_;
 	DirectionShelf d_shelf_;
 	Vector3D bbmin_font_;
 	Vector3D bbmax_font_;

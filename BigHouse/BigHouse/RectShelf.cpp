@@ -87,34 +87,39 @@ void RecShelf::DrawCube(double width, double length, double height) {
 	DrawFaceShelf(rec);
 }
 
-void RecShelf::ShelfStructure(double width, double length, double height, TypeRecShelf type) {
-  glPushMatrix();
-	glColor3f(1, 0, 0);
-
-	DrawCube(width, length, 10); // de
-	if(type == BACK || type == FONT) {
-		if(type == BACK) {
-			glTranslatef(width, 0, 0);
-		} else {
-			glTranslatef(- 4, 0, 0);
-		}
-		DrawCube(4, 4, height);
-		glTranslated(0, length - 4, 0);
-		DrawCube(4, 4, height);
-	} else {
-		if(type == LEFT) {
-		  glTranslatef(0, -4 , 0);
-		} else {
-			glTranslatef(0, length , 0);
-		}
-		DrawCube(4, 4, height);
-		glTranslated(width - 4, 0, 0);
-		DrawCube(4, 4, height);
+void RecShelf::ShelfStructure(double width,
+															double length,
+															double height,
+															int count_floor,
+															double height_floor,
+															TypeRecShelf type,
+															bool draw_snare) {
+	glPushMatrix();
+	if(type == BACK) {
+		glTranslatef(width, length, 0);
+		glRotated(180, 0, 0, 1);
+	} else if(type == LEFT) {
+	  glTranslatef(0 , length, 0);
+				glRotated(- 90, 0, 0, 1);
+	} else if(type == RIGHT) {
+		glTranslatef(width , 0, 0);
+		glRotated(90, 0, 0, 1);
 	}
-	//glPushMatrix();
-	//glTranslatef(0, 0 , height- 10);
-	//DrawCube(4, length, 10);
-	//glPopMatrix();
+	glColor3f(1, 0, 0);
+	glPushMatrix();
+	glTranslatef(- 1, - 6, 0);
+  DrawCube(width + 12, length + 12, 10); // de
+	DrawCube(6, 6, height);
+	glTranslated(0, length + 6, 0); // dir oy
+	DrawCube(6, 6, height);
+	glTranslatef(0, -length , height- 15);
+	DrawCube(6, length, 15);
+	glPopMatrix();
+	if(draw_snare) {
+    DrawSnare(1,height, 0, 360, 20, width, length, height);	
+	}
+	DrawTwoHandeFloor(width, length, 20, 2, count_floor, height_floor);
+
 	glPopMatrix();
 }
 
@@ -136,6 +141,7 @@ void RecShelf::DrawShelfFloor(int width,
 		} else {
 		  glColor3f(1, 1, 0);
 		}
+		//DrawTwoHandeFloor(width, length,25, 2);
 	  DrawCube(width, length, heigth);
 	}
 	glPopMatrix();
@@ -145,8 +151,7 @@ void RecShelf::DrawShelfFloor(int width,
 void RecShelf::DrawShelf() {
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   glDisable(GL_CULL_FACE);
-	ShelfStructure(width_ ,length_, height_, type_);
-	DrawSnare(1,height_, 0, 360, 60, width_, length_, height_, type_);
+	ShelfStructure(width_ ,length_, height_,stocks_.size(), height_floor_, type_);
 	DrawShelfFloor(width_, length_, 1, count_floor_, stocks_);
 	DrawCommodity(stocks_);
 }
@@ -369,6 +374,96 @@ bool RecShelf::LineCutBoundingBox(const Vector3D &dir,
 	return has_a_point;
 }
 
+void RecShelf::DrawTwoHandeFloor(double width,
+																 double length,
+																 double height,
+																 double t,
+																 int count_floor, 
+																 double height_floort){
+	glPushMatrix();
+	glTranslatef(0, - t, 11);
+	for(int i = 1; i < count_floor; i ++){
+		glTranslatef(0, 0, height_floort);
+		DrawFloorHande(width,length, height, t , true);
+		glPushMatrix();
+		glTranslatef(0, length + t, 0);
+		DrawFloorHande(width,length, height, t, false);
+		glPopMatrix();
+	}
+	glPopMatrix();
+}
+
+void RecShelf::DrawFloorHande(double width, double length , double height, double t , bool draw_bar) {
+	Vector3D A[5];
+	A[0].Set(0, 0, 0);
+	A[1].Set(width, 0, 0);
+  A[2].Set(width + 1, 0, - height/5);
+	A[3].Set(width/3, 0,-height/3);
+  A[4].Set(0, 0,-height);
+
+	Vector3D B[5];
+	Vector3D n(0, t, 0);
+	for(int i = 0; i < 5; i ++) {
+	  B[i] = A[i] + n;
+	}
+	glColor3f(0 , 0, 1);
+	glBegin(GL_POLYGON);
+	glNormal3f(0, -1, 0);
+	glVertex3fv(A[0].v);
+	glVertex3fv(A[1].v);
+	glVertex3fv(A[2].v);
+	glVertex3fv(A[3].v);
+	glVertex3fv(A[4].v);
+	glEnd();
+
+	glBegin(GL_POLYGON);
+	glNormal3f(0, 1, 0);
+	glVertex3fv(B[0].v);
+	glVertex3fv(B[1].v);
+	glVertex3fv(B[2].v);
+	glVertex3fv(B[3].v);
+	glVertex3fv(B[4].v);
+	glEnd();
+
+	Vector3D temp1 = A[0];
+	Vector3D temp2 = B[0];
+	std::vector<Rect> rect;
+	for(int i = 0 ; i < 5; i ++) {
+		Vector3D v = temp1 - temp2;//=
+		Vector3D u = A[i] - temp1;
+		Vector3D nor = v*u;
+		nor = nor.Unit();
+		glBegin(GL_POLYGON);
+		glNormal3fv(nor.v);
+		glVertex3fv(temp1.v);
+		glVertex3fv(A[i].v);
+		glVertex3fv(B[i].v);
+		glVertex3fv(temp2.v);
+		glEnd();
+		temp1 = A[i];
+		temp2 = B[i];
+	}
+
+	if(draw_bar) {
+	  Vector3D v = A[1] - B[1];
+		Vector3D u = A[2] - A[1];
+		Vector3D nor = v*u;
+		nor = nor.Unit();
+		Vector3D P1(B[1]);
+		Vector3D P2(B[2]);
+		P1.v[1] = P1.v[1] + length;
+		P2.v[1] = P2.v[1] + length;
+		glBegin(GL_POLYGON);
+		glNormal3fv(nor.v);
+		glVertex3fv(A[1].v);
+		glVertex3fv(A[2].v);
+		glVertex3fv(P2.v);
+		glVertex3fv(P1.v);
+		glEnd();
+	}
+
+}
+
 
 bool RecShelf::IsLineCutBody(const Vector3D &dir, const Vector3D& pos, Vector3D &p) {
 	return LineCutBoundingBox(dir, pos, bbmin_, bbmax_, p);
@@ -393,25 +488,12 @@ void RecShelf::DrawSnare(double r,
 												 double angle,
 												 double width,
 												 double lenght,
-												 double height,
-												 TypeRecShelf type) {
-	float temp = lenght/10.0;
-	float temp2 = width /10.0;
-
+												 double height) {
+	float temp = lenght/30.0;
+	float temp2 = width /30.0;
 	glPushMatrix();
-	if(type == BACK) {
-		glTranslatef(width, 0 ,0);
-
-	} else if(type == RIGHT) {
-		glTranslatef(0, lenght ,0);
-	} 
-	for(int i = 0; i < 9; i ++) {
-		if(type == FONT || type == BACK) {
-			glTranslatef(0, temp ,0);
-
-		} else {
-	    glTranslatef(temp2, 0 ,0);
-		} 
+	for(int i = 0; i < 29; i ++) {
+	  glTranslatef(0, temp ,0);
 	  DrawCylinder(r, h, sp, ep, angle);
 	}
 	glPopMatrix();

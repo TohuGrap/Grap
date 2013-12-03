@@ -20,7 +20,10 @@ public :
 	void ShelfStructure(double width,
 		                  double length,
 											double height,
-											TypeRecShelf type);
+											int count_floor,
+											double height_floor,
+											TypeRecShelf type,
+											bool draw_snare = true);
 	void DrawShelfFloor(int width, 
 		                  int length,
 											int heigth ,
@@ -35,6 +38,13 @@ public :
 											Vector3D &A,// min body
 											Vector3D &B, // max body
 											Vector3D &E); // point axis cut on face
+	void DrawFloorHande(double width, double height, double length, double t , bool draw_bar);
+	void DrawTwoHandeFloor(double width,
+		                     double length,
+												 double height,
+												 double t,
+												 int count_floor, 
+												 double height_floor);
 	
 	//void DrawPoint();
 	void DrawCommodity(std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks);
@@ -51,6 +61,7 @@ public :
 	virtual void SetOriginBody(Vector3D &p_move);
 	virtual void PointMouseOnFloor(Vector3D &dir, Vector3D &pos);
 	virtual void ReSetSelectFloor() {count_floor_ = -1;}
+	
 protected:
 	int FindPointMouseOnFloor(Vector3D &dir,
 		                         Vector3D &pos, 
@@ -64,17 +75,18 @@ protected:
 								 double angle,
 								 double width,
 								 double lenght,
-								 double height,
-								 TypeRecShelf type);
+								 double height);
 
 private:
   int length_;
 	int height_;
 	int width_;
-	int height_floor_;
+	double height_floor_;
 	int count_floor_;
 	TypeRecShelf type_;
 	std::vector<std::pair<Floor, std::vector<Triangle3D*>>> stocks_;
 	Vector3D bbmin_;
 	Vector3D bbmax_;
+
+	////////
 };
