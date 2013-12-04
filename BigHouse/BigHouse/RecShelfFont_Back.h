@@ -30,7 +30,7 @@ private:
   int length_;
 	int height_;
 	int width_;
-	int height_floor_;
+	double height_floor_;
 	int count_floor_;
 	TypeFloor type_;
 	DirectionShelf d_shelf_;

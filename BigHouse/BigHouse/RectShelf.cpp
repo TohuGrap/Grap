@@ -11,7 +11,7 @@ RecShelf::RecShelf(int width,
 	length_(length),
 	width_(width),
   type_(type){
-	height_floor_ = (int)(height-10)/(count_floor);
+	height_floor_ = (int)(height- height/20.0)/(count_floor);
 	std::pair<Floor, std::vector<Triangle3D*>> stock;
 	for(int i = 0; i < count_floor; i ++) {
 		stock.first.height_floor = height_floor_;
@@ -92,8 +92,13 @@ void RecShelf::ShelfStructure(double width,
 															double height,
 															int count_floor,
 															double height_floor,
+															double height_solo,
 															TypeRecShelf type,
 															bool draw_snare) {
+  int size_col = (int)(width/20.0);
+	if(size_col < 3) {
+		size_col = 3;
+	}
 	glPushMatrix();
 	if(type == BACK) {
 		glTranslatef(width, length, 0);
@@ -107,18 +112,24 @@ void RecShelf::ShelfStructure(double width,
 	}
 	glColor3f(1, 0, 0);
 	glPushMatrix();
-	glTranslatef(- 1, - 6, 0);
-  DrawCube(width + 12, length + 12, 10); // de
-	DrawCube(6, 6, height);
-	glTranslated(0, length + 6, 0); // dir oy
-	DrawCube(6, 6, height);
-	glTranslatef(0, -length , height- 15);
-	DrawCube(6, length, 15);
+	glTranslatef(- 1, - size_col, 0);
+  DrawCube(width + 2*size_col, length + 2*size_col, height_solo); // de
+	DrawCube(size_col, size_col, height);
+	glTranslated(0, length + size_col, 0); // dir oy
+	DrawCube(size_col, size_col, height);
+	glTranslatef(0, -length , height- 2*size_col);
+	DrawCube(size_col, length, 2*size_col);
 	glPopMatrix();
 	if(draw_snare) {
-    DrawSnare(1,height, 0, 360, 20, width, length, height);	
+    DrawSnare(size_col/10.0,height, 0, 360, 20, length);	
+		glPushMatrix();
+		glTranslatef(0, length, 0);
+		glRotatef(90, 1, 0, 0);
+		DrawSnare(size_col/10.0,length, 0, 360, 20, height -1);	
+		glPopMatrix();
 	}
-	DrawTwoHandeFloor(width, length, 20, 2, count_floor, height_floor);
+	DrawTwoHandeFloor(width, length, width/8.0, height_solo, size_col/2.0, count_floor, height_floor);
+
 
 	glPopMatrix();
 }
@@ -126,10 +137,11 @@ void RecShelf::ShelfStructure(double width,
 void RecShelf::DrawShelfFloor(int width,
 	                            int length, 
 															int heigth,
+															double height_solo,
 															int count,
 															std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks) {
 	glPushMatrix();
-	glTranslated(0, 0, 11);
+	glTranslated(0, 0, height_solo);
 	if(count == 0) {
 		glColor3f(0, 0, 1);
 		DrawCube(width, length, heigth);
@@ -150,10 +162,11 @@ void RecShelf::DrawShelfFloor(int width,
 
 void RecShelf::DrawShelf() {
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	double h_solo = height_/12.0;
   glDisable(GL_CULL_FACE);
-	ShelfStructure(width_ ,length_, height_,stocks_.size(), height_floor_, type_);
-	DrawShelfFloor(width_, length_, 1, count_floor_, stocks_);
-	DrawCommodity(stocks_);
+	ShelfStructure(width_ ,length_, height_ , stocks_.size(), height_floor_, h_solo , type_);
+	DrawShelfFloor(width_, length_, 1, h_solo, count_floor_, stocks_);
+ 	DrawCommodity(stocks_, h_solo);
 }
 //void RecShelf::DrawPoint() {
 //	glPointSize(6.0);
@@ -258,13 +271,13 @@ void RecShelf::PointMouseOnFloor(Vector3D &dir, Vector3D &pos) {
 	//}
 }
 
-void RecShelf::DrawCommodity(std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks) {
+void RecShelf::DrawCommodity(std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks, double h_solo) {
 	glPushMatrix();
 	glColor3f(0, 0, 1);
 	glShadeModel(GL_SMOOTH);
 	for(int i = 0 ; i < stocks.size(); i ++) {
 		if(i ==  0) {
-      glTranslated(0, 0, 10);
+      glTranslated(0, 0, h_solo);
 		} else {
 		  glTranslated(0, 0, stocks.at(i).first.height_floor); // trans z
 		}
@@ -377,13 +390,14 @@ bool RecShelf::LineCutBoundingBox(const Vector3D &dir,
 void RecShelf::DrawTwoHandeFloor(double width,
 																 double length,
 																 double height,
+																 double height_solo,
 																 double t,
 																 int count_floor, 
-																 double height_floort){
+																 double height_floor){
 	glPushMatrix();
-	glTranslatef(0, - t, 11);
+	glTranslatef(0, - t, height_solo);
 	for(int i = 1; i < count_floor; i ++){
-		glTranslatef(0, 0, height_floort);
+		glTranslatef(0, 0, height_floor);
 		DrawFloorHande(width,length, height, t , true);
 		glPushMatrix();
 		glTranslatef(0, length + t, 0);
@@ -486,13 +500,11 @@ void RecShelf::DrawSnare(double r,
 												 double sp,
 												 double ep,
 												 double angle,
-												 double width,
-												 double lenght,
-												 double height) {
-	float temp = lenght/30.0;
-	float temp2 = width /30.0;
+												 double lenght) {
+	int size = (int)lenght/ 10.0;
+	float temp = lenght/size;
 	glPushMatrix();
-	for(int i = 0; i < 29; i ++) {
+	for(int i = 0; i < size; i++) {
 	  glTranslatef(0, temp ,0);
 	  DrawCylinder(r, h, sp, ep, angle);
 	}

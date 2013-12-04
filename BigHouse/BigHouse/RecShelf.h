@@ -22,11 +22,13 @@ public :
 											double height,
 											int count_floor,
 											double height_floor,
+											double height_solo,
 											TypeRecShelf type,
 											bool draw_snare = true);
 	void DrawShelfFloor(int width, 
 		                  int length,
 											int heigth ,
+											double height_solo,
 											int count,
 											std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks);
 	void GetBoundingBox(Vector3D &bbmin, Vector3D &bbmax) const;
@@ -42,12 +44,13 @@ public :
 	void DrawTwoHandeFloor(double width,
 		                     double length,
 												 double height,
+												 double height_solo,
 												 double t,
 												 int count_floor, 
 												 double height_floor);
 	
 	//void DrawPoint();
-	void DrawCommodity(std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks);
+	void DrawCommodity(std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks, double h_solo);
 	//*******&&**********
 	bool LineCutBoundingBox(const Vector3D &dir,
 		                      const Vector3D &pos,
@@ -73,9 +76,7 @@ protected:
 								 double sp,
 								 double ep,
 								 double angle,
-								 double width,
-								 double lenght,
-								 double height);
+								 double lenght);
 
 private:
   int length_;

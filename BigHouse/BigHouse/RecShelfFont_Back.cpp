@@ -9,7 +9,7 @@ RecShelfFont_Back::RecShelfFont_Back(int width,
 	length_(length),
 	width_(width),
 	d_shelf_(d_shelf){
-	height_floor_ = (int)height/(count_floor);
+	height_floor_ = (height- height/20.0)/(count_floor);
 	std::pair<Floor, std::vector<Triangle3D*>> stock;
 	for(int i = 0; i < count_floor; i ++) {
 		stock.first.height_floor = height_floor_;
@@ -47,41 +47,42 @@ bool RecShelfFont_Back::IsLineCutBody(const Vector3D &dir, const Vector3D& pos, 
 void RecShelfFont_Back::DrawShelf() {
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   glDisable(GL_CULL_FACE);
+	double h_solo = height_/10.0;
 	if(d_shelf_ == FONT_BACK) {
-		ShelfStructure(width_ ,length_, height_,stocks_back_.size(), height_floor_, BACK);
+		ShelfStructure(width_ ,length_, height_,stocks_back_.size(), height_floor_, h_solo, BACK);
 		if(type_ == FLOOR_BACK) { 
-			DrawShelfFloor(width_, length_, 1 , count_floor_, stocks_back_);
+			DrawShelfFloor(width_, length_, 1 , h_solo, count_floor_, stocks_back_);
 		} else {
-			DrawShelfFloor(width_, length_, 1 , -1, stocks_back_);
+			DrawShelfFloor(width_, length_, 1 , h_solo, -1, stocks_back_);
 		}
-		DrawCommodity(stocks_back_);
+		DrawCommodity(stocks_back_,  h_solo);
 		glPushMatrix();
 		glTranslatef(width_ + 4, 0, 0 );
-		ShelfStructure(width_ ,length_, height_,stocks_back_.size(), height_floor_, FONT, false);
+		ShelfStructure(width_ ,length_, height_,stocks_back_.size(), height_floor_, h_solo, FONT, false);
 		if(type_ == FLOOR_FONT) { 
-			DrawShelfFloor(width_, length_, 1 , count_floor_, stocks_font_);
+			DrawShelfFloor(width_, length_, 1 , h_solo, count_floor_, stocks_font_);
 		} else {
-			DrawShelfFloor(width_, length_, 1 , -1, stocks_font_);
+			DrawShelfFloor(width_, length_, 1 , h_solo, -1, stocks_font_);
 		}
-		DrawCommodity(stocks_font_);
+		DrawCommodity(stocks_font_,  h_solo);
 		glPopMatrix();
 	} else {
-		ShelfStructure(width_ ,length_, height_,stocks_back_.size(), height_floor_, LEFT);
+		ShelfStructure(width_ ,length_, height_,stocks_back_.size(), height_floor_, h_solo, LEFT);
 		if(type_ == FLOOR_BACK) { 
-			DrawShelfFloor(width_, length_, 1 , count_floor_, stocks_back_);
+			DrawShelfFloor(width_, length_, 1 , h_solo, count_floor_, stocks_back_);
 		} else {
-			DrawShelfFloor(width_, length_, 1 , -1, stocks_back_);
+			DrawShelfFloor(width_, length_, 1 , h_solo, -1, stocks_back_);
 		}
-		DrawCommodity(stocks_back_);
+		DrawCommodity(stocks_back_, h_solo);
 		glPushMatrix();
 		glTranslatef(0, length_ + 4, 0 );
-		ShelfStructure(width_ ,length_, height_,stocks_back_.size(), height_floor_, RIGHT, false);
+		ShelfStructure(width_ ,length_, height_,stocks_back_.size(), height_floor_, h_solo, RIGHT, false);
 		if(type_ == FLOOR_FONT) { 
-			DrawShelfFloor(width_, length_, 1 , count_floor_, stocks_font_);
+			DrawShelfFloor(width_, length_, 1 , h_solo, count_floor_, stocks_font_);
 		} else {
-			DrawShelfFloor(width_, length_, 1 , -1, stocks_font_);
+			DrawShelfFloor(width_, length_, 1 , h_solo, -1, stocks_font_);
 		}
-		DrawCommodity(stocks_font_);
+		DrawCommodity(stocks_font_, h_solo);
 		glPopMatrix();
 	}
 
