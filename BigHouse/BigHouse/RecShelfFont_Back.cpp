@@ -88,7 +88,7 @@ void RectShelfFront_Back::DrawShelf() {
 		DrawCommodity(stocks_font_, h_solo);
 		glPopMatrix();
 	}
-
+	glPopMatrix();
 }
 void RectShelfFront_Back::SetCadToShelf(std::pair<Floor , std::vector<Triangle3D*>> &body) {
 	if (floor_count_ != -1) {
