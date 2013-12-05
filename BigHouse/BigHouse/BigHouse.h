@@ -35,6 +35,7 @@ struct RectBody{
 		int height_floor;
 		Size_rec s_r;
 		RectBody s_b;
+		Vector3D o_floor;
 	};
 
 

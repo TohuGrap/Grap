@@ -1001,7 +1001,7 @@ void BigHouseView::MakeCircleShelf(float radius, float height,
 	                                 float start_angle, float end_angle,
 																	 float flat_angle, int floor )
 {
-	CircleShelf *circle_shelf = new CircleShelf(radius, height,
+
 																						start_angle, end_angle,
 																						flat_angle, floor);
 	UINT space_distance = 2*radius;

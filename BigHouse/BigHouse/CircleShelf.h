@@ -29,7 +29,10 @@ public:
 private:
   void CircleShelfFrame(double r, double h, double sp, double ep, double angle);
 	void DrawFloor(double r, double h, double sp, double ep, double angle, double height_solo);
-	void DrawCommodity(std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks, double h_solo);
+	void DrawCommodity(std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks,
+		                 double h_solo, 
+										 double radius);
+	bool IsCadInCircle(Vector3D &o_floor, RectBody & rect, double radius);
 	float radius_;
 	float height_;
   float height_floor_;
@@ -37,6 +40,7 @@ private:
 	float start_angle_;
 	float end_angle_;
 	float flat_angle_;
+	double smooth_angle_;
 	Vector3D Origin_;
 	Vector3D max_origin_;
 	std::vector<std::pair<Floor, std::vector<Triangle3D*>>> stocks_;

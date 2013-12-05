@@ -25,48 +25,20 @@ void Shelf::DrawCylinder(double r, double h, double sp, double ep , double angle
 	double temp = 3.1415/180.0;
 	float x;
 	float y;
+
+	double se = ep - sp;
+	int size = (int)(se/angle);
+	double smooth_angle = se/size;
+	double s_a = sp;
 	float x0 = cos(sp*temp)*r;
 	float y0 = sin(sp*temp)*r;
-	int count = 0;
-	Vector3D nor;
-	//for(int i = sp + angle ; i < ep; i = i + angle) {
-	//	x = cos(i*temp)*r;
-	//	y = sin(i*temp)*r;
-	//	nor.Set((x + x0)/2.0, (y + y0)/2.0, 0); 
-	//	glBegin(GL_POLYGON);
-	//	glNormal3fv(nor.v);
-	//	glVertex3f(x0, y0, 0);
-	//	glVertex3f(x, y, 0);
-	//	glVertex3f(x, y, h);
-	//	glVertex3f(x0, y0, h);
-	//	glEnd();
-	//	x0 = x;
-	//	y0 = y;
-	//	count  = i;
-	//}
-
-	//x0 = cos(count*temp)*r;
-	//y0 = sin(count*temp)*r;
-	//x = cos(ep*temp)*r;
-	//y = sin(ep*temp)*r;
-	//nor.Set((x + x0)/2.0, (y + y0)/2.0, 0); 
-	//glBegin(GL_POLYGON);
-	//glNormal3fv(nor.v);
-	//glVertex3f(x0, y0, 0);
-	//glVertex3f(x, y, 0);
-	//glVertex3f(x, y, h);
-	//glVertex3f(x0, y0, h);
-	//glEnd();
-
-	// 
-	//glEnable(GL_DEPTH_TEST);
-	x0 = cos(sp*temp)*r;
-	y0 = sin(sp*temp)*r;
+  Vector3D nor;
 	nor.Set(0, 0, - 1);
 	glBegin(GL_TRIANGLES);
-	for(int i = sp + angle ; i <= ep; i = i + angle) {
-		x = cos(i*temp)*r;
-		y = sin(i*temp)*r;
+	for(int i = 0; i < size; i ++) {
+		s_a += smooth_angle;
+		x = cos(s_a*temp)*r;
+		y = sin(s_a*temp)*r;
 		glNormal3fv(nor.v);
 		glVertex3f(0, 0, 0);
 		glVertex3f(x, y, 0);
@@ -75,13 +47,16 @@ void Shelf::DrawCylinder(double r, double h, double sp, double ep , double angle
 		y0 = y;
 	}
 	glEnd();
+
+	s_a = sp;
 	nor.Set(0, 0, 1);
 	x0 = cos(sp*temp)*r;
 	y0 = sin(sp*temp)*r;
 	glBegin(GL_TRIANGLES);
-		for(int i = sp + angle ; i <= ep; i = i + angle) {
-		x = cos(i*temp)*r;
-		y = sin(i*temp)*r;
+	for(int i = 0; i < size; i ++) {
+		s_a += smooth_angle;
+		x = cos(s_a*temp)*r;
+		y = sin(s_a*temp)*r;
 		glBegin(GL_TRIANGLES);
 		glNormal3fv(nor.v);
 		glVertex3f(0, 0, h);
@@ -95,10 +70,13 @@ void Shelf::DrawCylinder(double r, double h, double sp, double ep , double angle
 	if(color_blue) {
 		glColor3f(0, 0, 1);
 	}
-
-	for(int i = sp + angle ; i < ep; i = i + angle) {
-		x = cos(i*temp)*r;
-		y = sin(i*temp)*r;
+  s_a = sp;
+	x0 = cos(sp*temp)*r;
+	y0 = sin(sp*temp)*r;
+	for(int i = 0; i < size; i ++) {
+		s_a += smooth_angle;
+		x = cos(s_a*temp)*r;
+		y = sin(s_a*temp)*r;
 		nor.Set((x + x0)/2.0, (y + y0)/2.0, 0); 
 		glBegin(GL_POLYGON);
 		glNormal3fv(nor.v);
@@ -109,19 +87,5 @@ void Shelf::DrawCylinder(double r, double h, double sp, double ep , double angle
 		glEnd();
 		x0 = x;
 		y0 = y;
-		count  = i;
 	}
-
-	x0 = cos(count*temp)*r;
-	y0 = sin(count*temp)*r;
-	x = cos(ep*temp)*r;
-	y = sin(ep*temp)*r;
-	nor.Set((x + x0)/2.0, (y + y0)/2.0, 0); 
-	glBegin(GL_POLYGON);
-	glNormal3fv(nor.v);
-	glVertex3f(x0, y0, 0);
-	glVertex3f(x, y, 0);
-	glVertex3f(x, y, h);
-	glVertex3f(x0, y0, h);
-	glEnd();
 }

@@ -284,6 +284,9 @@ void RectShelf::DrawCommodity(std::vector<std::pair<Floor, std::vector<Triangle3
 		  glTranslated(0, 0, stocks.at(i).first.height_floor); // trans z
 		}
 	  glPushMatrix();
+		//glTranslatef(stocks.at(i).first.o_floor.v[0],
+		//	           stocks.at(i).first.o_floor.v[1], 
+		//						 stocks.at(i).first.o_floor.v[2]); // trab to origin - floor
 		if(!stocks.at(i).second.empty()) {
 			for(int j = 0; j < stocks.at(i).first.s_r.i; j++) {
 				if(j != 0)
