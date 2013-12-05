@@ -115,6 +115,7 @@
     <None Include="res\Sphere.bmp" />
     <None Include="res\table.bmp" />
     <None Include="res\tearport.bmp" />
+    <None Include="res\tearpot.bmp" />
     <None Include="res\Toolbar.bmp" />
     <None Include="res\Toolbar256.bmp" />
     <None Include="res\Tours.bmp" />

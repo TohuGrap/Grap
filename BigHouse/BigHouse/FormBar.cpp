@@ -80,6 +80,10 @@ void FormBar::OnInitialUpdate() {
 
 	CButton* production_btn = reinterpret_cast<CButton*>(GetDlgItem(IDC_BTN_PRODUCTION_SELECTED));
 	production_btn->EnableWindow(FALSE);
+
+	CButton *production_setting = reinterpret_cast<CButton*>(GetDlgItem(IDC_OBJECT_OPTION));
+	production_setting->EnableWindow(FALSE);
+
   return ;
 }
 
@@ -134,17 +138,23 @@ void FormBar::OnSettingShelf() {
 void FormBar::OnBnShelfSelected()
 {
 	UINT shelf_type = shelf_info_.shelf_type;
+	CButton* production_setting= reinterpret_cast<CButton*>(GetDlgItem(IDC_OBJECT_OPTION));
+
+	CButton *production_selected = reinterpret_cast<CButton*>(GetDlgItem(IDC_BTN_PRODUCTION_SELECTED));
 
 	if (shelf_type == ShelfType::SIMPLE_SHELF) {
 	GetBigHouseView()->MakeSimpleShelf(shelf_info_.width, shelf_info_.longs,
 																		 shelf_info_.height, shelf_info_.numf,
 																		 (RectShelf::TypeRecShelf)shelf_info_.shelf_shape);
-	  
+		production_setting->EnableWindow(TRUE);
+	  production_selected->EnableWindow(TRUE);
+
 	} else if (shelf_type == ShelfType::DOUBLE_SHELF) {
 		GetBigHouseView()->MakeDoubleShelf(shelf_info_.width, shelf_info_.longs,
 																			 shelf_info_.height, shelf_info_.numf,
 																			 (RectShelfFront_Back::DirectionShelf)shelf_info_.shelf_shape);
-	  
+	  	production_setting->EnableWindow(TRUE);
+			production_selected->EnableWindow(TRUE);
 	} else if (shelf_type == ShelfType::CIRCLE_SHELF) {
 	  GetBigHouseView()->MakeCircleShelf(shelf_info_.shelf_radius,
 																			 shelf_info_.height,
@@ -152,14 +162,27 @@ void FormBar::OnBnShelfSelected()
 																			 shelf_info_.shelf_end_angle_,
 																			 shelf_info_.shelf_flat_angle_,
 																			 shelf_info_.numf);
+			production_setting->EnableWindow(TRUE);
+			production_selected->EnableWindow(TRUE);
 	} else {
-	  AfxMessageBox(L"Không tạo được kệ sản phẩm");
+		GetBigHouseView()->MakeSimpleShelf(shelf_info_.width, shelf_info_.longs,
+		shelf_info_.height, shelf_info_.numf,
+			(RectShelf::TypeRecShelf)shelf_info_.shelf_shape);
+		production_setting->EnableWindow(TRUE);
+		production_selected->EnableWindow(TRUE);
 	}
 }
 
 
 void FormBar::ClearShelf() {
   GetBigHouseView()->ClearShelf();
+
+	CButton *production_setting = reinterpret_cast<CButton*>(GetDlgItem(IDC_OBJECT_OPTION));
+	production_setting->EnableWindow(FALSE);
+
+
+	CButton *production_selected = reinterpret_cast<CButton*>(GetDlgItem(IDC_BTN_PRODUCTION_SELECTED));
+	production_selected->EnableWindow(FALSE);
 }
 
 

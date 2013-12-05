@@ -63,9 +63,8 @@ BOOL DlgProduction::OnInitDialog() {
     int index_bitmap = CheckBitmap(current_str);
     UpdateBitmap(index_bitmap);
   } else {
-    CBitmap cbitmap;
-    cbitmap.LoadBitmap(IDB_BITMAP_BKGN);
-    bitmap_image_ctrl.SetBitmap((HBITMAP)cbitmap);
+    cbitmap_.LoadBitmap(IDB_BITMAP_BKGN);
+    bitmap_image_ctrl.SetBitmap((HBITMAP)cbitmap_);
   }
 
   UpdateData(FALSE);
@@ -85,9 +84,9 @@ void DlgProduction::OnLBSelChange() {
 }
 
 int DlgProduction::CheckBitmap(CString str) {
-  if (str == "table.stl" || str == "table.STL") {
+  if (str == "desk.stl" || str == "desk.STL") {
     return 0;
-  } else if (str == "desk.stl" || str == "desk.STL") {
+  } else if (str == "teapot.stl" || str == "teapot.STL") {
     return 1;
   } else {
     return -1;
@@ -97,15 +96,15 @@ int DlgProduction::CheckBitmap(CString str) {
 void DlgProduction::UpdateBitmap(int index_bitmap) {
   switch(index_bitmap) {
   case 0: {
+		cbitmap_.Detach();
+    cbitmap_.LoadBitmap(IDB_BITMAP_DESK);
+    bitmap_image_ctrl.SetBitmap((HBITMAP)cbitmap_);
     break;
   }
   case 1: {
-    CBitmap cbitmap;
-    cbitmap.LoadBitmap(IDB_BITMAP_DESK);
-    bitmap_image_ctrl.SetBitmap((HBITMAP)cbitmap);
-    break;
-  }
-  case 2: {
+		cbitmap_.Detach();
+		cbitmap_.LoadBitmap(IDB_BITMAP_TEARPOT);
+		bitmap_image_ctrl.SetBitmap((HBITMAP)cbitmap_);
     break;
   }
   case 3: {
@@ -118,9 +117,10 @@ void DlgProduction::UpdateBitmap(int index_bitmap) {
     break;
   }
   default : {
-    CBitmap cbitmap;
-    cbitmap.LoadBitmap(IDB_BITMAP_BKGN);
-    bitmap_image_ctrl.SetBitmap((HBITMAP)cbitmap);
+		cbitmap_.Detach();
+		//cbitmap_.LoadBitmap(L"G:\\repo_outpro\\Grap\\BigHouse\\BigHouse\\res\\tearpot.bmp")
+    cbitmap_.LoadBitmap(IDB_BITMAP_BKGN);
+    bitmap_image_ctrl.SetBitmap((HBITMAP)cbitmap_);
     break;
     break;
    }
