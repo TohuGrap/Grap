@@ -1,37 +1,37 @@
+
+
 #include "stdafx.h"
 #include"RecShelf.h"
 #include "Struct.h"
 
-RecShelf::RecShelf(int width,
-	                 int length,
-									 int height,
-									 int count_floor,
-									 TypeRecShelf type)
-	:height_(height),
+RectShelf::RectShelf(float width,
+	                 float length,
+									 float height,
+									 UINT floor_count,
+									 TypeRecShelf type):
+	height_(height),
 	length_(length),
 	width_(width),
-  type_(type){
-	height_floor_ = (int)(height- height/20.0)/(count_floor);
+  type_(type) {
+	floor_height_ = (int)(height- height/20.0)/(floor_count);
 	std::pair<Floor, std::vector<Triangle3D*>> stock;
-	for(int i = 0; i < count_floor; i ++) {
-		stock.first.height_floor = height_floor_;
+	for(int i = 0; i < floor_count; i ++) {
+		stock.first.height_floor = floor_height_;
 		stocks_.push_back(stock);
 	}
 	bbmin_.Set(0, 0, 0);
 	bbmax_.Set(width_, length_, height_);
-	count_floor_ = - 1;
+	floor_count_ = - 1;
 }
 
-RecShelf::RecShelf() {
+RectShelf::RectShelf() {
 
 }
 
-RecShelf::~RecShelf() {
+RectShelf::~RectShelf() {
 
 }
-void RecShelf::DrawFaceShelf(Rect &rec) {
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	//glDisable(GL_CULL_FACE);
+void RectShelf::DrawFaceShelf(Rect &rec) {
 	glBegin(GL_POLYGON);
   	glNormal3fv(rec.n.v);
 	  glVertex3fv(rec.p[0].v);
@@ -41,7 +41,7 @@ void RecShelf::DrawFaceShelf(Rect &rec) {
 	glEnd();
 }
 
-void RecShelf::DrawCube(double width, double length, double height) {
+void RectShelf::DrawCube(double width, double length, double height) {
 	Rect rec;
 	rec.n.Set(0, 0, 1);
 	rec.p[0].Set(0, 0 , height);
@@ -87,7 +87,7 @@ void RecShelf::DrawCube(double width, double length, double height) {
 	DrawFaceShelf(rec);
 }
 
-void RecShelf::ShelfStructure(double width,
+void RectShelf::ShelfStructure(double width,
 															double length,
 															double height,
 															int count_floor,
@@ -134,7 +134,7 @@ void RecShelf::ShelfStructure(double width,
 	glPopMatrix();
 }
 
-void RecShelf::DrawShelfFloor(int width,
+void RectShelf::DrawShelfFloor(int width,
 	                            int length, 
 															int heigth,
 															double height_solo,
@@ -160,7 +160,7 @@ void RecShelf::DrawShelfFloor(int width,
 }
 
 
-void RecShelf::DrawShelf() {
+void RectShelf::DrawShelf() {
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	double h_solo = height_/12.0;
   glDisable(GL_CULL_FACE);
@@ -178,22 +178,22 @@ void RecShelf::DrawShelf() {
 //	glEnd();
 //}
 
-void RecShelf::GetBoundingBox(Vector3D &bbmin, Vector3D &bbmax) const{
+void RectShelf::GetBoundingBox(Vector3D &bbmin, Vector3D &bbmax) const{
 	bbmin = bbmin_;
 	bbmax = bbmax_;
 }
 
-void RecShelf::SetBoundingBox(Vector3D &bbmin){
+void RectShelf::SetBoundingBox(Vector3D &bbmin){
 	bbmin_ = bbmin;
 	Vector3D p(width_, length_, height_);
 	bbmax_ = bbmin + p;
 }
 
-void RecShelf::GetBBmin(Vector3D &bbmin) const {
+void RectShelf::GetBBmin(Vector3D &bbmin) const {
 	bbmin = bbmin_;
 }
 
-int RecShelf::FindPointMouseOnFloor(Vector3D &dir,
+int RectShelf::FindPointMouseOnFloor(Vector3D &dir,
 	                                   Vector3D &pos,
 																		  Vector3D &bbmin,
 														          Vector3D &bbmax,
@@ -236,8 +236,8 @@ int RecShelf::FindPointMouseOnFloor(Vector3D &dir,
 }
 
 
-void RecShelf::PointMouseOnFloor(Vector3D &dir, Vector3D &pos) {
-	count_floor_ = FindPointMouseOnFloor(dir, pos, bbmin_, bbmax_,stocks_);
+void RectShelf::PointMouseOnFloor(Vector3D &dir, Vector3D &pos) {
+	floor_count_ = FindPointMouseOnFloor(dir, pos, bbmin_, bbmax_,stocks_);
 	//Vector3D oz(0, 0, 1);
 	//if(dir.scalar(oz) == 0) {
 	//	return;
@@ -310,7 +310,7 @@ void RecShelf::DrawCommodity(std::vector<std::pair<Floor, std::vector<Triangle3D
 	//glBegin()
 }
 
-bool RecShelf::LineCutSurface(Vector3D &dir,
+bool RectShelf::LineCutSurface(Vector3D &dir,
 	                                Vector3D &pos,
 																	Vector3D &n,
 																	Vector3D &A,
@@ -332,19 +332,19 @@ bool RecShelf::LineCutSurface(Vector3D &dir,
 	return true;
 }
 
-void RecShelf::SetCadToShelf(std::pair<Floor, std::vector<Triangle3D*>> &body) {
-	if(count_floor_ != -1) {
-		stocks_.at(count_floor_).first.s_r.i = (int)width_/body.first.s_b.x;
-		stocks_.at(count_floor_).first.s_r.j = (int)length_/body.first.s_b.y;
-		stocks_.at(count_floor_).first.s_b = body.first.s_b;
-		stocks_.at(count_floor_).second = body.second;
+void RectShelf::SetCadToShelf(std::pair<Floor, std::vector<Triangle3D*>> &body) {
+	if(floor_count_ != -1) {
+		stocks_.at(floor_count_).first.s_r.i = (int)width_/body.first.s_b.x;
+		stocks_.at(floor_count_).first.s_r.j = (int)length_/body.first.s_b.y;
+		stocks_.at(floor_count_).first.s_b = body.first.s_b;
+		stocks_.at(floor_count_).second = body.second;
 		//stocks_.assign
 	}
 }
 
 //**********************************&&*************************
 
-bool RecShelf::LineCutBoundingBox(const Vector3D &dir,
+bool RectShelf::LineCutBoundingBox(const Vector3D &dir,
 	                                const Vector3D &pos,
 																	Vector3D &bbmin,
 																	Vector3D &bbmax,
@@ -389,7 +389,7 @@ bool RecShelf::LineCutBoundingBox(const Vector3D &dir,
 	return has_a_point;
 }
 
-void RecShelf::DrawTwoHandeFloor(double width,
+void RectShelf::DrawTwoHandeFloor(double width,
 																 double length,
 																 double height,
 																 double height_solo,
@@ -409,7 +409,7 @@ void RecShelf::DrawTwoHandeFloor(double width,
 	glPopMatrix();
 }
 
-void RecShelf::DrawFloorHande(double width, double length , double height, double t , bool draw_bar) {
+void RectShelf::DrawFloorHande(double width, double length , double height, double t , bool draw_bar) {
 	Vector3D A[5];
 	A[0].Set(0, 0, 0);
 	A[1].Set(width, 0, 0);
@@ -481,15 +481,15 @@ void RecShelf::DrawFloorHande(double width, double length , double height, doubl
 }
 
 
-bool RecShelf::IsLineCutBody(const Vector3D &dir, const Vector3D& pos, Vector3D &p) {
+bool RectShelf::IsLineCutBody(const Vector3D &dir, const Vector3D& pos, Vector3D &p) {
 	return LineCutBoundingBox(dir, pos, bbmin_, bbmax_, p);
 }
 
-void RecShelf::GetOriginBody(Vector3D &p_origin) {
+void RectShelf::GetOriginBody(Vector3D &p_origin) {
 	p_origin = bbmin_;
 }
 
-void RecShelf::SetOriginBody(Vector3D &p_move) {
+void RectShelf::SetOriginBody(Vector3D &p_move) {
 	bbmin_ = bbmin_ + p_move;
   Vector3D p(width_, length_, height_);
 	bbmax_ = bbmin_ + p;
@@ -497,7 +497,7 @@ void RecShelf::SetOriginBody(Vector3D &p_move) {
 }
 
 
-void RecShelf::DrawSnare(double r, 
+void RectShelf::DrawSnare(double r, 
 	                       double h, 
 												 double sp,
 												 double ep,

@@ -1,34 +1,37 @@
 #include "stdafx.h"
 #include "RecShelfFont_Back.h"
-RecShelfFont_Back::RecShelfFont_Back(int width,
-	                                   int length,
-																		 int height, 
-																		 int count_floor,
-																		 DirectionShelf d_shelf) // bo cai nay di cung dc
-	:height_(height),
+RectShelfFront_Back::RectShelfFront_Back(float width,
+	                                   float length,
+																		 float height, 
+																		 UINT floor_count,
+																		 DirectionShelf shelf_direction) :
+	height_(height),
 	length_(length),
 	width_(width),
-	d_shelf_(d_shelf){
-	height_floor_ = (height- height/20.0)/(count_floor);
+	shelf_direction_(shelf_direction) {
+	floor_height_ = (int)height/(floor_count);
 	std::pair<Floor, std::vector<Triangle3D*>> stock;
-	for(int i = 0; i < count_floor; i ++) {
-		stock.first.height_floor = height_floor_;
+	for(int i = 0; i < floor_count; i++) {
+		stock.first.height_floor = floor_height_;
 		stocks_font_.push_back(stock);
 		stocks_back_.push_back(stock);
 	}
+
 	bbmin_back_.Set(0, 0, 0);
-  count_floor_ = -1;
+  floor_count_ = -1;
 	type_ = FLOOR_FONT;
 }
 
-RecShelfFont_Back::~RecShelfFont_Back() {
+RectShelfFront_Back::~RectShelfFront_Back() {
 
 }
 
-bool RecShelfFont_Back::IsLineCutBody(const Vector3D &dir, const Vector3D& pos, Vector3D &p) {
+bool RectShelfFront_Back::IsLineCutBody(const Vector3D &dir,
+																			const Vector3D& pos,
+																			Vector3D &p) {
 	bool has_point = LineCutBoundingBox(dir, pos, bbmin_back_, bbmax_back_, p);
 	type_ = FLOOR_BACK;
-	if(has_point) {
+	if (has_point) {
 		Vector3D temp;
 		if(LineCutBoundingBox(dir, pos, bbmin_font_, bbmax_font_, temp)) {
 			Vector3D u = p - temp;
@@ -44,7 +47,7 @@ bool RecShelfFont_Back::IsLineCutBody(const Vector3D &dir, const Vector3D& pos, 
 	return has_point;
 }
 
-void RecShelfFont_Back::DrawShelf() {
+void RectShelfFront_Back::DrawShelf() {
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   glDisable(GL_CULL_FACE);
 	double h_solo = height_/10.0;
@@ -87,32 +90,32 @@ void RecShelfFont_Back::DrawShelf() {
 	}
 
 }
-void RecShelfFont_Back::SetCadToShelf(std::pair<Floor , std::vector<Triangle3D*>> &body) {
-	if(count_floor_ != -1) {
-	  if(type_ == FLOOR_FONT) {
-			stocks_font_.at(count_floor_).first.s_r.i = (int)width_/body.first.s_b.x;
-			stocks_font_.at(count_floor_).first.s_r.j = (int)length_/body.first.s_b.y;
-			stocks_font_.at(count_floor_).first.s_b = body.first.s_b;
-			stocks_font_.at(count_floor_).second = body.second;
+void RectShelfFront_Back::SetCadToShelf(std::pair<Floor , std::vector<Triangle3D*>> &body) {
+	if (floor_count_ != -1) {
+	  if (type_ == FLOOR_FONT) {
+			stocks_font_.at(floor_count_).first.s_r.i = (int)width_/body.first.s_b.x;
+			stocks_font_.at(floor_count_).first.s_r.j = (int)length_/body.first.s_b.y;
+			stocks_font_.at(floor_count_).first.s_b = body.first.s_b;
+			stocks_font_.at(floor_count_).second = body.second;
 			//stocks_.assign
-		} else if(type_ == FLOOR_BACK) {
-			stocks_back_.at(count_floor_).first.s_r.i = (int)width_/body.first.s_b.x;
-			stocks_back_.at(count_floor_).first.s_r.j = (int)length_/body.first.s_b.y;
-			stocks_back_.at(count_floor_).first.s_b = body.first.s_b;
-			stocks_back_.at(count_floor_).second = body.second;
+		} else if (type_ == FLOOR_BACK) {
+			stocks_back_.at(floor_count_).first.s_r.i = (int)width_/body.first.s_b.x;
+			stocks_back_.at(floor_count_).first.s_r.j = (int)length_/body.first.s_b.y;
+			stocks_back_.at(floor_count_).first.s_b = body.first.s_b;
+			stocks_back_.at(floor_count_).second = body.second;
 		}
 	}
 }
-void RecShelfFont_Back::GetOriginBody(Vector3D &p_origin) {
+void RectShelfFront_Back::GetOriginBody(Vector3D &p_origin) {
 	p_origin = bbmin_back_;
 
 }
-void RecShelfFont_Back::SetOriginBody(Vector3D &p_move) {
+void RectShelfFront_Back::SetOriginBody(Vector3D &p_move) {
 	Vector3D temp(width_, length_, height_);
 	bbmin_back_ = bbmin_back_ + p_move;
 	bbmax_back_ = bbmin_back_ + temp;
 	Vector3D temp1;
-	if(d_shelf_ == FONT_BACK) {
+	if (shelf_direction_ == FONT_BACK) {
 		temp1.Set(width_, 0 , 0);
 	  bbmin_font_ = bbmin_back_ + temp1;
 	  bbmax_font_ = bbmin_font_ + temp;
@@ -122,13 +125,13 @@ void RecShelfFont_Back::SetOriginBody(Vector3D &p_move) {
 	  bbmax_font_ = bbmin_font_ + temp;
 	}
 }
-void RecShelfFont_Back::PointMouseOnFloor(Vector3D &dir, Vector3D &pos) {
-	if(type_ == FLOOR_FONT) {
-		count_floor_ = FindPointMouseOnFloor(dir, pos, bbmin_font_, bbmax_font_, stocks_font_);
+void RectShelfFront_Back::PointMouseOnFloor(Vector3D &dir, Vector3D &pos) {
+	if (type_ == FLOOR_FONT) {
+		floor_count_ = FindPointMouseOnFloor(dir, pos, bbmin_font_, bbmax_font_, stocks_font_);
 	} else {
-	  count_floor_ = FindPointMouseOnFloor(dir, pos, bbmin_back_, bbmax_back_, stocks_back_);
+	  floor_count_ = FindPointMouseOnFloor(dir, pos, bbmin_back_, bbmax_back_, stocks_back_);
 	}
 }
-void RecShelfFont_Back::ReSetSelectFloor() {
-	count_floor_ = - 1;
+void RectShelfFront_Back::ReSetSelectFloor() {
+	floor_count_ = - 1;
 }

@@ -1,19 +1,30 @@
-#pragma once
+
+/*****************************************************************************
+* Class Name		: RectShelf
+* Purpose				: Make Simple Shelf
+* Language			: Visual C++ 2010 and OpenGL 
+* OS						: Windows 7
+* CopyRight(C)	: ToHoGrap
+******************************************************************************/
+
+#ifndef RECT_SHELF_H_
+#define RECT_SHELF_H_
+
 #include"Shelf.h"
 #include "Struct.h"
 
-enum TypeRecShelf {
-	FONT = 0,
-	BACK,
-	LEFT,
-	RIGHT
-};
-
-class RecShelf: public Shelf {
+class RectShelf: public Shelf {
+public:
+	enum TypeRecShelf {
+		FONT = 0,
+		BACK,
+		LEFT,
+		RIGHT
+	};
 public :
-	RecShelf(int width, int length, int height, int count_floor , TypeRecShelf type);
-	RecShelf();
-	~RecShelf();
+	RectShelf(float width, float length, float height, UINT floor_count , TypeRecShelf diection);
+	RectShelf();
+	~RectShelf();
 	void DrawFaceShelf(Rect &rec);
 	void DrawCube(double width, double length, double height);
 
@@ -63,7 +74,7 @@ public :
 	virtual void GetOriginBody(Vector3D &p_origin);
 	virtual void SetOriginBody(Vector3D &p_move);
 	virtual void PointMouseOnFloor(Vector3D &dir, Vector3D &pos);
-	virtual void ReSetSelectFloor() {count_floor_ = -1;}
+	virtual void ReSetSelectFloor() {floor_count_ = -1;}
 	
 protected:
 	int FindPointMouseOnFloor(Vector3D &dir,
@@ -82,12 +93,12 @@ private:
   int length_;
 	int height_;
 	int width_;
-	double height_floor_;
-	int count_floor_;
+	double floor_height_;
+	int floor_count_;
 	TypeRecShelf type_;
 	std::vector<std::pair<Floor, std::vector<Triangle3D*>>> stocks_;
 	Vector3D bbmin_;
 	Vector3D bbmax_;
-
-	////////
 };
+
+#endif // RECT_SHELF_H_

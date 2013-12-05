@@ -418,7 +418,7 @@ void BigHouseView::RenderScene() {
 	if (is_show_size_) {
 		glPushMatrix();
 		DrawSizeLine();
-		glPushMatrix();
+		glPopMatrix();
 	}
 
 #ifdef ENABLE_DRAW_POINT
@@ -438,7 +438,6 @@ void BigHouseView::RenderScene() {
 
 void BigHouseView::DrawCad() {
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
 	for(int i = 0; i < shelf_.size(); i ++) {
 		Vector3D origin;
 		shelf_.at(i)->GetOriginBody(origin);
@@ -572,10 +571,10 @@ void BigHouseView::DrawSizeLine() {
 		char* ch_height = Base::CStringToChar(str_height);
 
 		if (rendering_rate_ > 0.05) {
-		  glColor3ub(255, 255, 255);
-		  DrawStringAt(0.0, room_size_.longs/2 + 150, -100.0, ch_longs);
-		  DrawStringAt(room_size_.width/2 + 150, 0.0, -100.0, ch_width);
-		  DrawStringAt(room_size_.width/2 + 150, room_size_.longs/2 + 150, -50, ch_height);
+			glColor3ub(255, 255, 255);
+			DrawStringAt(0.0, room_size_.longs/2 + 150, -100.0, ch_longs);
+			DrawStringAt(room_size_.width/2 + 150, 0.0, -100.0, ch_width);
+			DrawStringAt(room_size_.width/2 + 150, room_size_.longs/2 + 150, -50, ch_height);
 		}
 	SetupLight();
 }
@@ -749,7 +748,6 @@ BOOL BigHouseView::OnMouseWheel(UINT nFlags, short zDetal, CPoint point) {
 
 void BigHouseView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
 	switch (nChar) {
-	//Processing Arrow Keys to Synchronise with Movement
 	case VK_UP:
 		y_position_ += 15.0f;
 		InvalidateRect(NULL,FALSE);
@@ -978,17 +976,21 @@ void BigHouseView::SetCadToView(std::pair<Floor, std::vector<Triangle3D*>> &body
 
 }
 
-void BigHouseView::MakeSimpleShelf( float width, float length, float height, int count_floor, TypeRecShelf direction )
+void BigHouseView::MakeSimpleShelf(float width, float length, float height,
+																	int count_floor, RectShelf::TypeRecShelf direction)
 {
-	RecShelf *rec_shelf = new RecShelf(width, length, height, count_floor , direction);
+	RectShelf *rec_shelf = new RectShelf(width, length, height, count_floor , direction);
 	UINT space_distance = length;
 	RenderShelf(rec_shelf, space_distance);
 }
 	
 
-void BigHouseView::MakeDoubleShelf( float width, float length, float height, int count_floor, DirectionShelf direction )
+void BigHouseView::MakeDoubleShelf(float width, float length, float height,
+																	int count_floor,
+																	RectShelfFront_Back::DirectionShelf direction )
 {
-  RecShelfFont_Back *double_shelf = new RecShelfFont_Back(width, length, height,
+  
+  RectShelfFront_Back *double_shelf = new RectShelfFront_Back(width, length, height,
 																													count_floor, direction);
 	UINT space_distance = length;
 	RenderShelf(double_shelf, space_distance);
@@ -998,7 +1000,7 @@ void BigHouseView::MakeCircleShelf(float radius, float height,
 	                                 float start_angle, float end_angle,
 																	 float flat_angle, int floor )
 {
-	CirclShelf *circle_shelf = new CirclShelf(radius, height,
+	CircleShelf *circle_shelf = new CircleShelf(radius, height,
 																						start_angle, end_angle,
 																						flat_angle, floor);
 	UINT space_distance = 2*radius;
@@ -1008,13 +1010,12 @@ void BigHouseView::MakeCircleShelf(float radius, float height,
 void BigHouseView::RenderShelf( Shelf* sh, UINT space_distance )
 {
 	shelf_.push_back(sh);
-	int size = shelf_.size();
+	UINT size = shelf_.size();
 	if (size > 1) {
 		Vector3D bbmin;
 		shelf_.at(size - 2)->GetOriginBody(bbmin);
 		bbmin.v[1] = bbmin.v[1] + space_distance + 50;
 		shelf_.at(size - 1)->SetOriginBody(bbmin);
-
 	} else {
 	  Vector3D bbmin(-600, -600, 0);
 		shelf_.at(size - 1)->SetOriginBody(bbmin);
@@ -1022,11 +1023,11 @@ void BigHouseView::RenderShelf( Shelf* sh, UINT space_distance )
 	InvalidateRect(NULL, true);
 }
 
+
 void BigHouseView::ClearShelf() {
   if (!shelf_.empty())
     shelf_.clear();
 }
-
 
 void BigHouseView::OnViewTop() { 
 	phi_ = 0.0;

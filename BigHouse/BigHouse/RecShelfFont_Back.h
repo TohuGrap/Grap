@@ -1,24 +1,39 @@
-#pragma once
+
+/*****************************************************************************
+* Class Name		: RectShelfFront_Back
+* Purpose				: Make Double Shelf
+* Language			: Visual C++ 2010 and OpenGL 
+* OS						: Windows 7
+* CopyRight(C)	: ToHoGrap
+******************************************************************************/
+
+#ifndef RECT_SHELF_FRONT_BACK_H_
+#define RECT_SHELF_FRONT_BACK_H_
+
 #include "Shelf.h"
 #include "RecShelf.h"
 
-enum DirectionShelf {
-	FONT_BACK = 0,
-	LEFT_RIGHT
-};
 
-enum TypeFloor {
-	FLOOR_FONT = 0,
-	FLOOR_BACK
-};
+class RectShelfFront_Back :public Shelf, RectShelf {
+public:
+	enum DirectionShelf {
+		FONT_BACK = 0,
+		LEFT_RIGHT
+	};
 
-class RecShelfFont_Back :public Shelf, RecShelf {
+	enum TypeFloor {
+		FLOOR_FONT = 0,
+		FLOOR_BACK
+	};
 
 public:
-	RecShelfFont_Back(int width, int length, int height, int count_floor, DirectionShelf d_shelf /*,TypeRecShelf type*/);
-  ~RecShelfFont_Back();
+	RectShelfFront_Back(float width, float length, float height,
+										UINT floor_count, DirectionShelf direction);
+  ~RectShelfFront_Back();
 
-	virtual bool IsLineCutBody(const Vector3D &dir, const Vector3D& pos, Vector3D &p);
+	virtual bool IsLineCutBody(const Vector3D &dir,
+														 const Vector3D& pos,
+														 Vector3D &p);
 	virtual void DrawShelf();
 	virtual void SetCadToShelf(std::pair<Floor , std::vector<Triangle3D*>> &body);
 	virtual void GetOriginBody(Vector3D &p_origin);
@@ -30,10 +45,10 @@ private:
   int length_;
 	int height_;
 	int width_;
-	double height_floor_;
-	int count_floor_;
+	int floor_height_;
+	int floor_count_;
 	TypeFloor type_;
-	DirectionShelf d_shelf_;
+	DirectionShelf shelf_direction_;
 	Vector3D bbmin_font_;
 	Vector3D bbmax_font_;
 	Vector3D bbmin_back_;
@@ -41,3 +56,5 @@ private:
 	std::vector<std::pair<Floor, std::vector<Triangle3D*>>> stocks_font_;
 	std::vector<std::pair<Floor, std::vector<Triangle3D*>>> stocks_back_;
 };
+
+#endif // RECT_SHELF_FRONT_BACK_H_

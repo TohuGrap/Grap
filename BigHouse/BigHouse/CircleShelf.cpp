@@ -1,29 +1,33 @@
+
+
 #include "stdafx.h"
 #include "CircleShelf.h"
-CirclShelf::CirclShelf(double r,//ban kinh ke
-	                     double h,// chieu cao ke
-											 double sp, // goc bat dau cua hinh tron
-											 double ep,// goc ket thuc- voi ke hinh tron thi lay sp = 0, ep = 360 do
-											 double angle, // goc don vi de tao ra mot hinh chu nhat tren mat tru cang nho thi cang min mang
-											 double count_floor)// so san
- :radius_(r),
-  height_(h) {
-	std::pair<Floor, std::vector<Triangle3D*>> stock;
-	height_floor_ = (h - h/15.0) / count_floor;
-	for(int i = 0; i < count_floor; i ++) {
-		stock.first.height_floor = height_floor_;
-		stocks_.push_back(stock);
-	}
-	Origin_.Set(0 , 0, 0);
-	count_floor_ = -1;
+CircleShelf::CircleShelf(double radius,
+	                     double height,
+											 double start_angle,
+											 double end_angle,
+											 double flat_angle,
+											 UINT floor_count) :
+	radius_(radius),
+  height_(height),
+	start_angle_(start_angle),
+	end_angle_(end_angle),
+	flat_angle_(flat_angle),
+	floor_count_(floor_count) {
+		std::pair<Floor, std::vector<Triangle3D*>> stock;
+		height_floor_ = height / floor_count;
+		for(int i = 0; i < floor_count; ++i) {
+			stock.first.height_floor = height_floor_;
+			stocks_.push_back(stock);
+		}
+		Origin_.Set(0 , 0, 0);
+}
+
+CircleShelf::~CircleShelf() {
 
 }
 
-CirclShelf::~CirclShelf() {
-
-}
-
-bool CirclShelf::IsLineCutBody(const Vector3D &dir, const Vector3D& pos, Vector3D &p) {
+bool CircleShelf::IsLineCutBody(const Vector3D &dir, const Vector3D& pos, Vector3D &p) {
 	double x = pos.v[0] - Origin_.v[0];
 	double y = pos.v[1] - Origin_.v[1];
 	double b = (dir.v[0]*x + dir.v[1]*y);
@@ -89,28 +93,25 @@ bool CirclShelf::IsLineCutBody(const Vector3D &dir, const Vector3D& pos, Vector3
 	}
 	return false;
 }
-void CirclShelf::DrawShelf() {
-  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-  glDisable(GL_CULL_FACE);
-	glColor3f(1, 0, 0);
-	ShelfStructure(radius_, height_, 0, 360, 18); 
-	glColor3f(1, 1, 0);
-	DrawFloor(radius_, height_/30.0, 0, 360, 5, height_/15.0);
+void CircleShelf::DrawShelf() {
+	glColor3f(1.0, 0, 0);
+	CircleShelfFrame(radius_, height_, start_angle_, end_angle_, flat_angle_); 
+	glColor3f(1.0, 1.0, 0);
+	DrawFloor(radius_, 1, start_angle_, end_angle_, floor_count_);
+}
+void CircleShelf::SetCadToShelf(std::pair<Floor , std::vector<Triangle3D*>> &body) {
 
 }
-void CirclShelf::SetCadToShelf(std::pair<Floor , std::vector<Triangle3D*>> &body) {
-
-}
-void CirclShelf::GetOriginBody(Vector3D &p_origin) {
+void CircleShelf::GetOriginBody(Vector3D &p_origin) {
 	p_origin = Origin_;
 }
-void CirclShelf::SetOriginBody(Vector3D &p_move) {
+void CircleShelf::SetOriginBody(Vector3D &p_move) {
 	Origin_ = Origin_ + p_move;
 	Vector3D temp(0, 0, height_);
 	max_origin_ = Origin_ + temp;
 }
-void CirclShelf::PointMouseOnFloor(Vector3D &dir, Vector3D &pos) {
-	count_floor_ = - 1;
+void CircleShelf::PointMouseOnFloor(Vector3D &dir, Vector3D &pos) {
+	floor_count_ = - 1;
 	Vector3D oz(0, 0, 1);
 	if(oz.scalar(dir) == 0) {
 		return;
@@ -126,30 +127,29 @@ void CirclShelf::PointMouseOnFloor(Vector3D &dir, Vector3D &pos) {
 		u = (Vector3D)pos + u;
 		Vector3D v = u - O;
 		if(v.abs() <= radius_ ) {
-			if(count_floor_ == -1){
+			if(floor_count_ == -1){
 			  temp = v;
-		  	count_floor_ = i;
+		  	floor_count_ = i;
 			} else {
 				Vector3D sp = temp - v;
 				if(sp.scalar(dir) < 0) {
 					temp = v;
-					count_floor_ = i;
+					floor_count_ = i;
 				}
 			}
 		}
 	}
 }
-void CirclShelf::ReSetSelectFloor() {
-	count_floor_ = - 1;
+void CircleShelf::ReSetSelectFloor() {
+	floor_count_ = - 1;
 }
 
-void CirclShelf::ShelfStructure(double r, double h, double sp, double ep, double angle) {
-	DrawCylinder(r, h/10.0, sp, ep, r/8);
-	DrawCylinder(r/15.0, h, sp, ep, angle);
-
+void CircleShelf::CircleShelfFrame(double r, double h, double sp, double ep, double angle) {
+	DrawCylinder(r, 10, sp, ep, 5);			// Draw base cylinder
+	DrawCylinder(3, h, sp, ep, angle);  // Draw axis cylinder
 }
 
-void CirclShelf::DrawFloor(double r, double h, double sp, double ep, double angle ,double height_solo) {
+void CircleShelf::DrawFloor(double r, double h, double sp, double ep, double angle) {
 	glPushMatrix();
   glTranslatef(0 , 0, height_solo);
 	if(count_floor_ == 0) {
@@ -161,7 +161,7 @@ void CirclShelf::DrawFloor(double r, double h, double sp, double ep, double angl
 		if(count_floor_ == i) {
 			glColor3f(0, 0, 1);
 		} else {
-			glColor3f(1, 1, 0);
+			glColor3f(1.0, 1.0, 0.0);
 		}
 		DrawCylinder(r, h, sp, ep, angle, true);
 	}

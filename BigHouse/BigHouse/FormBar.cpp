@@ -138,12 +138,12 @@ void FormBar::OnBnShelfSelected()
 	if (shelf_type == ShelfType::SIMPLE_SHELF) {
 	GetBigHouseView()->MakeSimpleShelf(shelf_info_.width, shelf_info_.longs,
 																		 shelf_info_.height, shelf_info_.numf,
-																		 (TypeRecShelf)shelf_info_.shelf_shape);
+																		 (RectShelf::TypeRecShelf)shelf_info_.shelf_shape);
 	  
 	} else if (shelf_type == ShelfType::DOUBLE_SHELF) {
 		GetBigHouseView()->MakeDoubleShelf(shelf_info_.width, shelf_info_.longs,
 																			 shelf_info_.height, shelf_info_.numf,
-																			 (DirectionShelf)shelf_info_.shelf_shape);
+																			 (RectShelfFront_Back::DirectionShelf)shelf_info_.shelf_shape);
 	  
 	} else if (shelf_type == ShelfType::CIRCLE_SHELF) {
 	  GetBigHouseView()->MakeCircleShelf(shelf_info_.shelf_radius,
