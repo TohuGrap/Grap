@@ -63,6 +63,8 @@ void DlgSettingShelf::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_RADIO_BACK, shelf_back_);
 	DDX_Control(pDX, IDC_RADIO_LEFT, shelf_left_);
 	DDX_Control(pDX, IDC_RADIO_RIGHT, shelf_right_);
+
+  DDX_Control(pDX, IDC_BITMAP_SHELF, bitmap_shelf_);
 }
 
 
@@ -103,11 +105,14 @@ BOOL  DlgSettingShelf::OnInitDialog() {
 	combox_shelf_type_.AddString(_T("Kệ Tròn"));
 	combox_shelf_type_.SetCurSel(0);
 	
+	//Update Bitmap 
+	SetBitmapShelf(ShelfType::SIMPLE_SHELF);
+
 	SetStatusInfoShelf(ShelfType::SIMPLE_SHELF);
 	SetStatusShelfShape(ShelfType::SIMPLE_SHELF);
 
 	shelf_front_.SetCheck(1);
-
+  
 	UpdateData(FALSE);
 	return TRUE;
 }
@@ -172,9 +177,12 @@ void DlgSettingShelf::OnComboxShelfType() {
 	UINT item = combox_shelf_type_.GetCurSel();
 	if (item == ShelfType::SIMPLE_SHELF) {
 	  shelf_info_.shelf_type = ShelfType::SIMPLE_SHELF;
+		SetBitmapShelf(ShelfType::SIMPLE_SHELF);
 	} else if (item == ShelfType::DOUBLE_SHELF) {
 	  shelf_info_.shelf_type = ShelfType::DOUBLE_SHELF;
+		SetBitmapShelf(ShelfType::DOUBLE_SHELF);
 	} else if (item == ShelfType::CIRCLE_SHELF) {
+		SetBitmapShelf(ShelfType::CIRCLE_SHELF);
 	  shelf_info_.shelf_type = ShelfType::CIRCLE_SHELF;
 	} else {
 	  ;
@@ -282,5 +290,23 @@ void DlgSettingShelf::SetStatusShelfShape( UINT shelf_type )
 	default:{
 		break;
 					}
+	}
+}
+
+void DlgSettingShelf::SetBitmapShelf(UINT index_bitmap) {
+  if (index_bitmap == ShelfType::SIMPLE_SHELF) {
+		cbitmap_.Detach();
+		cbitmap_.LoadBitmap(IDB_BITMAP_SIMPLE_SHELF);
+		bitmap_shelf_.SetBitmap((HBITMAP)cbitmap_);
+	} else if (index_bitmap == ShelfType::DOUBLE_SHELF) {
+		cbitmap_.Detach();
+		cbitmap_.LoadBitmap(IDB_BITMAP_DOUBLE_SHELF);
+		bitmap_shelf_.SetBitmap((HBITMAP)cbitmap_);
+	} else if (index_bitmap == ShelfType::CIRCLE_SHELF) {
+		cbitmap_.Detach();
+		cbitmap_.LoadBitmap(IDB_BITMAP_CIRCLE_SHELF);
+		bitmap_shelf_.SetBitmap((HBITMAP)cbitmap_);
+	} else {
+	  return;
 	}
 }

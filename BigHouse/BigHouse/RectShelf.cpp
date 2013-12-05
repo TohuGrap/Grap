@@ -165,8 +165,8 @@ void RectShelf::DrawShelf() {
 	double h_solo = height_/12.0;
   glDisable(GL_CULL_FACE);
 	glPushMatrix();
-	ShelfStructure(width_ ,length_, height_ , stocks_.size(), height_floor_, h_solo , type_);
-	DrawShelfFloor(width_, length_, 1, h_solo, count_floor_, stocks_);
+	ShelfStructure(width_ ,length_, height_ , stocks_.size(), floor_height_, h_solo , type_);
+	DrawShelfFloor(width_, length_, 1, h_solo, floor_count_, stocks_);
  	DrawCommodity(stocks_, h_solo);
 	glPopMatrix();
 }
@@ -273,7 +273,7 @@ void RectShelf::PointMouseOnFloor(Vector3D &dir, Vector3D &pos) {
 	//}
 }
 
-void RecShelf::DrawCommodity(std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks, double h_solo) {
+void RectShelf::DrawCommodity(std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks, double h_solo) {
 	glPushMatrix();
 	glColor3f(0, 0, 1);
 	glShadeModel(GL_SMOOTH);

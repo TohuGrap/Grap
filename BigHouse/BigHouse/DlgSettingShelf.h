@@ -20,6 +20,7 @@ public:
 
 public:
 	void SetStatusInfoShelf(UINT shelf_type);
+	void SetBitmapShelf(UINT index);
 
 	enum ShelfType {
 		SIMPLE_SHELF = 0,
@@ -86,4 +87,7 @@ protected:
 	CButton shelf_back_;
 	CButton shelf_left_;
 	CButton shelf_right_;
+
+	CStatic bitmap_shelf_;
+	CBitmap cbitmap_;
 };

@@ -97,7 +97,8 @@ void CircleShelf::DrawShelf() {
 	glColor3f(1.0, 0, 0);
 	CircleShelfFrame(radius_, height_, start_angle_, end_angle_, flat_angle_); 
 	glColor3f(1.0, 1.0, 0);
-	DrawFloor(radius_, 1, start_angle_, end_angle_, floor_count_);
+	double h_solo = height_/12.0;
+	DrawFloor(radius_, 1, start_angle_, end_angle_, floor_count_, h_solo);
 }
 void CircleShelf::SetCadToShelf(std::pair<Floor , std::vector<Triangle3D*>> &body) {
 
@@ -149,16 +150,16 @@ void CircleShelf::CircleShelfFrame(double r, double h, double sp, double ep, dou
 	DrawCylinder(3, h, sp, ep, angle);  // Draw axis cylinder
 }
 
-void CircleShelf::DrawFloor(double r, double h, double sp, double ep, double angle) {
+void CircleShelf::DrawFloor(double r, double h, double sp, double ep, double angle, double height_solo) {
 	glPushMatrix();
   glTranslatef(0 , 0, height_solo);
-	if(count_floor_ == 0) {
+	if(floor_count_ == 0) {
 		glColor3f(0, 0, 1);
 	  DrawCylinder(r, h, sp, ep, angle, true);
 	}
 	for(int i = 1; i < stocks_.size(); i ++) {
 		glTranslatef(0 , 0, stocks_.at(i).first.height_floor);
-		if(count_floor_ == i) {
+		if(floor_count_ == i) {
 			glColor3f(0, 0, 1);
 		} else {
 			glColor3f(1.0, 1.0, 0.0);
@@ -169,7 +170,7 @@ void CircleShelf::DrawFloor(double r, double h, double sp, double ep, double ang
 
 }
 
-void CirclShelf::DrawCommodity(std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks, double h_solo) {
+void CircleShelf::DrawCommodity(std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks, double h_solo) {
 	glPushMatrix();
 	glColor3f(0, 0, 1);
 	glShadeModel(GL_SMOOTH);

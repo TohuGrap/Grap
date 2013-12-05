@@ -73,6 +73,21 @@
     <None Include="res\icon1.ico">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="res\bitmap1.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\simple_shelf.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\double_shelf.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\double_shelf.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\circle_shelf.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BigHouse.h">

@@ -51,37 +51,37 @@ void RectShelfFront_Back::DrawShelf() {
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   glDisable(GL_CULL_FACE);
 	double h_solo = height_/10.0;
-	if(d_shelf_ == FONT_BACK) {
-		ShelfStructure(width_ ,length_, height_,stocks_back_.size(), height_floor_, h_solo, BACK);
+	if(shelf_direction_ == FONT_BACK) {
+		ShelfStructure(width_ ,length_, height_,stocks_back_.size(), floor_height_, h_solo, BACK);
 		if(type_ == FLOOR_BACK) { 
-			DrawShelfFloor(width_, length_, 1 , h_solo, count_floor_, stocks_back_);
+			DrawShelfFloor(width_, length_, 1 , h_solo, floor_count_, stocks_back_);
 		} else {
 			DrawShelfFloor(width_, length_, 1 , h_solo, -1, stocks_back_);
 		}
 		DrawCommodity(stocks_back_,  h_solo);
 		glPushMatrix();
 		glTranslatef(width_ + 4, 0, 0 );
-		ShelfStructure(width_ ,length_, height_,stocks_back_.size(), height_floor_, h_solo, FONT, false);
+		ShelfStructure(width_ ,length_, height_,stocks_back_.size(), floor_height_, h_solo, FONT, false);
 		if(type_ == FLOOR_FONT) { 
-			DrawShelfFloor(width_, length_, 1 , h_solo, count_floor_, stocks_font_);
+			DrawShelfFloor(width_, length_, 1 , h_solo, floor_count_, stocks_font_);
 		} else {
 			DrawShelfFloor(width_, length_, 1 , h_solo, -1, stocks_font_);
 		}
 		DrawCommodity(stocks_font_,  h_solo);
 		glPopMatrix();
 	} else {
-		ShelfStructure(width_ ,length_, height_,stocks_back_.size(), height_floor_, h_solo, LEFT);
+		ShelfStructure(width_ ,length_, height_,stocks_back_.size(), floor_height_, h_solo, LEFT);
 		if(type_ == FLOOR_BACK) { 
-			DrawShelfFloor(width_, length_, 1 , h_solo, count_floor_, stocks_back_);
+			DrawShelfFloor(width_, length_, 1 , h_solo, floor_count_, stocks_back_);
 		} else {
 			DrawShelfFloor(width_, length_, 1 , h_solo, -1, stocks_back_);
 		}
 		DrawCommodity(stocks_back_, h_solo);
 		glPushMatrix();
 		glTranslatef(0, length_ + 4, 0 );
-		ShelfStructure(width_ ,length_, height_,stocks_back_.size(), height_floor_, h_solo, RIGHT, false);
+		ShelfStructure(width_ ,length_, height_,stocks_back_.size(), floor_height_, h_solo, RIGHT, false);
 		if(type_ == FLOOR_FONT) { 
-			DrawShelfFloor(width_, length_, 1 , h_solo, count_floor_, stocks_font_);
+			DrawShelfFloor(width_, length_, 1 , h_solo, floor_count_, stocks_font_);
 		} else {
 			DrawShelfFloor(width_, length_, 1 , h_solo, -1, stocks_font_);
 		}

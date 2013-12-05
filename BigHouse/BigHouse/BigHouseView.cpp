@@ -683,7 +683,8 @@ void BigHouseView::OnMouseMove(UINT nFlags, CPoint point) {
 		}
 		if(old_count_selecte_ != - 1 && old_count_selecte_ != count_selected_) {
 			if(shelf_.size() > old_count_selecte_) {
-				shelf_.at(old_count_selecte_)->ReSetSelectFloor();
+				// comment because this is bug for circle shelf
+				;//shelf_.at(old_count_selecte_)->ReSetSelectFloor();
 			}
 		}
 		old_count_selecte_ = count_selected_;
