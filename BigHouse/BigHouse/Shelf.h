@@ -17,7 +17,7 @@ public:
 	virtual void ReSetSelectFloor() = 0;
 protected:
 	void DrawFaceShelf(Rect &rec);
-	void DrawCylinder(double r, double h, double sp, double ep, double angle);
+	void DrawCylinder(double r, double h, double sp, double ep, double angle, bool color_blue = false);
 	private:
 
 protected:

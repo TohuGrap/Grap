@@ -18,7 +18,8 @@ public:
 
 private:
   void ShelfStructure(double r, double h, double sp, double ep, double angle);
-	void DrawFloor(double r, double h, double sp, double ep, double angle);
+	void DrawFloor(double r, double h, double sp, double ep, double angle, double height_solo);
+	void DrawCommodity(std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks, double h_solo);
 	int radius_;
 	int height_;
   int height_floor_;

@@ -9,7 +9,7 @@ CirclShelf::CirclShelf(double r,//ban kinh ke
  :radius_(r),
   height_(h) {
 	std::pair<Floor, std::vector<Triangle3D*>> stock;
-	height_floor_ = h / count_floor;
+	height_floor_ = (h - h/15.0) / count_floor;
 	for(int i = 0; i < count_floor; i ++) {
 		stock.first.height_floor = height_floor_;
 		stocks_.push_back(stock);
@@ -95,7 +95,7 @@ void CirclShelf::DrawShelf() {
 	glColor3f(1, 0, 0);
 	ShelfStructure(radius_, height_, 0, 360, 18); 
 	glColor3f(1, 1, 0);
-	DrawFloor(radius_, 1, 0, 360, 5);
+	DrawFloor(radius_, height_/30.0, 0, 360, 5, height_/15.0);
 
 }
 void CirclShelf::SetCadToShelf(std::pair<Floor , std::vector<Triangle3D*>> &body) {
@@ -144,22 +144,64 @@ void CirclShelf::ReSetSelectFloor() {
 }
 
 void CirclShelf::ShelfStructure(double r, double h, double sp, double ep, double angle) {
-	DrawCylinder(r, 10, sp, ep, 5);
-	DrawCylinder(3, h, sp, ep, angle);
+	DrawCylinder(r, h/10.0, sp, ep, r/8);
+	DrawCylinder(r/15.0, h, sp, ep, angle);
 
 }
 
-void CirclShelf::DrawFloor(double r, double h, double sp, double ep, double angle) {
+void CirclShelf::DrawFloor(double r, double h, double sp, double ep, double angle ,double height_solo) {
 	glPushMatrix();
-	for(int i = 0; i < stocks_.size(); i ++) {
+  glTranslatef(0 , 0, height_solo);
+	if(count_floor_ == 0) {
+		glColor3f(0, 0, 1);
+	  DrawCylinder(r, h, sp, ep, angle, true);
+	}
+	for(int i = 1; i < stocks_.size(); i ++) {
 		glTranslatef(0 , 0, stocks_.at(i).first.height_floor);
 		if(count_floor_ == i) {
 			glColor3f(0, 0, 1);
 		} else {
 			glColor3f(1, 1, 0);
 		}
-		DrawCylinder(r, 1, sp, ep, angle);
+		DrawCylinder(r, h, sp, ep, angle, true);
 	}
 	glPopMatrix();
 
+}
+
+void CirclShelf::DrawCommodity(std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks, double h_solo) {
+	glPushMatrix();
+	glColor3f(0, 0, 1);
+	glShadeModel(GL_SMOOTH);
+	for(int i = 0 ; i < stocks.size(); i ++) {
+		if(i ==  0) {
+      glTranslated(0, 0, h_solo);
+		} else {
+		  glTranslated(0, 0, stocks.at(i).first.height_floor); // trans z
+		}
+	  glPushMatrix();
+		if(!stocks.at(i).second.empty()) {
+			for(int j = 0; j < stocks.at(i).first.s_r.i; j++) {
+				if(j != 0)
+				  glTranslated(stocks.at(i).first.s_b.x,0,0); // trans x
+				glPushMatrix();
+				for(int k = 0 ; k < stocks.at(i).first.s_r.j; k++) {
+					if(k != 0)
+					  glTranslated(0, stocks.at(i).first.s_b.y, 0); //trans y
+					glBegin(GL_TRIANGLES) ;
+					for(int l = 0; l < stocks.at(i).second.size(); l ++) {
+						glNormal3fv(stocks.at(i).second.at(l)->normal.v);
+						glVertex3fv(stocks.at(i).second.at(l)->m_v0.v);
+						glVertex3fv(stocks.at(i).second.at(l)->m_v1.v);
+						glVertex3fv(stocks.at(i).second.at(l)->m_v2.v);
+					}
+ 					glEnd();
+				}
+				glPopMatrix();
+			}
+  	}
+		glPopMatrix();
+	}
+	glPopMatrix();
+	//glBegin()
 }

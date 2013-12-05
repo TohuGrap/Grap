@@ -1023,7 +1023,7 @@ void BigHouseView::RenderShelf( Shelf* sh, UINT space_distance )
 }
 
 void BigHouseView::ClearShelf() {
-  if (shelf_.empty() == false)
+  if (!shelf_.empty())
     shelf_.clear();
 }
 

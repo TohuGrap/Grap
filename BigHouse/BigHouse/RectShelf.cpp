@@ -164,9 +164,11 @@ void RecShelf::DrawShelf() {
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	double h_solo = height_/12.0;
   glDisable(GL_CULL_FACE);
+	glPushMatrix();
 	ShelfStructure(width_ ,length_, height_ , stocks_.size(), height_floor_, h_solo , type_);
 	DrawShelfFloor(width_, length_, 1, h_solo, count_floor_, stocks_);
  	DrawCommodity(stocks_, h_solo);
+	glPopMatrix();
 }
 //void RecShelf::DrawPoint() {
 //	glPointSize(6.0);
