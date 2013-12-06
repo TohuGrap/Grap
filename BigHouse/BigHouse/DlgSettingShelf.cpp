@@ -22,7 +22,7 @@ DlgSettingShelf::DlgSettingShelf(CWnd* pParent /*=NULL*/)
 	str_shelf_radius_ = L"100";
 	str_shelf_start_angle_ = L"0";
 	str_shelf_end_angle_  = L"360";
-	str_shelf_flat_angle_ = L"50";
+	str_shelf_flat_angle_ = L"5";
 
 
 

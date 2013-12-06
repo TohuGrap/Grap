@@ -43,6 +43,7 @@ private:
 	double smooth_angle_;
 	Vector3D Origin_;
 	Vector3D max_origin_;
+	float fcounts;
 	std::vector<std::pair<Floor, std::vector<Triangle3D*>>> stocks_;
 
 };
