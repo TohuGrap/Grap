@@ -1,30 +1,33 @@
+
+
 #include "stdafx.h"
 #include "Shelf.h"
-#include <gl/GL.h>
-#include <gl/GLU.h>
+
 
 
 Shelf::Shelf() {
+
 }
 
 Shelf::~Shelf() {
 
 }
 
-void Shelf::DrawFaceShelf(Rect &rec) {
+void Shelf::DrawFaceShelf(Rect &rect) {
 	glBegin(GL_POLYGON);
-  	glNormal3fv(rec.n.v);
-	  glVertex3fv(rec.p[0].v);
-		glVertex3fv(rec.p[1].v);
-		glVertex3fv(rec.p[2].v);
-		glVertex3fv(rec.p[3].v);
+  	glNormal3fv(rect.n.v);
+	  glVertex3fv(rect.p[0].v);
+		glVertex3fv(rect.p[1].v);
+		glVertex3fv(rect.p[2].v);
+		glVertex3fv(rect.p[3].v);
 	glEnd();
 }
 
-void Shelf::DrawCylinder(double r, double h, double sp, double ep , double angle, bool color_blue) {
-	double temp = 3.1415/180.0;
-	float x;
-	float y;
+void Shelf::DrawCylinder(double r, double h, double sp, double ep,
+												 double angle, bool color_blue) {
+	double temp = M_PI/180.0;
+	float x = 0.0;
+	float y = 0.0;
 
 	double se = ep - sp;
 	int size = (int)(se/angle);

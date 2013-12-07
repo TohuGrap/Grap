@@ -1,5 +1,4 @@
 
-
 #include "stdafx.h"
 #include "CircleShelf.h"
 CircleShelf::CircleShelf(double radius,
@@ -100,8 +99,8 @@ void CircleShelf::DrawShelf() {
 	CircleShelfFrame(radius_, height_, start_angle_, end_angle_, flat_angle_); 
 	glColor3f(1.0, 1.0, 0);
 	double h_solo = height_/12.0;
-	DrawFloor(radius_, 1, start_angle_, end_angle_, flat_angle_, h_solo);
-    DrawCommodity(stocks_, h_solo, radius_);
+	DrawFloor(radius_, h_solo/5.0, start_angle_, end_angle_, flat_angle_, h_solo);
+  DrawCommodity(stocks_, h_solo, radius_);
 	glPushMatrix();
 		DrawCommodity(stocks_, h_solo, radius_);
 		glRotatef(90, 0, 0, 1);

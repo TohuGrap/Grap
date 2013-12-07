@@ -20,7 +20,6 @@
 // BigHouseView
 #define LENGTH_AXIS 10000
 
-#define M_PI 3.1415
 IMPLEMENT_DYNCREATE(BigHouseView, CView)
 
 BEGIN_MESSAGE_MAP(BigHouseView, CView)
@@ -765,6 +764,12 @@ void BigHouseView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
 		x_position_ += 15.0f;
 		InvalidateRect(NULL,FALSE);
 		break;
+	case VK_DELETE: {
+		
+		
+		InvalidateRect(NULL,FALSE);
+		break;
+		}
 	}
 	CView::OnKeyDown(nChar, nRepCnt, nFlags);
 }
@@ -902,7 +907,7 @@ void BigHouseView::DrawRoom() {
   DrawRectangleBox(longs, height, depth, 1);
   glPopMatrix();
 
-  glPushMatrix();                    // right wall
+  glPushMatrix();    // right wall
   glTranslatef(0.0f, width/2, (height/2) - depth/2.0f);
   glRotatef(-90.0, 1.0, 0.0, 0.0);
   DrawRectangleBox(longs, height, depth, 1);
@@ -952,8 +957,7 @@ int BigHouseView::SelecteShelf(Vector3D &dir,Vector3D &pos) {
 				} 
 			}
 		}
-		
-	}//
+	}
 	return count;
 }
 
@@ -1006,7 +1010,7 @@ void BigHouseView::MakeCircleShelf(float radius, float height,
   RenderShelf(circle_shelf, space_distance);
 }
 
-void BigHouseView::RenderShelf( Shelf* sh, UINT space_distance )
+void BigHouseView::RenderShelf(Shelf* sh, UINT space_distance )
 {
 	shelf_.push_back(sh);
 	UINT size = shelf_.size();

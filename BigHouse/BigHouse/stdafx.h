@@ -52,7 +52,7 @@
 #include <gl\glut.h>
 #include <gl\GLAUX.H>
 
-
+#define M_PI 3.1415
 
 
 
