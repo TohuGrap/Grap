@@ -72,7 +72,7 @@ public:
 	void ViewDirection();
 	void GetVectorPerpendicularToThescreen(Vector3D &v_oz);
 	int SelecteShelf(Vector3D &dir, Vector3D &pos);
-	void ConvertScrenToOpengl(CPoint &point2D, Vector3D &point_3D);
+	void ConvertScrenToOpengl(const CPoint &point2D, Vector3D &point_3D);
 	void GetPointMouseOnPlane(Vector3D &dir, Vector3D &pos, Vector3D &n, Vector3D &p, Vector3D &point);
 	void ResetColor();
 	void SetCadToView(std::pair<Floor, std::vector<Triangle3D*>> &body);
@@ -87,7 +87,6 @@ public:
 	void MakeCircleShelf(float radius, float height, float start_angle, float end_angle, float flat_angle, int floor);
 	void RenderShelf(Shelf* sh, UINT space_distance_length, UINT space_distance_width);
   void ClearShelf();
-
   void OnViewTop();
   void OnViewBottom();
   void OnViewLeft();
@@ -103,6 +102,9 @@ public:
 	void SetShowSize(bool is_show) {is_show_size_ = is_show; InvalidateRect(NULL, FALSE);} 
 	void SetIsLbuttonDown(bool is_left_down) {left_button_down_ = is_left_down;}
 	void SetColorForBackGround(float red_value, float green_value, float blue_value);
+	void DeleteShelf();
+	void RotateShelf();
+
 	void SetOriginBodyAgain(float longs, float width);
 
 	void SetupRoom();
@@ -190,6 +192,7 @@ private:
 	std::pair<Floor, std::vector<Triangle3D*>> body_;
 	std::vector<Shelf*> shelf_;
 	Vector3D point_left_button_down_;
+	CPoint left_point_down_2d_;
 	Vector3D move_shelf_;
 	int old_count_selecte_;
 	int count_selected_;

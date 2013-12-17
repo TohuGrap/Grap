@@ -101,16 +101,6 @@ void RectShelf::ShelfStructure(double width,
 		size_col = 3;
 	}
 	glPushMatrix();
-	if(type == BACK) {
-		glTranslatef(width, length, 0);
-		glRotated(180, 0, 0, 1);
-	} else if(type == LEFT) {
-	  glTranslatef(0 , length, 0);
-				glRotated(- 90, 0, 0, 1);
-	} else if(type == RIGHT) {
-		glTranslatef(width , 0, 0);
-		glRotated(90, 0, 0, 1);
-	}
 	glColor3f(1, 0, 0);
 	glPushMatrix();
 	glTranslatef(- 1, - size_col, 0);
@@ -166,6 +156,16 @@ void RectShelf::DrawShelf() {
 	double h_solo = height_/12.0;
   glDisable(GL_CULL_FACE);
 	glPushMatrix();
+	if(type_ == BACK) {
+		glTranslatef(width_, length_, 0);
+		glRotated(180, 0, 0, 1);
+	} else if(type_ == LEFT) {
+	  glTranslatef(0 , length_, 0);
+				glRotated(- 90, 0, 0, 1);
+	} else if(type_ == RIGHT) {
+		glTranslatef(type_ , 0, 0);
+		glRotated(90, 0, 0, 1);
+	}
 	ShelfStructure(width_ ,length_, height_ , stocks_.size(), floor_height_, h_solo , type_);
 	DrawShelfFloor(width_, length_, 1, h_solo, floor_count_, stocks_);
  	DrawCommodity(stocks_, h_solo);
@@ -515,4 +515,16 @@ void RectShelf::DrawSnare(double r,
 	  DrawCylinder(r, h, sp, ep, angle);
 	}
 	glPopMatrix();
+}
+
+void RectShelf::RotateShelf() {
+	if(type_ == FONT) {
+		type_ = LEFT;
+	} else if (type_ == LEFT) {
+		type_ = BACK;
+	} else if(type_ == BACK) {
+		type_ = RIGHT;
+	} else {
+		type_ = FONT;
+	}
 }

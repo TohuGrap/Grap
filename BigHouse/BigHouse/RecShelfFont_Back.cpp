@@ -135,3 +135,8 @@ void RectShelfFront_Back::PointMouseOnFloor(Vector3D &dir, Vector3D &pos) {
 void RectShelfFront_Back::ReSetSelectFloor() {
 	floor_count_ = - 1;
 }
+
+void RectShelfFront_Back::RotateShelf() {
+
+
+}

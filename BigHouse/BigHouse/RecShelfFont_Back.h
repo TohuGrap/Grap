@@ -40,6 +40,7 @@ public:
 	virtual void SetOriginBody(Vector3D &p_move);
 	virtual void PointMouseOnFloor(Vector3D &dir, Vector3D &pos);
 	virtual void ReSetSelectFloor();
+	virtual void RotateShelf();
 
 private:
   int length_;

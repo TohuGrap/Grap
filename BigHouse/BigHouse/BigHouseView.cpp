@@ -1,4 +1,4 @@
-﻿
+
 // BigHouseView.cpp : implementation of the BigHouseView class
 //
 
@@ -107,7 +107,7 @@ BigHouseView::BigHouseView():
 	room_size_.width = 1500.0f;
 	room_size_.height = 150.0f;
 	room_size_.depth = 10.0f;
-
+	left_point_down_2d_.SetPoint(- 1, -1);
 	is_show_size_ = false;
 
 	// Passion88 add
@@ -615,6 +615,7 @@ void BigHouseView::OnRButtonDown(UINT nFlags, CPoint point) {
 }
 
 void BigHouseView::OnLButtonDown(UINT nFlags, CPoint point) { 
+	left_point_down_2d_ = point;
 	if(body_.second.empty()) {
 		Vector3D pos;
 		ConvertScrenToOpengl(point, pos);
@@ -630,7 +631,7 @@ void BigHouseView::OnLButtonDown(UINT nFlags, CPoint point) {
 	CView::OnLButtonDown(nFlags, point);
 }
 
-void BigHouseView::ConvertScrenToOpengl(CPoint &point2D, Vector3D &point_3D) {
+void BigHouseView::ConvertScrenToOpengl(const CPoint &point2D, Vector3D &point_3D) {
   GLint viewport[4];
   GLdouble modelview[16];
   GLdouble projection[16];
@@ -781,6 +782,7 @@ void BigHouseView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
 		InvalidateRect(NULL,FALSE);
 		break;
 	case VK_DELETE: {
+		DeleteShelf();
 		InvalidateRect(NULL,FALSE);
 		break;
 		}
@@ -788,6 +790,10 @@ void BigHouseView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
 		MainFrame * main_frame = static_cast<MainFrame*>(AfxGetMainWnd());
 		main_frame->HandleEscape();
 		}
+	case 82:
+		RotateShelf();
+		InvalidateRect(NULL,FALSE);
+		break;
 	}
 	CView::OnKeyDown(nChar, nRepCnt, nFlags);
 }
@@ -1034,7 +1040,7 @@ void BigHouseView::MakeCircleShelf(float radius, float height,
 void BigHouseView::RenderShelf( Shelf* sh, UINT space_distance_length, UINT space_distance_width )
 {
 	if (can_add_shelf == false) {
-		AfxMessageBox(_T("Không thể thêm được nữa"));
+		AfxMessageBox(_T("Kh�ng th? th�m du?c n?a"));
 		return;
 	}
 
@@ -1047,7 +1053,7 @@ void BigHouseView::RenderShelf( Shelf* sh, UINT space_distance_length, UINT spac
 			 bbmin.v[1] = bbmin.v[1] + space_distance_length + 50;
 			} else {
 			if (bbmin.v[0] + 2*space_distance_width + 50 > room_size_.longs/2 - room_size_.depth) {
-				AfxMessageBox(_T("Không thể thêm được nữa"));
+				AfxMessageBox(_T("Kh�ng th? th�m du?c n?a"));
 				shelf_.pop_back();
 				can_add_shelf = false;
 				return;
@@ -1187,6 +1193,31 @@ void BigHouseView::DrawStringAt(double x, double y, double z, char* s) {
   }
 }
 
+void BigHouseView::DeleteShelf() {
+	Vector3D pos;
+	ConvertScrenToOpengl(left_point_down_2d_, pos);
+	Vector3D dir;
+	GetVectorPerpendicularToThescreen(dir);
+	int count = SelecteShelf(dir, pos);
+	if(!shelf_.empty() && count != -1 && left_point_down_2d_.x != - 1) {
+		shelf_.erase(shelf_.begin() + count);
+	}
+	left_point_down_2d_.SetPoint(- 1, -1);
+}
+
+void BigHouseView::RotateShelf() {
+	Vector3D pos;
+	ConvertScrenToOpengl(left_point_down_2d_, pos);
+	Vector3D dir;
+	GetVectorPerpendicularToThescreen(dir);
+	int count = SelecteShelf(dir, pos);
+	if(!shelf_.empty() && count != -1 && left_point_down_2d_.x != - 1) {
+		shelf_.at(count)->RotateShelf();
+	}
+	//left_point_down_2d_.SetPoint(- 1, -1);
+}
+}
+
 void BigHouseView::SetupRoom() {
 	SettingRoomDlg dlg(room_size_, is_show_size_);
 	if (IDOK == dlg.DoModal()) {
@@ -1207,7 +1238,7 @@ void BigHouseView::SetupShelf()
 		  number_of_shelf_++;
 		  form_bar_->SetDataForListShelf(number_of_shelf_);
 		} else {
-			::MessageBox(NULL, _T("Loại Kệ Này Đã Tồn Tại Trong List Rồi"), _T("Thông Báo"), MB_OK | MB_ICONINFORMATION);
+			::MessageBox(NULL, _T("Lo?i K? N�y �� T?n T?i Trong List R?i"), _T("Th�ng B�o"), MB_OK | MB_ICONINFORMATION);
 			return;
 		}
 	}
@@ -1231,7 +1262,7 @@ void BigHouseView::SetupProduction()
 			number_of_product_++;
 			form_bar_->SetDataForListProduct(number_of_product_);
 		} else {
-			::MessageBox(NULL, _T("Loại Sản Phẩm Này Đã Tồn Tại Trong List Rồi"), _T("Thông Báo"), MB_OK | MB_ICONINFORMATION);
+			::MessageBox(NULL, _T("Lo?i S?n Ph?m N�y �� T?n T?i Trong List R?i"), _T("Th�ng B�o"), MB_OK | MB_ICONINFORMATION);
 			return;
 		}
 	}

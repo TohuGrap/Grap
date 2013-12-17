@@ -75,6 +75,7 @@ public :
 	virtual void SetOriginBody(Vector3D &p_move);
 	virtual void PointMouseOnFloor(Vector3D &dir, Vector3D &pos);
 	virtual void ReSetSelectFloor() {floor_count_ = -1;}
+	virtual void RotateShelf();
 	
 protected:
 	int FindPointMouseOnFloor(Vector3D &dir,
