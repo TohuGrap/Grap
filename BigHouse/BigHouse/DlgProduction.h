@@ -13,9 +13,13 @@ public:
 
 // Dialog Data
 	enum { IDD = IDD_DLG_PRODUCTION };
-	void UpdateBitmap(int index_bitmap);
-  int CheckBitmap(CString str);
 	CString GetCurrentStrProduction() {return str_current_production_;}
+	void NewProduction();
+	void NewImage();
+	void ClearProduction();
+	void UpdateProduct();
+	void HandleBitmap(CString str_name);
+	void LoadProductionBkgn();
 protected:
 	virtual BOOL OnInitDialog();
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
@@ -27,4 +31,7 @@ protected:
 	CString str_current_production_;
 	CStatic bitmap_image_ctrl;
   CBitmap cbitmap_;
+	CString product_cad_path_;
+	CString product_bitmap_path_;
+	CString module_path_;
 };

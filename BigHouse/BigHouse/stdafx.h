@@ -42,6 +42,7 @@
 // Include basic Library
 #include <Windows.h>
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <math.h>
 #include <string>

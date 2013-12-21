@@ -4,6 +4,7 @@
 #define BASE_H_
 #include "stdafx.h"
 #include <io.h>
+
 namespace Base {
   static std::string WcharToString(wchar_t* wchar_str) {
     std::string str("");
@@ -53,8 +54,59 @@ namespace Base {
 		wcstombs(chstr, str, nsize+1);
 		return chstr;
 	}
+
+	static bool CopyFileIntoFolder(const char* src_path, const char* des_path) {
+
+		std::ifstream::pos_type size;
+		char * memblock;
+
+		std::ifstream file_src (src_path, std::ios::in|
+																	std::ios::binary|
+																	std::ios::ate);
+		if (file_src == NULL) {
+		  return false;
+		}
+		if (file_src.is_open()) {
+			size = file_src.tellg();
+			memblock = new char [size];
+			file_src.seekg (0, std::ios::beg);
+			file_src.read (memblock, size);
+			file_src.close();
+		}
+
+		std::fstream file_des(des_path, std::ios::out | std::ios::binary);
+		file_des.seekg(0, std::ios::beg);  
+		file_des.write(memblock, size);
+
+		file_des.close();
+		return true;
+	}
+
+	static bool RemoveFile(const char* file_path) {
+		int check = remove(file_path);
+		if (check == 0)
+			return true;
+		else 
+			return false;
+	}
+
+	static bool CopyFiles(const wchar_t * src_path, const wchar_t* dest_path) {  
+    bool ret = CopyFile(src_path, dest_path, FALSE);
+	  return ret;
+	}
+	static bool ChecIsExistFile(const char* path) {
+   bool check = access(path, 0);
+	 if (check == -1)
+		 return false;
+	 else
+		 return true;
+	}
+
+	static CString RemoveExtensionFile(CString input_file) {
+    CString str = input_file;
+		str = str.Left(str.ReverseFind('.'));
+		return str;
+	}
 }
-
-
 
 #endif // BASE_H_
