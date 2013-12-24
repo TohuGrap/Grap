@@ -22,6 +22,19 @@ BEGIN_MESSAGE_MAP(MainFrame, CFrameWndEx)
 	ON_WM_CREATE()
 	ON_COMMAND(ID_VIEW_CUSTOMIZE, &MainFrame::OnViewCustomize)
 	ON_REGISTERED_MESSAGE(AFX_WM_CREATETOOLBAR, &MainFrame::OnToolbarCreateNew)
+	ON_COMMAND(ID_VIEW_FULLSCREEN, OnViewFullscreen)
+
+	ON_COMMAND(ID_VIEW_TOP, &MainFrame::OnViewTop)
+	ON_COMMAND(ID_VIEW_BOTTOM, &MainFrame::OnViewBottom)
+	ON_COMMAND(ID_VIEW_LEFT, &MainFrame::OnViewLeft)
+	ON_COMMAND(ID_VIEW_RIGHT, &MainFrame::OnViewRight)
+	ON_COMMAND(ID_VIEW_FRONT, &MainFrame::OnViewFront)
+	ON_COMMAND(ID_VIEW_BACK, &MainFrame::OnViewBack)
+	ON_COMMAND(ID_VIEW_ISO, &MainFrame::OnViewIso)
+	ON_COMMAND(ID_VIEW_COORDINATE, &MainFrame::OnShowCoordinate)
+	ON_UPDATE_COMMAND_UI(ID_VIEW_COORDINATE, &MainFrame::OnUpdateShowCoordinate)
+	ON_COMMAND(ID_VIEW_BAR, &MainFrame::ShowViewBar)
+	ON_UPDATE_COMMAND_UI(ID_VIEW_BAR, &MainFrame::OnUpdateShowViewBar)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -36,7 +49,7 @@ static UINT indicators[] =
 
 MainFrame::MainFrame()
 {
-	// TODO: add member initialization code here
+	is_full_screen_ = false;
 }
 
 MainFrame::~MainFrame()
@@ -67,7 +80,9 @@ int MainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	// prevent the menu bar from taking the focus on activation
 	CMFCPopupMenu::SetForceMenuFocus(FALSE);
 
-	if (!m_wndToolBar.CreateEx(this, TBSTYLE_FLAT, WS_CHILD | WS_VISIBLE | CBRS_TOP | CBRS_GRIPPER | CBRS_TOOLTIPS | CBRS_FLYBY | CBRS_SIZE_DYNAMIC) ||
+	if (!m_wndToolBar.CreateEx(this, TBSTYLE_FLAT, WS_CHILD | WS_VISIBLE |
+																	CBRS_TOP | CBRS_GRIPPER | CBRS_TOOLTIPS |
+																	CBRS_FLYBY | CBRS_SIZE_DYNAMIC) ||
 		!m_wndToolBar.LoadToolBar(IDR_MAINFRAME_256))
 	{
 		TRACE0("Failed to create toolbar\n");
@@ -88,7 +103,9 @@ int MainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	InitUserToolbars(NULL, uiFirstUserToolBarId, uiLastUserToolBarId);
 
   // Create View toolbar
-  if (!m_wndViewBar.CreateEx(this, TBSTYLE_FLAT, WS_CHILD | WS_VISIBLE | CBRS_TOP | CBRS_GRIPPER | CBRS_TOOLTIPS | CBRS_FLYBY | CBRS_SIZE_DYNAMIC) ||
+  if (!m_wndViewBar.CreateEx(this, TBSTYLE_FLAT, WS_CHILD | WS_VISIBLE |
+																		CBRS_TOP | CBRS_GRIPPER | CBRS_TOOLTIPS |
+																		CBRS_FLYBY | CBRS_SIZE_DYNAMIC) ||
     !m_wndViewBar.LoadToolBar(IDR_VIEW_TOOLBAR))
 	{
 		TRACE0("Failed to create View bar\n");
@@ -147,6 +164,10 @@ int MainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	CMFCToolBar::SetBasicCommands(lstBasicCommands);
 
+	// enable full screen mode
+	EnableFullScreenMode (ID_VIEW_FULLSCREEN);
+	EnableFullScreenMainMenu(FALSE);
+
 	return 0;
 }
 
@@ -172,6 +193,11 @@ BOOL MainFrame::OnCreateClient(LPCREATESTRUCT lpCreateStruct, CCreateContext *pC
   big_house_view_ = reinterpret_cast<BigHouseView*>(splitter_.GetPane(0, 1));
   form_view_ = reinterpret_cast<FormBar*>(splitter_.GetPane(0, 0));
   big_house_view_->SetFormView(form_view_);
+
+	// Choose BighouseView is activated when start
+	splitter_.SetActivePane(0, 1);
+
+
   return TRUE;
 }
 
@@ -247,7 +273,7 @@ BOOL MainFrame::LoadFrame(UINT nIDResource, DWORD dwDefaultStyle, CWnd* pParentW
 	bNameValid = strCustomize.LoadString(IDS_TOOLBAR_CUSTOMIZE);
 	ASSERT(bNameValid);
 
-	for (int i = 0; i < iMaxUserToolbars; i ++)
+	for (int i = 0; i < iMaxUserToolbars; i++)
 	{
 		CMFCToolBar* pUserToolbar = GetUserToolBarByIndex(i);
 		if (pUserToolbar != NULL)
@@ -259,3 +285,85 @@ BOOL MainFrame::LoadFrame(UINT nIDResource, DWORD dwDefaultStyle, CWnd* pParentW
 	return TRUE;
 }
 
+
+void MainFrame::OnViewFullscreen() {
+	if (is_full_screen_ == false) {
+    is_full_screen_ = true;
+		//form_view_->ShowWindow(SW_HIDE);
+	} else {
+		is_full_screen_ = false;
+		//form_view_->ShowWindow(SW_SHOW);
+		ShowAndDockToolbar();
+	}
+	ShowFullScreen();
+}
+
+void MainFrame::OnViewTop()
+{
+	 big_house_view_->OnViewTop();
+}
+
+void MainFrame::OnViewBottom()
+{
+	big_house_view_->OnViewBottom();
+}
+
+void MainFrame::OnViewLeft()
+{
+	big_house_view_->OnViewLeft();
+}
+
+void MainFrame::OnViewRight()
+{
+	big_house_view_->OnViewRight();
+}
+
+void MainFrame::OnViewFront()
+{
+	big_house_view_->OnViewFront();
+}
+
+void MainFrame::OnViewBack()
+{
+	big_house_view_->OnViewBack();
+}
+
+void MainFrame::OnViewIso()
+{
+	big_house_view_->OnViewIso();
+}
+
+void MainFrame::OnShowCoordinate()
+{
+	big_house_view_->OnShowCoordinate();
+}
+
+void MainFrame::OnUpdateShowCoordinate( CCmdUI * cmd )
+{
+	big_house_view_->OnUpdateShowCoordinate(cmd);
+}
+
+void MainFrame::ShowViewBar()
+{
+	ShowPane(&m_wndViewBar, !m_wndViewBar.IsVisible(), FALSE, TRUE);
+}
+
+void MainFrame::OnUpdateShowViewBar( CCmdUI* cmd )
+{
+	 cmd->SetCheck(m_wndViewBar.IsVisible() ? 1 : 0);
+}
+
+void MainFrame::HandleEscape() {
+	is_full_screen_ = false;
+  ShowAndDockToolbar();
+}
+
+void MainFrame::ShowAndDockToolbar() {
+	ShowPane(&m_wndViewBar, TRUE, FALSE, TRUE);
+	ShowPane(&m_wndToolBar, TRUE, FALSE, TRUE);
+	m_wndToolBar.EnableDocking(CBRS_ALIGN_ANY);
+	m_wndViewBar.EnableDocking(CBRS_ALIGN_ANY);
+	EnableDocking(CBRS_ALIGN_ANY);
+	DockPane(&m_wndViewBar);
+	DockPaneLeftOf(&m_wndToolBar, &m_wndViewBar);
+}

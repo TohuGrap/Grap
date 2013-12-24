@@ -22,6 +22,7 @@ CircleShelf::CircleShelf(double radius,
 		}
 		Origin_.Set(0 , 0, 0);
 	  floor_count_ = -1;
+		is_circle_shelf_ = true;
 }
 
 CircleShelf::~CircleShelf() {

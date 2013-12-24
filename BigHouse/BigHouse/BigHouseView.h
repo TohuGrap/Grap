@@ -12,6 +12,7 @@
 #include "RecShelfFont_Back.h"
 #include "CircleShelf.h"
 #include "Struct.h"
+#include "MainFrm.h"
 
 #define PI 3.1415926535
 class BigHouseView : public CView
@@ -84,7 +85,7 @@ public:
 	void MakeSimpleShelf(float width, float length, float height, int count_floor, RectShelf::TypeRecShelf direction);
 	void MakeDoubleShelf(float width, float length, float height, int count_floor, RectShelfFront_Back::DirectionShelf direction);
 	void MakeCircleShelf(float radius, float height, float start_angle, float end_angle, float flat_angle, int floor);
-	void RenderShelf(Shelf* sh, UINT space_distance);
+	void RenderShelf(Shelf* sh, UINT space_distance_length, UINT space_distance_width);
   void ClearShelf();
 
   void OnViewTop();
@@ -102,6 +103,7 @@ public:
 	void SetShowSize(bool is_show) {is_show_size_ = is_show; InvalidateRect(NULL, FALSE);} 
 	void SetIsLbuttonDown(bool is_left_down) {left_button_down_ = is_left_down;}
 	void SetColorForBackGround(float red_value, float green_value, float blue_value);
+	void SetOriginBodyAgain(float longs, float width);
 protected:
   float pos[3];
 
@@ -185,6 +187,10 @@ private:
 	Vector3D move_shelf_;
 	int old_count_selecte_;
 	int count_selected_;
+	// Passion88 add
+	Vector3D bbmin_first;
+	bool can_add_shelf;
+	GLuint m_nRoomList;
 
 protected:
 	afx_msg void OnFilePrintPreview();

@@ -26,7 +26,10 @@ public:
 	virtual void SetOriginBody(Vector3D &p_move) = 0;
 	virtual void PointMouseOnFloor(Vector3D &dir, Vector3D &pos) = 0;
 	virtual void ReSetSelectFloor() = 0;
+public:
+	bool IsCircleShelf() {return is_circle_shelf_;}
 protected:
+	bool is_circle_shelf_;
 	void DrawFaceShelf(Rect &rect);
 	void DrawCylinder(double r, double h, double sp, double ep,
 										double angle, bool color_blue = false);

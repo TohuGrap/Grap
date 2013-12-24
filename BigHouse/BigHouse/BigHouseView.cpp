@@ -1,4 +1,4 @@
-
+﻿
 // BigHouseView.cpp : implementation of the BigHouseView class
 //
 
@@ -27,15 +27,6 @@ BEGIN_MESSAGE_MAP(BigHouseView, CView)
 	ON_COMMAND(ID_FILE_PRINT, &CView::OnFilePrint)
 	ON_COMMAND(ID_FILE_PRINT_DIRECT, &CView::OnFilePrint)
 	ON_COMMAND(ID_FILE_PRINT_PREVIEW, &BigHouseView::OnFilePrintPreview)
-  ON_COMMAND(ID_VIEW_TOP, &BigHouseView::OnViewTop)
-  ON_COMMAND(ID_VIEW_BOTTOM, &BigHouseView::OnViewBottom)
-  ON_COMMAND(ID_VIEW_LEFT, &BigHouseView::OnViewLeft)
-  ON_COMMAND(ID_VIEW_RIGHT, &BigHouseView::OnViewRight)
-  ON_COMMAND(ID_VIEW_FRONT, &BigHouseView::OnViewFront)
-  ON_COMMAND(ID_VIEW_BACK, &BigHouseView::OnViewBack)
-  ON_COMMAND(ID_VIEW_ISO, &BigHouseView::OnViewIso)
-  ON_COMMAND(ID_VIEW_COORDINATE, &BigHouseView::OnShowCoordinate)
-  ON_UPDATE_COMMAND_UI(ID_VIEW_COORDINATE, &BigHouseView::OnUpdateShowCoordinate)
 	ON_WM_CONTEXTMENU()
 	ON_WM_RBUTTONUP()
 	ON_WM_LBUTTONUP()
@@ -113,6 +104,12 @@ BigHouseView::BigHouseView():
 	room_size_.depth = 10.0f;
 
 	is_show_size_ = false;
+
+	// Passion88 add
+	bbmin_first.v[0]= 0.0;
+	bbmin_first.v[1]= 0.0;
+	bbmin_first.v[2]= 0.0;
+	can_add_shelf = true;
 }
 
 BigHouseView::~BigHouseView()
@@ -280,12 +277,12 @@ BOOL BigHouseView::InitializeOpenGL() {
   if (FALSE == ::wglMakeCurrent(m_pDC->GetSafeHdc(), m_hRC))
     return FALSE;
 
-  // Clear backgroun by black color
+  // Clear background by black color
   glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
   // Clear depth
   glClearDepth(1.0f);
-  // Enalbe depth test
+  // Enable depth test
 	::glEnable(GL_DEPTH_TEST);
 
   // Enable color tracking
@@ -648,14 +645,22 @@ void BigHouseView::ConvertScrenToOpengl(CPoint &point2D, Vector3D &point_3D) {
 
 void BigHouseView::OnMouseMove(UINT nFlags, CPoint point) {
 	if(right_button_down_) {
-  	phi_ -= ((double)(point.x - mouse_down_point_.x))/3.60;
+		int deltax = point.x - mouse_down_point_.x;
+		// convert deltax into o
+		float anglex = deltax*180.0/cx_;
+		// phi is angle of camera, it is not angle of model
+		// when mouse move from left to right so camera move from right to left
+  	phi_ -= anglex;
 		if(phi_ > 360) {
 			phi_ = phi_ - 360;
 		} else if( phi_ < - 360) {
 			phi_ = phi_ + 360;
 		}
 
-		theta_ -= ((double)(point.y - mouse_down_point_.y))/3.60;
+		int deltay = (double)(point.y - mouse_down_point_.y);
+		// convert deltay into o
+		float angley = deltay*180.0/cy_;
+		theta_ -= angley;
 		if(theta_ > 360) {
 			theta_ = theta_ - 360;
 		} else if( theta_ < - 360) {
@@ -696,23 +701,28 @@ void BigHouseView::OnMouseMove(UINT nFlags, CPoint point) {
 }
 
 void BigHouseView::ViewDirection() {
-
-	double phi = phi_*M_PI/180.0;
-	double theta = theta_*M_PI/180.0;
 	Vector3D gradien;
+	Vector3D cam_up;
+	Vector3D temp;
+	// unit vector oz
+	Vector3D oz(0, 0, 1);
+
+	// convert phi and theta to radian to speed is not fast
+	double phi = phi_*M_PI/180.0;     // phi_ is x rotation
+	double theta = theta_*M_PI/180.0; // theta_ is y rotation
+
+	
 	gradien.v[0] = cos(phi)*sin(theta);
 	gradien.v[1] = sin(phi)*sin(theta);
 	gradien.v[2] = cos(theta);
 
-	Vector3D oz(0, 0, 1);	
-	Vector3D cam_up;
-	Vector3D temp;
-	if((theta_ < 180 && theta_ > 0) || theta_ < -180){
+
+	if((theta_ < 180 && theta_ > 0) || theta_ < -180) {
 		temp = oz*gradien;
 	} else {
 		temp = gradien*oz;
 	}
-	//gradient_ = gradient_ .Unit();
+
 	if(temp.abs() < 0.01) {
 	  cam_up.v[0] = - cos(phi);
 		cam_up.v[1] =  - sin(phi);
@@ -765,10 +775,12 @@ void BigHouseView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
 		InvalidateRect(NULL,FALSE);
 		break;
 	case VK_DELETE: {
-		
-		
 		InvalidateRect(NULL,FALSE);
 		break;
+		}
+	case VK_ESCAPE : {
+		MainFrame * main_frame = static_cast<MainFrame*>(AfxGetMainWnd());
+		main_frame->HandleEscape();
 		}
 	}
 	CView::OnKeyDown(nChar, nRepCnt, nFlags);
@@ -893,9 +905,9 @@ void BigHouseView::DrawRoom() {
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, m_texture[0]);
 
-	float longs = room_size_.longs;
-	float width = room_size_.width;
-	float height = room_size_.height;
+	float longs = room_size_.longs;    // y
+	float width = room_size_.width;    // x
+	float height = room_size_.height;  // z
 	float depth = room_size_.depth;
 
   glColor3f(0.0f, 1.0f, 1.0f);
@@ -985,8 +997,9 @@ void BigHouseView::MakeSimpleShelf(float width, float length, float height,
 																	int count_floor, RectShelf::TypeRecShelf direction)
 {
 	RectShelf *rec_shelf = new RectShelf(width, length, height, count_floor , direction);
-	UINT space_distance = length;
-	RenderShelf(rec_shelf, space_distance);
+	UINT space_distance_length = length;
+	UINT space_distance_width = width;
+	RenderShelf(rec_shelf, space_distance_length, space_distance_width);
 }
 	
 
@@ -997,8 +1010,9 @@ void BigHouseView::MakeDoubleShelf(float width, float length, float height,
   
   RectShelfFront_Back *double_shelf = new RectShelfFront_Back(width, length, height,
 																													count_floor, direction);
-	UINT space_distance = length;
-	RenderShelf(double_shelf, space_distance);
+	UINT space_distance_length = length;
+	UINT space_distance_width = 2*width;
+	RenderShelf(double_shelf, space_distance_length, space_distance_width);
 }
 
 void BigHouseView::MakeCircleShelf(float radius, float height,
@@ -1006,30 +1020,63 @@ void BigHouseView::MakeCircleShelf(float radius, float height,
 																	 float flat_angle, int floor )
 {
 	CircleShelf *circle_shelf = new CircleShelf (radius, height, start_angle, end_angle, flat_angle, floor);
-	UINT space_distance = 2*radius;
-  RenderShelf(circle_shelf, space_distance);
+	UINT space_distance_length = 2*radius;
+	UINT space_distance_width = 2*radius;
+	RenderShelf(circle_shelf, space_distance_length, space_distance_width);
 }
 
-void BigHouseView::RenderShelf(Shelf* sh, UINT space_distance )
+void BigHouseView::RenderShelf( Shelf* sh, UINT space_distance_length, UINT space_distance_width )
 {
+	if (can_add_shelf == false) {
+		AfxMessageBox(_T("Không thể thêm được nữa"));
+		return;
+	}
+
 	shelf_.push_back(sh);
 	UINT size = shelf_.size();
 	if (size > 1) {
 		Vector3D bbmin;
 		shelf_.at(size - 2)->GetOriginBody(bbmin);
-		bbmin.v[1] = bbmin.v[1] + space_distance + 50;
+		if (bbmin.v[1] + space_distance_length + 50 < room_size_.width/2 - space_distance_length - room_size_.depth) {
+			 bbmin.v[1] = bbmin.v[1] + space_distance_length + 50;
+			} else {
+			if (bbmin.v[0] + 2*space_distance_width + 50 > room_size_.longs/2 - room_size_.depth) {
+				AfxMessageBox(_T("Không thể thêm được nữa"));
+				shelf_.pop_back();
+				can_add_shelf = false;
+				return;
+			} else {
+				bbmin = bbmin_first;
+				bbmin.v[0] = bbmin.v[0] + space_distance_width + 50;
+				bbmin_first = bbmin;
+			}
+		}
 		shelf_.at(size - 1)->SetOriginBody(bbmin);
 	} else {
-	  Vector3D bbmin(-600, -600, 0);
-		shelf_.at(size - 1)->SetOriginBody(bbmin);
+		if (sh->IsCircleShelf() == true) {
+			Vector3D bbmin(-(room_size_.longs/2 - space_distance_length), -(room_size_.width/2 - space_distance_width), 0);
+			bbmin_first = bbmin;
+			shelf_.at(size - 1)->SetOriginBody(bbmin);
+		} else {
+			Vector3D bbmin(-(room_size_.longs/2 - 25), -(room_size_.width/2 - 25), 0);
+			bbmin_first = bbmin;
+			shelf_.at(size - 1)->SetOriginBody(bbmin);
+		}
 	}
-	InvalidateRect(NULL, true);
+	InvalidateRect(NULL, FALSE);
 }
 
 
 void BigHouseView::ClearShelf() {
   if (!shelf_.empty())
     shelf_.clear();
+
+	// Passion88 add
+	bbmin_first.v[0]= 0.0;
+	bbmin_first.v[1]= 0.0;
+	bbmin_first.v[2]= 0.0;
+	can_add_shelf = true;
+	InvalidateRect(NULL, FALSE);
 }
 
 void BigHouseView::OnViewTop() { 
@@ -1093,6 +1140,7 @@ void BigHouseView::OnShowCoordinate() {
     show_coordinate_ = false;
   else
     show_coordinate_ = true;
+	InvalidateRect(NULL, FALSE);
 }
 
 void BigHouseView::OnUpdateShowCoordinate(CCmdUI* cmd) {

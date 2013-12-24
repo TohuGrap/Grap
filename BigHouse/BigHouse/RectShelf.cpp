@@ -22,6 +22,7 @@ RectShelf::RectShelf(float width,
 	bbmin_.Set(0, 0, 0);
 	bbmax_.Set(width_, length_, height_);
 	floor_count_ = - 1;
+	is_circle_shelf_ = false;
 }
 
 RectShelf::RectShelf() {
