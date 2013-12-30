@@ -104,6 +104,12 @@ public:
 	void SetIsLbuttonDown(bool is_left_down) {left_button_down_ = is_left_down;}
 	void SetColorForBackGround(float red_value, float green_value, float blue_value);
 	void SetOriginBodyAgain(float longs, float width);
+
+	void SetupRoom();
+	void SetupShelf();
+	void ClearAllShelf();
+	void SetupProduction();
+	void OnViewFullscreen();
 protected:
   float pos[3];
 
@@ -191,7 +197,8 @@ private:
 	Vector3D bbmin_first;
 	bool can_add_shelf;
 	GLuint m_nRoomList;
-
+	UINT number_of_shelf_;
+	UINT number_of_product_;
 protected:
 	afx_msg void OnFilePrintPreview();
 	afx_msg void OnRButtonUp(UINT nFlags, CPoint point);

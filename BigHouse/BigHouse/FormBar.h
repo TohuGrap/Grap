@@ -2,6 +2,9 @@
 #include "resource.h"
 #include "afxwin.h"
 #include "Struct.h"
+#include "afxcmn.h"
+#include "CustomListView.h"
+#include <vector>
 
 class BigHouseView;
 class BigHouseDoc;
@@ -26,8 +29,16 @@ public:
 #endif
 
 public:
-  int ObjectIndex() {return object_index_;}
   BigHouseView* GetBigHouseView();
+	void	InitListViewShelf();
+	void InitListViewProduct();
+	void SetShelfInfoList(ShelfInfo shelf_info, bool &is_exist);
+	void SetProductionList(CString str, bool &is_exist);
+	void SetDataForListShelf(UINT number_of_shelf); 
+	void SetDataForListProduct(int number_of_product);
+	void HandleListViewShelf(int item);
+	void HandleListViewProduct(int item);
+	void SetCanLoadProduct(bool can_load);
   enum ObjectShape {
     OBJ_TABLE = 0,
     OBJ_DESK = 1,
@@ -45,22 +56,21 @@ protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
   afx_msg void OnBnNext();
   afx_msg void OnSize(UINT nType, int cx, int cy);
-  afx_msg void OnGetProduction();
-  afx_msg void OnSettingShelf();
-  afx_msg void ClearShelf();
   afx_msg void OnShowCoordinate();
-  afx_msg void OnSettingRoom();
 	afx_msg void ShowSizeRoom();
 	afx_msg void OnLButtonUp(UINT nFlags, CPoint pt);
 	afx_msg void OnBnShelfSelected();
 	afx_msg void OnBnProductionSelected();
 	DECLARE_MESSAGE_MAP()
+
 private:
-  int object_index_;
-	int show_size_;
-	CStatic background_color_;
-	ShelfInfo shelf_info_;
-	CString str_production_;
+	int index_shelf_;
+	int index_product_;
+	bool can_load_product_;
+	std::vector<CString> production_list_;
+	std::vector<ShelfInfo> shelf_info_list_;
+	CustomListView list_view_product_;
+	CustomListView list_view_shelf_;
 };
 
 

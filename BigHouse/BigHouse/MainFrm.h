@@ -40,6 +40,11 @@ public:
 	void OnUpdateShowViewBar(CCmdUI* cmd);
 	void HandleEscape();
 	void ShowAndDockToolbar();
+	void SetupRoom();
+	void SetupShelf();
+	void ClearAllShelf();
+	void SetupProduction();
+
 // Implementation
 public:
 	virtual ~MainFrame();

@@ -22,7 +22,7 @@ BEGIN_MESSAGE_MAP(MainFrame, CFrameWndEx)
 	ON_WM_CREATE()
 	ON_COMMAND(ID_VIEW_CUSTOMIZE, &MainFrame::OnViewCustomize)
 	ON_REGISTERED_MESSAGE(AFX_WM_CREATETOOLBAR, &MainFrame::OnToolbarCreateNew)
-	ON_COMMAND(ID_VIEW_FULLSCREEN, OnViewFullscreen)
+
 
 	ON_COMMAND(ID_VIEW_TOP, &MainFrame::OnViewTop)
 	ON_COMMAND(ID_VIEW_BOTTOM, &MainFrame::OnViewBottom)
@@ -35,6 +35,10 @@ BEGIN_MESSAGE_MAP(MainFrame, CFrameWndEx)
 	ON_UPDATE_COMMAND_UI(ID_VIEW_COORDINATE, &MainFrame::OnUpdateShowCoordinate)
 	ON_COMMAND(ID_VIEW_BAR, &MainFrame::ShowViewBar)
 	ON_UPDATE_COMMAND_UI(ID_VIEW_BAR, &MainFrame::OnUpdateShowViewBar)
+	ON_COMMAND(ID_SETUP_ROOM, &MainFrame::SetupRoom)
+	ON_COMMAND(ID_SETUP_SHELF, &MainFrame::SetupShelf)
+	ON_COMMAND(ID_CLEAR_ALL_SHELF, &MainFrame::ClearAllShelf)
+	ON_COMMAND(ID_SETUP_PRODUCT, &MainFrame::SetupProduction)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -342,6 +346,24 @@ void MainFrame::OnUpdateShowCoordinate( CCmdUI * cmd )
 {
 	big_house_view_->OnUpdateShowCoordinate(cmd);
 }
+
+void MainFrame::SetupRoom() {
+  big_house_view_->SetupRoom();
+}
+
+void MainFrame::SetupShelf() {
+  big_house_view_->SetupShelf();
+}
+
+void MainFrame::ClearAllShelf() {
+  big_house_view_->ClearAllShelf();
+}
+
+void MainFrame::SetupProduction() {
+  big_house_view_->SetupProduction();
+}
+
+
 
 void MainFrame::ShowViewBar()
 {

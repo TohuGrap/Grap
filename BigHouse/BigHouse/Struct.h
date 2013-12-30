@@ -21,6 +21,7 @@ struct ShelfInfo {
 	UINT shelf_type;
 	UINT shelf_shape;
 };
+
 	struct Rect {
 		Vector3D n;
 		Vector3D p[4];

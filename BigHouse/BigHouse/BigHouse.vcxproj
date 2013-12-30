@@ -134,6 +134,7 @@
     <ClInclude Include="BigHouseDoc.h" />
     <ClInclude Include="BigHouseView.h" />
     <ClInclude Include="CircleShelf.h" />
+    <ClInclude Include="CustomListView.h" />
     <ClInclude Include="DlgProduction.h" />
     <ClInclude Include="DlgSettingShelf.h" />
     <ClInclude Include="FormBar.h" />
@@ -154,6 +155,7 @@
     <ClCompile Include="BigHouseDoc.cpp" />
     <ClCompile Include="BigHouseView.cpp" />
     <ClCompile Include="CircleShelf.cpp" />
+    <ClCompile Include="CustomListView.cpp" />
     <ClCompile Include="DlgProduction.cpp" />
     <ClCompile Include="DlgSettingShelf.cpp" />
     <ClCompile Include="FormBar.cpp" />

@@ -20,6 +20,7 @@ public:
 	void UpdateProduct();
 	void HandleBitmap(CString str_name);
 	void LoadProductionBkgn();
+	CString GetProductName() {return str_current_production_;}
 protected:
 	virtual BOOL OnInitDialog();
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support

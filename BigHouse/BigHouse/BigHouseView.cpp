@@ -12,6 +12,10 @@
 #include "BigHouseDoc.h"
 #include "BigHouseView.h"
 #include "base.h"
+#include "SettingRoomDlg.h"
+#include "DlgSettingShelf.h"
+#include "DlgProduction.h"
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -27,6 +31,7 @@ BEGIN_MESSAGE_MAP(BigHouseView, CView)
 	ON_COMMAND(ID_FILE_PRINT, &CView::OnFilePrint)
 	ON_COMMAND(ID_FILE_PRINT_DIRECT, &CView::OnFilePrint)
 	ON_COMMAND(ID_FILE_PRINT_PREVIEW, &BigHouseView::OnFilePrintPreview)
+	ON_COMMAND(ID_VIEW_FULLSCREEN, OnViewFullscreen)
 	ON_WM_CONTEXTMENU()
 	ON_WM_RBUTTONUP()
 	ON_WM_LBUTTONUP()
@@ -110,6 +115,8 @@ BigHouseView::BigHouseView():
 	bbmin_first.v[1]= 0.0;
 	bbmin_first.v[2]= 0.0;
 	can_add_shelf = true;
+	number_of_shelf_ = 0;
+	number_of_product_ = 0;
 }
 
 BigHouseView::~BigHouseView()
@@ -1179,4 +1186,60 @@ void BigHouseView::DrawStringAt(double x, double y, double z, char* s) {
     glListBase(m_textTip);
     glCallLists(length, GL_UNSIGNED_BYTE, (const GLvoid*)s);
   }
+}
+
+void BigHouseView::SetupRoom() {
+	SettingRoomDlg dlg(room_size_, is_show_size_);
+	if (IDOK == dlg.DoModal()) {
+		room_size_ = dlg.GetRoomSize();
+		is_show_size_ = dlg.IsShowRoomSize();
+	}
+}
+
+void BigHouseView::SetupShelf()
+{
+	DlgSettingShelf dlg;
+	ShelfInfo shelf_info;
+	bool is_exist = false;
+	if (dlg.DoModal() == IDOK) {
+		shelf_info = dlg.GetShelfInfo();
+		form_bar_->SetShelfInfoList(shelf_info, is_exist);
+		if (is_exist == false) {
+		  number_of_shelf_++;
+		  form_bar_->SetDataForListShelf(number_of_shelf_);
+		} else {
+			::MessageBox(NULL, _T("Loại Kệ Này Đã Tồn Tại Trong List Rồi"), _T("Thông Báo"), MB_OK | MB_ICONINFORMATION);
+			return;
+		}
+	}
+}
+
+void BigHouseView::ClearAllShelf()
+{
+	ClearShelf();
+	form_bar_->SetCanLoadProduct(false);
+}
+
+void BigHouseView::SetupProduction()
+{
+	bool is_exist = false;
+	DlgProduction dlg;
+	CString str;
+	if (dlg.DoModal() == IDOK) {
+		str = dlg.GetProductName();
+		form_bar_->SetProductionList(str, is_exist);
+		if (is_exist == false) {
+			number_of_product_++;
+			form_bar_->SetDataForListProduct(number_of_product_);
+		} else {
+			::MessageBox(NULL, _T("Loại Sản Phẩm Này Đã Tồn Tại Trong List Rồi"), _T("Thông Báo"), MB_OK | MB_ICONINFORMATION);
+			return;
+		}
+	}
+}
+
+void BigHouseView::OnViewFullscreen()
+{
+	MainFrame* main_frame = static_cast<MainFrame*>(AfxGetMainWnd());
+	main_frame->OnViewFullscreen();
 }

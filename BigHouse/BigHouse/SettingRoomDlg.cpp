@@ -17,7 +17,7 @@ SettingRoomDlg::SettingRoomDlg(CWnd* pParent /*=NULL*/)
 
 }
 
-SettingRoomDlg::SettingRoomDlg(RoomSize room_size, CWnd*pParent) 
+SettingRoomDlg::SettingRoomDlg(RoomSize room_size, bool is_show_size, CWnd*pParent) 
 	: CDialogEx(SettingRoomDlg::IDD, pParent)
 {
 	room_size_.longs = room_size.longs;
@@ -29,6 +29,9 @@ SettingRoomDlg::SettingRoomDlg(RoomSize room_size, CWnd*pParent)
 	str_width_.Format(_T("%f"), room_size.width);
 	str_height_.Format(_T("%f"), room_size_.height);
 	str_depth_.Format(_T("%f"), room_size_.depth);
+
+	show_room_size_ = is_show_size ? 1: 0;
+	is_show_room_size_ = is_show_size;
 }
 
 SettingRoomDlg::~SettingRoomDlg()
@@ -42,6 +45,7 @@ void SettingRoomDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT_WIDTH, edit_room_width_);
 	DDX_Control(pDX, IDC_EDIT_HEIGHT, edit_room_height_);
 	DDX_Control(pDX, IDC_EDIT_DEPTH, edit_room_depth_);
+	DDX_Check(pDX, IDC_CHECK_SHOW_SIZE, show_room_size_);
 }
 
 
@@ -50,6 +54,7 @@ BEGIN_MESSAGE_MAP(SettingRoomDlg, CDialogEx)
 	ON_EN_CHANGE(IDC_EDIT_WIDTH, OnEditRoomWidth)
 	ON_EN_CHANGE(IDC_EDIT_HEIGHT, OnEditRoomHeight)
 	ON_EN_CHANGE(IDC_EDIT_DEPTH, OnEditRoomDepth)
+	ON_BN_CLICKED(IDC_CHECK_SHOW_SIZE, ShowRoomSize)
 END_MESSAGE_MAP()
 
 // SettingRoomDlg message handlers
@@ -91,4 +96,14 @@ void SettingRoomDlg::OnEditRoomDepth() {
   UpdateData(TRUE);
 	edit_room_depth_.GetWindowText(str_depth_);
 	room_size_.depth = _tstof(str_depth_);
+}
+
+void SettingRoomDlg::ShowRoomSize()
+{
+	UpdateData(TRUE);
+	if (show_room_size_ == 1) {
+		is_show_room_size_ = true;
+	} else {
+    is_show_room_size_ = false;
+	}
 }
