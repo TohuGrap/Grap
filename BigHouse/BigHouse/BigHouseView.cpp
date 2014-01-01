@@ -694,8 +694,7 @@ void BigHouseView::OnMouseMove(UINT nFlags, CPoint point) {
 		}
 		if(old_count_selecte_ != - 1 && old_count_selecte_ != count_selected_) {
 			if(shelf_.size() > old_count_selecte_) {
-				// comment because this is bug for circle shelf
-				;//shelf_.at(old_count_selecte_)->ReSetSelectFloor();
+				shelf_.at(old_count_selecte_)->ReSetSelectFloor();
 			}
 		}
 		old_count_selecte_ = count_selected_;
@@ -992,7 +991,7 @@ void BigHouseView::GetPointMouseOnPlane(Vector3D &dir, Vector3D &pos, Vector3D &
 
 
 void BigHouseView::ResetColor() {
-	//for()
+	//for() 
 }
 
 void BigHouseView::SetCadToView(std::pair<Floor, std::vector<Triangle3D*>> &body) {
@@ -1217,7 +1216,7 @@ void BigHouseView::SetupShelf()
 void BigHouseView::ClearAllShelf()
 {
 	ClearShelf();
-	form_bar_->SetCanLoadProduct(false);
+	form_bar_->DisableLoadProduct();
 }
 
 void BigHouseView::SetupProduction()

@@ -22,7 +22,6 @@ FormBar::FormBar()
 {
 	index_shelf_ = -1;
 	index_product_ = -1;
-	can_load_product_ = false;
 }
 
 FormBar::~FormBar()
@@ -247,13 +246,16 @@ void FormBar::OnBnShelfSelected()
 	GetBigHouseView()->MakeSimpleShelf(shelf_info_list_[i].width, shelf_info_list_[i].longs,
 																		 shelf_info_list_[i].height, shelf_info_list_[i].numf,
 																		 (RectShelf::TypeRecShelf)shelf_info_list_[i].shelf_shape);
-	  can_load_product_ = true;
+		CButton* btn_select_product = reinterpret_cast<CButton*>(GetDlgItem(IDC_BTN_PRODUCTION_SELECTED));
+		btn_select_product->EnableWindow(TRUE);
 
 	} else if (shelf_type == ShelfType::DOUBLE_SHELF) {
 		GetBigHouseView()->MakeDoubleShelf(shelf_info_list_[i].width, shelf_info_list_[i].longs,
 																			 shelf_info_list_[i].height, shelf_info_list_[i].numf,
 																			 (RectShelfFront_Back::DirectionShelf)shelf_info_list_[i].shelf_shape);
-		can_load_product_ = true;
+		CButton* btn_select_product = reinterpret_cast<CButton*>(GetDlgItem(IDC_BTN_PRODUCTION_SELECTED));
+		btn_select_product->EnableWindow(TRUE);
+
 	} else if (shelf_type == ShelfType::CIRCLE_SHELF) {
 	  GetBigHouseView()->MakeCircleShelf(shelf_info_list_[i].shelf_radius,
 																			 shelf_info_list_[i].height,
@@ -261,12 +263,15 @@ void FormBar::OnBnShelfSelected()
 																			 shelf_info_list_[i].shelf_end_angle_,
 																			 shelf_info_list_[i].shelf_flat_angle_,
 																			 shelf_info_list_[i].numf);
-		can_load_product_ = true;
+		CButton* btn_select_product = reinterpret_cast<CButton*>(GetDlgItem(IDC_BTN_PRODUCTION_SELECTED));
+		btn_select_product->EnableWindow(TRUE);
+
 	} else {
 		GetBigHouseView()->MakeSimpleShelf(shelf_info_list_[i].width, shelf_info_list_[i].longs,
 		shelf_info_list_[i].height, shelf_info_list_[i].numf,
 			(RectShelf::TypeRecShelf)shelf_info_list_[i].shelf_shape);
-		can_load_product_ = true;
+		CButton* btn_select_product = reinterpret_cast<CButton*>(GetDlgItem(IDC_BTN_PRODUCTION_SELECTED));
+		btn_select_product->EnableWindow(TRUE);
 	}
 }
 
@@ -312,9 +317,7 @@ void FormBar::HandleListViewShelf( int item )
 
 void FormBar::HandleListViewProduct(int item) {
   CButton* btn_select_product = reinterpret_cast<CButton*>(GetDlgItem(IDC_BTN_PRODUCTION_SELECTED));
-	if (can_load_product_ == true) {
-    btn_select_product->EnableWindow(TRUE);
-  }
+  btn_select_product->EnableWindow(TRUE);
 	index_product_ = item;
 }
 
@@ -359,8 +362,7 @@ void FormBar::SetProductionList(CString name_product, bool &is_exist) {
 	}
 }
 
-void FormBar::SetCanLoadProduct(bool can_load) {
-	can_load_product_ = can_load;
+void FormBar::DisableLoadProduct() {
 	CButton* btn = reinterpret_cast<CButton*>(GetDlgItem(IDC_BTN_PRODUCTION_SELECTED));
-  btn->EnableWindow(can_load);
+  btn->EnableWindow(FALSE);
 }

@@ -38,7 +38,7 @@ public:
 	void SetDataForListProduct(int number_of_product);
 	void HandleListViewShelf(int item);
 	void HandleListViewProduct(int item);
-	void SetCanLoadProduct(bool can_load);
+	void DisableLoadProduct();
   enum ObjectShape {
     OBJ_TABLE = 0,
     OBJ_DESK = 1,
@@ -66,7 +66,6 @@ protected:
 private:
 	int index_shelf_;
 	int index_product_;
-	bool can_load_product_;
 	std::vector<CString> production_list_;
 	std::vector<ShelfInfo> shelf_info_list_;
 	CustomListView list_view_product_;
