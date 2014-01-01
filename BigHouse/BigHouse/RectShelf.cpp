@@ -1,14 +1,13 @@
 
-
 #include "stdafx.h"
 #include"RecShelf.h"
 #include "Struct.h"
 
 RectShelf::RectShelf(float width,
-	                 float length,
-									 float height,
-									 UINT floor_count,
-									 TypeRecShelf type):
+	                  float length,
+									  float height,
+									  UINT floor_count,
+									  TypeRecShelf type):
 	height_(height),
 	length_(length),
 	width_(width),
@@ -21,8 +20,8 @@ RectShelf::RectShelf(float width,
 	}
 	bbmin_.Set(0, 0, 0);
 	bbmax_.Set(width_, length_, height_);
-	floor_count_ = - 1;
-	is_circle_shelf_ = false;
+	selected_floor_ = - 1;
+	//is_circle_shelf_ = false;
 }
 
 RectShelf::RectShelf() {
@@ -94,34 +93,36 @@ void RectShelf::ShelfStructure(double width,
 															int count_floor,
 															double height_floor,
 															double height_solo,
-															TypeRecShelf type,
+															int selected_floor,
+															std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks,
 															bool draw_snare) {
   int size_col = (int)(width/20.0);
 	if(size_col < 3) {
 		size_col = 3;
 	}
 	glPushMatrix();
-	glColor3f(1, 0, 0);
-	glPushMatrix();
-	glTranslatef(- 1, - size_col, 0);
-  DrawCube(width + 2*size_col, length + 2*size_col, height_solo); // de
-	DrawCube(size_col, size_col, height);
-	glTranslated(0, length + size_col, 0); // dir oy
-	DrawCube(size_col, size_col, height);
-	glTranslatef(0, -length , height- 2*size_col);
-	DrawCube(size_col, length, 2*size_col);
-	glPopMatrix();
-	if(draw_snare) {
-    DrawSnare(size_col/10.0,height, 0, 360, 20, length);	
+		glColor3f(1, 0, 0);
 		glPushMatrix();
-		glTranslatef(0, length, 0);
-		glRotatef(90, 1, 0, 0);
-		DrawSnare(size_col/10.0,length, 0, 360, 20, height -1);	
+			glTranslatef(- 1, - size_col, 0);
+			DrawCube(width + 2*size_col, length + 2*size_col, height_solo); // de
+			DrawCube(size_col, size_col, height);
+			glTranslated(0, length + size_col, 0); // dir oy
+			DrawCube(size_col, size_col, height);
+			glTranslatef(0, -length , height- 2*size_col);
+			DrawCube(size_col, length, 2*size_col);
 		glPopMatrix();
-	}
-	DrawTwoHandeFloor(width, length, width/8.0, height_solo, size_col/2.0, count_floor, height_floor);
 
+		if(draw_snare) {
+			DrawSnare(size_col/10.0,height, 0, 360, 20, length);	
+			glPushMatrix();
+			glTranslatef(0, length, 0);
+			glRotatef(90, 1, 0, 0);
+			DrawSnare(size_col/10.0,length, 0, 360, 20, height -1);	
+			glPopMatrix();
+		}
 
+		DrawTwoHandeFloor(width, length, width/8.0, height_solo, size_col/2.0, count_floor, height_floor);
+		DrawShelfFloor(width, length, 1, height_solo, selected_floor, stocks);
 	glPopMatrix();
 }
 
@@ -137,14 +138,13 @@ void RectShelf::DrawShelfFloor(int width,
 		glColor3f(0, 0, 1);
 		DrawCube(width, length, heigth);
 	}
-	for(int i = 1; i < stocks.size(); i ++){
+	for(int i = 1; i < stocks.size(); i ++) {
 		glTranslated(0, 0, stocks.at(i).first.height_floor);
-		if(count == i && stocks.at(i).second.empty()) {
+		if(count == i /*&& stocks.at(i).second.empty()*/) {
 			glColor3f(0, 0, 1);
 		} else {
 		  glColor3f(1, 1, 0);
 		}
-		//DrawTwoHandeFloor(width, length,25, 2);
 	  DrawCube(width, length, heigth);
 	}
 	glPopMatrix();
@@ -157,27 +157,17 @@ void RectShelf::DrawShelf() {
   glDisable(GL_CULL_FACE);
 	glPushMatrix();
 	if(type_ == BACK) {
-		glTranslatef(width_, length_, 0);
 		glRotated(180, 0, 0, 1);
 	} else if(type_ == LEFT) {
-	  glTranslatef(0 , length_, 0);
-				glRotated(- 90, 0, 0, 1);
+		glRotated(- 90, 0, 0, 1);
 	} else if(type_ == RIGHT) {
-		glTranslatef(type_ , 0, 0);
 		glRotated(90, 0, 0, 1);
 	}
-	ShelfStructure(width_ ,length_, height_ , stocks_.size(), floor_height_, h_solo , type_);
-	DrawShelfFloor(width_, length_, 1, h_solo, floor_count_, stocks_);
+	glTranslatef(- width_/2.0, - length_/2.0, 0);
+	ShelfStructure(width_ ,length_, height_ , stocks_.size(), floor_height_, h_solo, selected_floor_, stocks_);
  	DrawCommodity(stocks_, h_solo);
 	glPopMatrix();
 }
-//void RecShelf::DrawPoint() {
-//	glPointSize(6.0);
-//	glColor3f(1, 0, 0);
-//	glBegin(GL_POINTS);
-//	//glVertex3fv(point_on_floor_.v);
-//	glEnd();
-//}
 
 void RectShelf::GetBoundingBox(Vector3D &bbmin, Vector3D &bbmax) const{
 	bbmin = bbmin_;
@@ -238,7 +228,7 @@ int RectShelf::FindPointMouseOnFloor(Vector3D &dir,
 
 
 void RectShelf::PointMouseOnFloor(Vector3D &dir, Vector3D &pos) {
-	floor_count_ = FindPointMouseOnFloor(dir, pos, bbmin_, bbmax_,stocks_);
+	selected_floor_ = FindPointMouseOnFloor(dir, pos, bbmin_, bbmax_,stocks_);
 	//Vector3D oz(0, 0, 1);
 	//if(dir.scalar(oz) == 0) {
 	//	return;
@@ -337,11 +327,11 @@ bool RectShelf::LineCutSurface(Vector3D &dir,
 }
 
 void RectShelf::SetCadToShelf(std::pair<Floor, std::vector<Triangle3D*>> &body) {
-	if(floor_count_ != -1) {
-		stocks_.at(floor_count_).first.s_r.i = (int)width_/body.first.s_b.x;
-		stocks_.at(floor_count_).first.s_r.j = (int)length_/body.first.s_b.y;
-		stocks_.at(floor_count_).first.s_b = body.first.s_b;
-		stocks_.at(floor_count_).second = body.second;
+	if(selected_floor_ != -1) {
+		stocks_.at(selected_floor_).first.s_r.i = (int)width_/body.first.s_b.x;
+		stocks_.at(selected_floor_).first.s_r.j = (int)length_/body.first.s_b.y;
+		stocks_.at(selected_floor_).first.s_b = body.first.s_b;
+		stocks_.at(selected_floor_).second = body.second;
 		//stocks_.assign
 	}
 }
@@ -490,11 +480,18 @@ bool RectShelf::IsLineCutBody(const Vector3D &dir, const Vector3D& pos, Vector3D
 }
 
 void RectShelf::GetOriginBody(Vector3D &p_origin) {
-	p_origin = bbmin_;
+	p_origin = bbmin_ + bbmax_;
+	p_origin = p_origin*0.5;
+	p_origin.v[2] = 0.0;
 }
 
 void RectShelf::SetOriginBody(Vector3D &p_move) {
 	bbmin_ = bbmin_ + p_move;
+	if(type_ == FONT || type_ == BACK) {
+		Vector3D p(width_, length_, height_);
+	} else {
+		Vector3D p(length_, width_, height_);
+	}
   Vector3D p(width_, length_, height_);
 	bbmax_ = bbmin_ + p;
 
@@ -518,6 +515,9 @@ void RectShelf::DrawSnare(double r,
 }
 
 void RectShelf::RotateShelf() {
+	Vector3D center = bbmin_ + bbmax_;
+	center = center*0.5;
+	center.v[2] = 0.0;
 	if(type_ == FONT) {
 		type_ = LEFT;
 	} else if (type_ == LEFT) {
@@ -526,5 +526,17 @@ void RectShelf::RotateShelf() {
 		type_ = RIGHT;
 	} else {
 		type_ = FONT;
+	}
+
+	if(type_ == BACK || type_ == FONT) {
+		Vector3D P(-length_/2.0, - width_/2.0, 0);
+		bbmin_ = center + P;
+		Vector3D p_m(length_, width_, height_);
+		bbmax_ = bbmin_ + p_m;
+	} else {
+			Vector3D P(- width_/2.0, - length_/2.0, 0);
+		bbmin_ = center + P;
+		Vector3D p_m(width_, length_, height_);
+		bbmax_ = bbmin_ + p_m;
 	}
 }

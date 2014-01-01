@@ -34,7 +34,8 @@ public :
 											int count_floor,
 											double height_floor,
 											double height_solo,
-											TypeRecShelf type,
+											int selected_floor,
+											std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks,
 											bool draw_snare = true);
 	void DrawShelfFloor(int width, 
 		                  int length,
@@ -74,7 +75,7 @@ public :
 	virtual void GetOriginBody(Vector3D &p_origin);
 	virtual void SetOriginBody(Vector3D &p_move);
 	virtual void PointMouseOnFloor(Vector3D &dir, Vector3D &pos);
-	virtual void ReSetSelectFloor() {floor_count_ = -1;}
+	virtual void ReSetSelectFloor() {selected_floor_ = -1;}
 	virtual void RotateShelf();
 	
 protected:
@@ -95,11 +96,12 @@ private:
 	int height_;
 	int width_;
 	double floor_height_;
-	int floor_count_;
+	int selected_floor_;
 	TypeRecShelf type_;
 	std::vector<std::pair<Floor, std::vector<Triangle3D*>>> stocks_;
 	Vector3D bbmin_;
 	Vector3D bbmax_;
+	Vector3D point_center_;
 };
 
 #endif // RECT_SHELF_H_

@@ -607,7 +607,10 @@ void BigHouseView::OnRButtonDown(UINT nFlags, CPoint point) {
   mouse_down_point_ = point;
   SetCapture();
 	right_button_down_ = true;
-
+	//if(shelf_.size() > old_count_selecte_ && old_count_selecte_ >= 0) {
+	//	shelf_.at(old_count_selecte_)->ReSetSelectFloor();
+	//	old_count_selecte_ = -1;
+	//}
 	// Clear creating production when right mouse is down
 	body_.second.clear();
 
@@ -694,7 +697,7 @@ void BigHouseView::OnMouseMove(UINT nFlags, CPoint point) {
 			}
 		}
 		if(old_count_selecte_ != - 1 && old_count_selecte_ != count_selected_) {
-			if(shelf_.size() > old_count_selecte_) {
+			if(shelf_.size() > old_count_selecte_ && old_count_selecte_ >= 0) {
 				shelf_.at(old_count_selecte_)->ReSetSelectFloor();
 			}
 		}
@@ -1065,7 +1068,7 @@ void BigHouseView::RenderShelf( Shelf* sh, UINT space_distance_length, UINT spac
 		}
 		shelf_.at(size - 1)->SetOriginBody(bbmin);
 	} else {
-		if (sh->IsCircleShelf() == true) {
+		if (1/*sh->IsCircleShelf() == true*/) {
 			Vector3D bbmin(-(room_size_.longs/2 - space_distance_length), -(room_size_.width/2 - space_distance_width), 0);
 			bbmin_first = bbmin;
 			shelf_.at(size - 1)->SetOriginBody(bbmin);
@@ -1216,7 +1219,7 @@ void BigHouseView::RotateShelf() {
 	}
 	//left_point_down_2d_.SetPoint(- 1, -1);
 }
-}
+
 
 void BigHouseView::SetupRoom() {
 	SettingRoomDlg dlg(room_size_, is_show_size_);
@@ -1244,8 +1247,7 @@ void BigHouseView::SetupShelf()
 	}
 }
 
-void BigHouseView::ClearAllShelf()
-{
+void BigHouseView::ClearAllShelf() {
 	ClearShelf();
 	form_bar_->DisableLoadProduct();
 }

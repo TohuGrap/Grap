@@ -6,7 +6,7 @@
 
 
 Shelf::Shelf() {
-	is_circle_shelf_ = false;
+	//is_circle_shelf_ = false;
 }
 
 Shelf::~Shelf() {

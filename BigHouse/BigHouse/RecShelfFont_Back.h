@@ -47,7 +47,8 @@ private:
 	int height_;
 	int width_;
 	int floor_height_;
-	int floor_count_;
+	//int floor_count_;
+	int selected_floor_;
 	TypeFloor type_;
 	DirectionShelf shelf_direction_;
 	Vector3D bbmin_font_;
