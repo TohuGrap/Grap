@@ -50,7 +50,7 @@ void RectShelfFront_Back::DrawShelf() {
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   glDisable(GL_CULL_FACE);
 	double h_solo = height_/10.0;
-	if(shelf_direction_ != FONT_BACK) {
+	if(type_ != FONT_BACK) {
 		glRotatef(90, 0, 0, 1);
 	}
 		glTranslatef(0, -length_/2.0, 0);
