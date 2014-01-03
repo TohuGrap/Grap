@@ -40,6 +40,7 @@ public:
 	void HandleListViewProduct(int item);
 	void DisableLoadProduct();
 	void LoadSimShelfFile(CString& path_file);
+	void ImportFile();
   enum ObjectShape {
     OBJ_TABLE = 0,
     OBJ_DESK = 1,
@@ -63,7 +64,6 @@ protected:
 	afx_msg void OnBnShelfSelected();
 	afx_msg void OnBnProductionSelected();
 	DECLARE_MESSAGE_MAP()
-
 private:
 	int index_shelf_;
 	int index_product_;

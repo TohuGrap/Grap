@@ -380,7 +380,7 @@ bool BigHouseApp::IsOpenedFile( CString str, int& index ) {
 void BigHouseApp::OnFileOpen() {
 	CFileDialog dlg(TRUE, L"", L"",
 		OFN_HIDEREADONLY | OFN_FILEMUSTEXIST,
-		_T("Sim Shelf File (*.xml)|*.xml||"));
+		_T("Sim Shelf File (*.sish)|*.sish||"));
 	CString path_file(_T(""));
 	if (dlg.DoModal() == IDOK) {
     path_file = dlg.GetPathName();

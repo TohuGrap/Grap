@@ -14,6 +14,7 @@
 #include "DlgSettingShelf.h"
 #include "DlgProduction.h"
 #include "XmlUtls.h"
+#include <algorithm>
 // FormBar
 
 IMPLEMENT_DYNCREATE(FormBar, CFormView)
@@ -39,6 +40,7 @@ void FormBar::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(FormBar, CFormView)
 	ON_BN_CLICKED(IDC_BTN_SHELF_SELECTED, &FormBar::OnBnShelfSelected)
 	ON_BN_CLICKED(IDC_BTN_PRODUCTION_SELECTED, &FormBar::OnBnProductionSelected)
+	ON_BN_CLICKED(IDC_BTN_SHELF_IMPORT, &FormBar::ImportFile)
   ON_WM_PAINT()
   ON_WM_SIZE()
 	ON_WM_LBUTTONUP()
@@ -158,6 +160,7 @@ void FormBar::SetDataForListShelf(UINT number_of_shelf) {
 		list_view_shelf_.SetItemText(0, 7, str_flat_angle);
 		list_view_shelf_.SetItemText(0, 8, str_numf_);
 }
+
 
 void FormBar::SetDataForListProduct( int number_of_product )
 {
@@ -361,6 +364,7 @@ void FormBar::LoadSimShelfFile(CString& path_file )
 	const char* chstr = file_name.c_str();
 	doc = xmlParseFile(chstr);
 	if (doc == NULL) {
+		::MessageBox(NULL, _T("Load file thất bại \n Cấu trúc xml của file không chính xác"), _T("Thông báo"), MB_OK|MB_ICONERROR);
 		return;
 	}
 	// get cur
@@ -374,27 +378,114 @@ void FormBar::LoadSimShelfFile(CString& path_file )
 		xmlFree(doc);
 		return;
 	}
-	char* a[] = {"ke", "sp"};
-  for (int i = 0; i < 2; i ++) {
-		if (xmlStrcmp(cur->name, (const xmlChar*)a[i])) {
-			xmlFree(doc);
-			return;
-		}
+
+	std::vector<UINT> type_list_;
+	std::vector<double> longs_list;
+	std::vector<double> width_list;
+	std::vector<double> height_list;
+	std::vector<int> floor_list;
+	std::vector<double> radius_list;
+	std::vector<double> angle_start_list;
+	std::vector<double> angle_end_list;
+	std::vector<double> angle_flat_list;
+
+	std::vector<ShelfInfo> shelf_info_list;
+
 		cur = cur->children;
 		while (cur != NULL) {
-			if (!xmlStrcmp(cur->name, (const xmlChar*)"loai"))
+			if (!xmlStrcmp(cur->name, (const xmlChar*)"loai")) {
 				std::wstring str_type = XmlUtls::GetStringContent(doc, cur);
-			if (!xmlStrcmp(cur->name, (const xmlChar*)"dai"))
-				double longs=  XmlUtls::GetDoubleContent(doc, cur);
-			if (!xmlStrcmp(cur->name, (const xmlChar*)"rong"))
+				if (str_type == L"doi") {
+					type_list_.push_back(ShelfType::DOUBLE_SHELF);
+				} else if (str_type == L"tron") {
+					type_list_.push_back(ShelfType::CIRCLE_SHELF);
+				} else {
+					type_list_.push_back(ShelfType::SIMPLE_SHELF);
+				}
+			}
+			if (!xmlStrcmp(cur->name, (const xmlChar*)"dai")) {
+				double longs =  XmlUtls::GetDoubleContent(doc, cur);
+			  longs_list.push_back(longs);
+				radius_list.push_back(0);
+				angle_start_list.push_back(0);
+				angle_end_list.push_back(0);
+				angle_flat_list.push_back(0);
+			}
+			if (!xmlStrcmp(cur->name, (const xmlChar*)"rong")) {
 				double width = XmlUtls::GetDoubleContent(doc, cur);
-			if (!xmlStrcmp(cur->name, (const xmlChar*)"cao"))
+			  width_list.push_back(width);
+			}
+			if (!xmlStrcmp(cur->name, (const xmlChar*)"cao")) {
 				double height = XmlUtls::GetDoubleContent(doc, cur);
-			if (!xmlStrcmp(cur->name, (const xmlChar*)"tang"))
+			  height_list.push_back(height);
+			}
+			if (!xmlStrcmp(cur->name, (const xmlChar*)"tang")) {
 				unsigned int floors = XmlUtls::GetIntContent(doc, cur);
+			  floor_list.push_back(floors);
+			}
+			if (!xmlStrcmp(cur->name, (const xmlChar*)"bankinh")) {
+				double radius = XmlUtls::GetDoubleContent(doc, cur);
+				radius_list.push_back(radius);
+				longs_list.push_back(0);
+				width_list.push_back(0);
+			}
+
+			if (!xmlStrcmp(cur->name, (const xmlChar*)"gocbd")) {
+        double angle_start = XmlUtls::GetDoubleContent(doc, cur);
+				angle_start_list.push_back(angle_start);
+			}
+
+			if (!xmlStrcmp(cur->name, (const xmlChar*)"gockt")) {
+				double end_start = XmlUtls::GetDoubleContent(doc, cur);
+				angle_end_list.push_back(end_start);
+			}
+
+			if (!xmlStrcmp(cur->name, (const xmlChar*)"min")) {
+				double angle_flat = XmlUtls::GetDoubleContent(doc, cur);
+				angle_flat_list.push_back(angle_flat);
+			}
+
 			cur = cur->next;
 		}
-	}
 	xmlFreeDoc(doc);
 
+	 ShelfInfo shelf_info;
+	int number = type_list_.size();
+	for (int i = 0; i< number; i++) {
+		shelf_info.shelf_type = type_list_[i];
+		shelf_info.longs = longs_list[i];
+		shelf_info.width = width_list[i];
+		shelf_info.height = height_list[i];
+		shelf_info.numf = floor_list[i];
+		shelf_info.shelf_radius = radius_list[i];
+		shelf_info.shelf_start_angle_ = angle_start_list[i];
+		shelf_info.shelf_end_angle_ = angle_end_list[i];
+		shelf_info.shelf_flat_angle_ = angle_flat_list[i];
+
+		shelf_info_list.push_back(shelf_info);
+	}
+
+	for (int i = 0; i <shelf_info_list_.size(); i++) {
+    list_view_shelf_.DeleteItem(0);
+	}
+
+	shelf_info_list_.clear();
+	shelf_info_list_ = shelf_info_list;
+	for (int i = shelf_info_list.size(); i > 0; i--) {
+    SetDataForListShelf(i);
+	}
+
+	std::reverse(shelf_info_list_.begin(), shelf_info_list_.end());
+}
+
+
+void FormBar::ImportFile() {
+	CFileDialog dlg(TRUE, L"", L"",
+		OFN_HIDEREADONLY | OFN_FILEMUSTEXIST,
+		_T("Sim Shelf File (*.sish)|*.sish||"));
+	CString path_file(_T(""));
+	if (dlg.DoModal() == IDOK) {
+		path_file = dlg.GetPathName();
+		LoadSimShelfFile(path_file);
+	}
 }
