@@ -1,4 +1,4 @@
-
+ï»¿
 // BigHouseView.cpp : implementation of the BigHouseView class
 //
 
@@ -638,9 +638,9 @@ void BigHouseView::OnLButtonDown(UINT nFlags, CPoint point) {
 														 point_left_button_down_);// point click on plane
 		count_selected_ = SelecteShelf(perpendicular_vector, opengl_point);
 		if(GetKeyState(VK_SHIFT) & 0x8000 && count_selected_ != -1) {
-		  if(CalPointOnOZ(dir, pos, point_oz_)) {
-				shelf_.at(count_selected_)->GetHeightFloor(dir,
-				                                          pos,
+		  if(CalPointOnOZ(perpendicular_vector, opengl_point, point_oz_)) {
+				shelf_.at(count_selected_)->GetHeightFloor(perpendicular_vector,
+				                                          opengl_point,
 																									selected_count_floor_,
 																									height_floor_first_,
 																									height_floor_second_);
@@ -710,9 +710,9 @@ void BigHouseView::OnMouseMove(UINT nFlags, CPoint point) {
 				Vector3D O(0, 0, 0);   // origin coordinate (0 point)
 			  GetMousePointOnAnyPlane(perpendicular_screen_vector, opengl_point, oz_unit, O, point_mouse);
 			  move_shelf_ = point_mouse - point_left_button_down_;
-			} else if (count_selected_ != -1 && body_.second.empty()) {
+			} else if (count_selected_ != -1 && cad_info_.second.empty()) {
 				Vector3D point_oz;
-				if(count_selected_ != -1 && CalPointOnOZ(dir, pos, point_oz)) {
+				if(count_selected_ != -1 && CalPointOnOZ(perpendicular_screen_vector, opengl_point, point_oz)) {
 					//Vector3D temp = point_oz - point_oz_;
 					double d = point_oz.v[2] - point_oz_.v[2];
 					double d_f = d + height_floor_first_;
@@ -1079,7 +1079,7 @@ void BigHouseView::MakeCircleShelf(float radius, float height,
 void BigHouseView::RenderShelf( Shelf* sh, UINT space_distance_length, UINT space_distance_width )
 {
 	if (can_add_shelf == false) {
-		AfxMessageBox(_T("Không th? thêm du?c n?a"));
+		AfxMessageBox(_T("Khï¿½ng th? thï¿½m du?c n?a"));
 		return;
 	}
 
@@ -1092,7 +1092,7 @@ void BigHouseView::RenderShelf( Shelf* sh, UINT space_distance_length, UINT spac
 			 bbmin.v[1] = bbmin.v[1] + space_distance_length + 50;
 			} else {
 			if (bbmin.v[0] + 2*space_distance_width + 50 > room_size_.longs/2 - room_size_.depth) {
-				AfxMessageBox(_T("Không th? thêm du?c n?a"));
+				AfxMessageBox(_T("Khï¿½ng th? thï¿½m du?c n?a"));
 				shelf_.pop_back();
 				can_add_shelf = false;
 				return;
@@ -1309,7 +1309,7 @@ void BigHouseView::SetupProduction()
 			number_of_product_++;
 			form_bar_->SetDataForListProduct(number_of_product_);
 		} else {
-			::MessageBox(NULL, _T("S?n ph?m này dã t?n t?i"), _T("Thông báo"), MB_OK | MB_ICONINFORMATION);
+			::MessageBox(NULL, _T("S?n ph?m nï¿½y dï¿½ t?n t?i"), _T("Thï¿½ng bï¿½o"), MB_OK | MB_ICONINFORMATION);
 			return;
 		}
 	}

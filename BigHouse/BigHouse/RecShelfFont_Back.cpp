@@ -18,7 +18,7 @@ RectShelfFront_Back::RectShelfFront_Back(float width,
 
 	bbmin_back_.Set(0, 0, 0);
   selected_floor_ = -1;
-	direct_shelf_ = FLOOR_BACK;
+	type_ = FLOOR_BACK;
 }
 
 RectShelfFront_Back::~RectShelfFront_Back() {
@@ -29,19 +29,19 @@ bool RectShelfFront_Back::ObjectIsSelectedByLeftMouse(const Vector3D &dir,
 																			const Vector3D& pos,
 																			Vector3D &p) {
 	bool has_point = LineCutBoundingBox(dir, pos, bbmin_back_, bbmax_back_, p);
-	direct_shelf_ = FLOOR_BACK;
+	type_ = FLOOR_BACK;
 	if (has_point) {
 		Vector3D temp;
 		if(LineCutBoundingBox(dir, pos, bbmin_font_, bbmax_font_, temp)) {
 			Vector3D u = p - temp;
 			if(u.scalar(dir) < 0) {
 				p = temp;
-			  direct_shelf_ = FLOOR_FONT;
+			  type_ = FLOOR_FONT;
 			}
 		} 
 	} else {
 			has_point = LineCutBoundingBox(dir, pos, bbmin_font_, bbmax_font_, p);
-			direct_shelf_ = FLOOR_FONT;
+			type_ = FLOOR_FONT;
 	}
 	return has_point;
 }
@@ -55,7 +55,7 @@ void RectShelfFront_Back::DrawShelf() {
 	}
 		glTranslatef(0, -length_/2.0, 0);
 		int selected_floor;
-		if(direct_shelf_ == FLOOR_FONT) {
+		if(type_ == FLOOR_FONT) {
 			selected_floor = selected_floor_;
 		} else {
 			selected_floor = -1;
@@ -73,7 +73,7 @@ void RectShelfFront_Back::DrawShelf() {
 		glPushMatrix();
 		glRotatef(180, 0, 0, 1);
 		glTranslatef(0, - length_, 0 );
-		if(direct_shelf_ == FLOOR_BACK) {
+		if(type_ == FLOOR_BACK) {
 			selected_floor = selected_floor_;
 		} else {
 			selected_floor = -1;
@@ -92,13 +92,13 @@ void RectShelfFront_Back::DrawShelf() {
 }
 void RectShelfFront_Back::SetCadToShelf(std::pair<Floor , std::vector<Triangle3D*>> &body) {
 	if (selected_floor_ != -1) {
-	  if (direct_shelf_ == FONT) {
+	  if (type_ == FLOOR_FONT) {
 			stocks_font_.at(selected_floor_).first.cad_pos.x_pos = (int)width_/body.first.floor_size.x_size;
 			stocks_font_.at(selected_floor_).first.cad_pos.y_pos = (int)length_/body.first.floor_size.y_size;
 			stocks_font_.at(selected_floor_).first.floor_size = body.first.floor_size;
 			stocks_font_.at(selected_floor_).second = body.second;
 			//stocks_.assign
-		} else if (direct_shelf_ == BACK) {
+		} else if (type_ == FLOOR_BACK) {
 			stocks_back_.at(selected_floor_).first.cad_pos.x_pos = (int)width_/body.first.floor_size.x_size;
 			stocks_back_.at(selected_floor_).first.cad_pos.y_pos = (int)length_/body.first.floor_size.y_size;
 			stocks_back_.at(selected_floor_).first.floor_size = body.first.floor_size;
@@ -131,7 +131,7 @@ void RectShelfFront_Back::SetShelfPosition(Vector3D &p_move) {
 	}
 }
 void RectShelfFront_Back::PointMouseOnFloor(Vector3D &dir, Vector3D &pos) {
-	if (direct_shelf_ == FLOOR_FONT) {
+	if (type_ == FLOOR_FONT) {
 		selected_floor_ = FindPointMouseOnFloor(dir, pos, bbmin_font_, bbmax_font_, height_ /12.0, stocks_font_);
 	} else {
 	  selected_floor_ = FindPointMouseOnFloor(dir, pos, bbmin_back_, bbmax_back_, height_ /12.0, stocks_back_);

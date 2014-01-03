@@ -50,7 +50,7 @@ private:
 	int floor_height_;
 	//int floor_count_;
 	int selected_floor_;
-	TypeFloor direct_shelf_;
+	TypeFloor type_;
 	DirectionShelf shelf_direction_;
 	Vector3D bbmin_font_;
 	Vector3D bbmax_font_;
