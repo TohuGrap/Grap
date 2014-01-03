@@ -3,10 +3,7 @@
 #include "stdafx.h"
 #include "Shelf.h"
 
-
-
 Shelf::Shelf() {
-	//is_circle_shelf_ = false;
 }
 
 Shelf::~Shelf() {
@@ -25,6 +22,12 @@ void Shelf::DrawFaceShelf(Rect &rect) {
 
 void Shelf::DrawCylinder(double r, double h, double sp, double ep,
 												 double angle, bool color_blue) {
+  /*
+	GLUquadricObj *quadratic;
+	quadratic = gluNewQuadric();
+	gluCylinder(quadratic,0.1f,0.1f,3.0f,32,32);
+	*/
+
 	double temp = M_PI/180.0;
 	float x = 0.0;
 	float y = 0.0;

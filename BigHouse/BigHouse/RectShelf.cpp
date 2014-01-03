@@ -6,12 +6,11 @@
 RectShelf::RectShelf(float width,
 	                  float length,
 									  float height,
-									  UINT floor_count,
-									  TypeRecShelf type):
+									  UINT floor_count):
 	height_(height),
 	length_(length),
 	width_(width),
-  type_(type) {
+  type_(TypeRecShelf::FONT) {
 	floor_height_ = (int)(height- height/20.0)/(floor_count);
 	std::pair<Floor, std::vector<Triangle3D*>> stock;
 	for(int i = 0; i < floor_count; i ++) {
@@ -279,13 +278,13 @@ void RectShelf::DrawCommodity(std::vector<std::pair<Floor, std::vector<Triangle3
 		//	           stocks.at(i).first.o_floor.v[1], 
 		//						 stocks.at(i).first.o_floor.v[2]); // trab to origin - floor
 		if(!stocks.at(i).second.empty()) {
-			for(int j = 0; j < stocks.at(i).first.s_r.i; j++) {
+			for(int j = 0; j < stocks.at(i).first.cad_pos.x_pos; j++) {
 				if(j != 0)
-				  glTranslated(stocks.at(i).first.s_b.x,0,0); // trans x
+				  glTranslated(stocks.at(i).first.floor_size.x_size,0,0); // trans x
 				glPushMatrix();
-				for(int k = 0 ; k < stocks.at(i).first.s_r.j; k++) {
+				for(int k = 0 ; k < stocks.at(i).first.cad_pos.y_pos; k++) {
 					if(k != 0)
-					  glTranslated(0, stocks.at(i).first.s_b.y, 0); //trans y
+					  glTranslated(0, stocks.at(i).first.floor_size.y_size, 0); //trans y
 					glBegin(GL_TRIANGLES) ;
 					for(int l = 0; l < stocks.at(i).second.size(); l ++) {
 						glNormal3fv(stocks.at(i).second.at(l)->normal.v);
@@ -328,9 +327,9 @@ bool RectShelf::LineCutSurface(Vector3D &dir,
 
 void RectShelf::SetCadToShelf(std::pair<Floor, std::vector<Triangle3D*>> &body) {
 	if(selected_floor_ != -1) {
-		stocks_.at(selected_floor_).first.s_r.i = (int)width_/body.first.s_b.x;
-		stocks_.at(selected_floor_).first.s_r.j = (int)length_/body.first.s_b.y;
-		stocks_.at(selected_floor_).first.s_b = body.first.s_b;
+		stocks_.at(selected_floor_).first.cad_pos.x_pos = (int)width_/body.first.floor_size.x_size;
+		stocks_.at(selected_floor_).first.cad_pos.y_pos = (int)length_/body.first.floor_size.y_size;
+		stocks_.at(selected_floor_).first.floor_size = body.first.floor_size;
 		stocks_.at(selected_floor_).second = body.second;
 		//stocks_.assign
 	}
@@ -475,17 +474,17 @@ void RectShelf::DrawFloorHande(double width, double length , double height, doub
 }
 
 
-bool RectShelf::IsLineCutBody(const Vector3D &dir, const Vector3D& pos, Vector3D &p) {
+bool RectShelf::ObjectIsSelectedByLeftMouse(const Vector3D &dir, const Vector3D& pos, Vector3D &p) {
 	return LineCutBoundingBox(dir, pos, bbmin_, bbmax_, p);
 }
 
-void RectShelf::GetOriginBody(Vector3D &p_origin) {
+void RectShelf::GetShelfPosition(Vector3D &p_origin) {
 	p_origin = bbmin_ + bbmax_;
 	p_origin = p_origin*0.5;
 	p_origin.v[2] = 0.0;
 }
 
-void RectShelf::SetOriginBody(Vector3D &p_move) {
+void RectShelf::SetShelfPosition(Vector3D &p_move) {
 	bbmin_ = bbmin_ + p_move;
 	if(type_ == FONT || type_ == BACK) {
 		Vector3D p(width_, length_, height_);

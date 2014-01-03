@@ -1,4 +1,4 @@
-
+ï»¿
 // BigHouseView.cpp : implementation of the BigHouseView class
 //
 
@@ -433,20 +433,23 @@ void BigHouseView::RenderScene() {
 #endif
 
 	glPushMatrix();
-  DrawCad();
+  CreateShelf();
   DisableLight();
 	glPopMatrix();
 	DrawRoom();
 }
 
-void BigHouseView::DrawCad() {
+void BigHouseView::CreateShelf() {
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	for(int i = 0; i < shelf_.size(); i ++) {
 		Vector3D origin;
-		shelf_.at(i)->GetOriginBody(origin);
+		// get position of shelf
+		shelf_.at(i)->GetShelfPosition(origin);
 		glPushMatrix();
 		glTranslatef(origin.v[0], origin.v[1], origin.v[2]);
-		if(count_selected_ == i && body_.second.empty()) {
+
+		// if shelf is moved by left mouse move
+		if(count_selected_ == i && cad_info_.second.empty()) {
 			glPushMatrix();
 			glTranslatef(move_shelf_.v[0], move_shelf_.v[1], move_shelf_.v[2]);
 			shelf_.at(i)->DrawShelf();
@@ -465,9 +468,11 @@ void BigHouseView::DrawCoordinate() {
   glColor3f(1.0f, 0.0, 0.0);
   glVertex3f(0, 0.0, 0.0f);
   glVertex3f(LENGTH_AXIS, 0.0, 0.0f);
+
   glColor3f(0.0f, 1.0, 0.0);
   glVertex3f(0.0f, 0, 0.0f);
   glVertex3f(0.0f, LENGTH_AXIS, 0.0f);
+
   glColor3f(0.0f, 0.0, 1.0);
   glVertex3f(0.0f, 0.0, 0);
   glVertex3f(0.0f, 0.0f, LENGTH_AXIS);
@@ -594,10 +599,10 @@ void BigHouseView::OnRButtonUp(UINT nFlags, CPoint point)
 void BigHouseView::OnLButtonUp(UINT nFlags, CPoint point) {
 	left_button_down_ = false;
 	if(count_selected_ != -1) {
-		if(!body_.second.empty()) {
-			shelf_.at(count_selected_)->SetCadToShelf(body_);
+		if(!cad_info_.second.empty()) {
+			shelf_.at(count_selected_)->SetCadToShelf(cad_info_);
 		} else {
-			shelf_.at(count_selected_)->SetOriginBody(move_shelf_);
+			shelf_.at(count_selected_)->SetShelfPosition(move_shelf_);
 		}
 	}
 	count_selected_ = - 1;
@@ -612,37 +617,41 @@ void BigHouseView::OnRButtonDown(UINT nFlags, CPoint point) {
 	//	old_count_selecte_ = -1;
 	//}
 	// Clear creating production when right mouse is down
-	body_.second.clear();
+	cad_info_.second.clear();
 
   //CView::OnLButtonDown(nFlags, point);
 }
 
 void BigHouseView::OnLButtonDown(UINT nFlags, CPoint point) { 
+	// get coordinate windows left mouse
 	left_point_down_2d_ = point;
-	if(body_.second.empty()) {
-		Vector3D pos;
-		ConvertScrenToOpengl(point, pos);
-		Vector3D dir;
-		GetVectorPerpendicularToThescreen(dir);
+
+	if(cad_info_.second.empty()) { // shelf only move when cad is not selected
+		Vector3D opengl_point;
+		Vector3D perpendicular_vector;
 		Vector3D oz(0, 0, 1);
 		Vector3D O(0, 0, 0);
-		GetPointMouseOnPlane(dir, pos, oz, O, point_left_button_down_);// point click on plane
-		count_selected_ = SelecteShelf(dir, pos);// 
+		ConvertWindowToOpenGL(point, opengl_point);
+		GetPerpendicularVectorWithScreen(perpendicular_vector);
+		GetMousePointOnAnyPlane(perpendicular_vector,
+														 opengl_point, oz, O,
+														 point_left_button_down_);// point click on plane
+		count_selected_ = SelecteShelf(perpendicular_vector, opengl_point);
 		move_shelf_.Set(0, 0, 0);
 	}
 	left_button_down_ = true;
 	CView::OnLButtonDown(nFlags, point);
 }
 
-void BigHouseView::ConvertScrenToOpengl(const CPoint &point2D, Vector3D &point_3D) {
+void BigHouseView::ConvertWindowToOpenGL(const CPoint &point2D, Vector3D &point_3D) {
   GLint viewport[4];
   GLdouble modelview[16];
   GLdouble projection[16];
   GLdouble winX, winY, winZ;
 
-  glGetDoublev( GL_PROJECTION_MATRIX, projection );
-  glGetDoublev( GL_MODELVIEW_MATRIX, modelview );
-  glGetIntegerv( GL_VIEWPORT, viewport );
+  glGetDoublev(GL_PROJECTION_MATRIX, projection);
+  glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
+  glGetIntegerv(GL_VIEWPORT, viewport );
 
   winX = (GLdouble)point2D.x;
   winY = (GLdouble)viewport[3] - (GLdouble)point2D.y;
@@ -669,7 +678,7 @@ void BigHouseView::OnMouseMove(UINT nFlags, CPoint point) {
 		}
 
 		int deltay = (double)(point.y - mouse_down_point_.y);
-		// convert deltay into o
+		// convert delta into o
 		float angley = deltay*180.0/cy_;
 		theta_ -= angley;
 		if(theta_ > 360) {
@@ -678,22 +687,23 @@ void BigHouseView::OnMouseMove(UINT nFlags, CPoint point) {
 			theta_ = theta_ + 360;
 		}
 	} else {
-		Vector3D pos;
-		ConvertScrenToOpengl(point, pos);
-		Vector3D dir;
-		GetVectorPerpendicularToThescreen(dir);
+		Vector3D opengl_point;
+		Vector3D perpendicular_screen_vector;
+		ConvertWindowToOpenGL(point, opengl_point);
+		GetPerpendicularVectorWithScreen(perpendicular_screen_vector);
 		Vector3D point_mouse;
 		if(left_button_down_) {
-			if(count_selected_ != -1 && body_.second.empty()) {
-				Vector3D oz(0, 0, 1);
-				Vector3D O(0, 0, 0);
-			  GetPointMouseOnPlane(dir, pos, oz, O, point_mouse);
+			if(count_selected_ != -1 && cad_info_.second.empty()) { // if shelf is selected
+				                                                  // and cad_production is empty
+				Vector3D oz_unit(0, 0, 1);   // oz unit vector
+				Vector3D O(0, 0, 0);   // origin coordinate (0 point)
+			  GetMousePointOnAnyPlane(perpendicular_screen_vector, opengl_point, oz_unit, O, point_mouse);
 			  move_shelf_ = point_mouse - point_left_button_down_;
 			}
-		} else if (!body_.second.empty()) {
-		  count_selected_ = SelecteShelf(dir, pos);
+		} else if (!cad_info_.second.empty()) {
+		  count_selected_ = SelecteShelf(perpendicular_screen_vector, opengl_point);
 			if(count_selected_ != -1) {
-				shelf_.at(count_selected_)->PointMouseOnFloor(dir, pos);
+				shelf_.at(count_selected_)->PointMouseOnFloor(perpendicular_screen_vector, opengl_point);
 			}
 		}
 		if(old_count_selecte_ != - 1 && old_count_selecte_ != count_selected_) {
@@ -721,28 +731,31 @@ void BigHouseView::ViewDirection() {
 	double phi = phi_*M_PI/180.0;     // phi_ is x rotation
 	double theta = theta_*M_PI/180.0; // theta_ is y rotation
 
-	
-	gradien.v[0] = cos(phi)*sin(theta);
-	gradien.v[1] = sin(phi)*sin(theta);
-	gradien.v[2] = cos(theta);
+	// At first time phi = 60 and theta = 60
+	// oz replace position oy
+	gradien.v[0] = cos(phi)*sin(theta);  // get eye_x when cam rotate
+	gradien.v[1] = sin(phi)*sin(theta);  // get eye_y when cam rotate
+	gradien.v[2] = cos(theta);           // get eye_z when cam rotate
 
 
 	if((theta_ < 180 && theta_ > 0) || theta_ < -180) {
-		temp = oz*gradien;
+		temp = oz*gradien; // if  (oz->gradien) is same clock direction
+		                   // direction of tem is top->bottom (- direction)
 	} else {
-		temp = gradien*oz;
+		temp = gradien*oz; // else : direction of tem is bottom ->top (+ direction)
 	}
 
 	if(temp.abs() < 0.01) {
 	  cam_up.v[0] = - cos(phi);
 		cam_up.v[1] =  - sin(phi);
 		cam_up.v[2] = 0.0;
-	
  	} else {
 	  cam_up = gradien*temp;
 	}
 	cam_up = cam_up.Unit();
-  gluLookAt(gradien.v[0], gradien.v[1], gradien.v[2], 0, 0, 0, cam_up.v[0], cam_up.v[1], cam_up.v[2]);
+  gluLookAt(gradien.v[0], gradien.v[1], gradien.v[2],
+		         0, 0, 0,
+						 cam_up.v[0], cam_up.v[1], cam_up.v[2]);
 }
 
 
@@ -793,7 +806,7 @@ void BigHouseView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
 		MainFrame * main_frame = static_cast<MainFrame*>(AfxGetMainWnd());
 		main_frame->HandleEscape();
 		}
-	case 82:
+	case 82:  // R key button
 		RotateShelf();
 		InvalidateRect(NULL,FALSE);
 		break;
@@ -957,74 +970,76 @@ void BigHouseView::DrawRoom() {
 
 }
 
-void BigHouseView::GetVectorPerpendicularToThescreen(Vector3D &v_oz) {
-	float m[16];
-	glGetFloatv(GL_MODELVIEW_MATRIX, m);
-	Vector3D temp(m[2], m[6], m[10]);
-	v_oz = temp.Unit();;
+void BigHouseView::GetPerpendicularVectorWithScreen(Vector3D& perpendicular_screen_vector ){
+	double mdview[16];
+	glGetDoublev(GL_MODELVIEW_MATRIX, mdview);
+	Vector3D temp(mdview[2], mdview[6], mdview[10]);
+	perpendicular_screen_vector = temp.Unit();
 }
 
-int BigHouseView::SelecteShelf(Vector3D &dir,Vector3D &pos) {
+// Compare point mouse with points of shelf
+int BigHouseView::SelecteShelf(Vector3D &perpendicular_vector,
+															 Vector3D &opengl_point) {
 	double d;
-	int count = -1;
+	int shelf_index = -1; // shelf selected element = -1 at first time
 	bool has_point = false;
 	Vector3D point_on_bb;
-	for(int i = 0; i < shelf_.size(); i ++) {
+	for(int i = 0; i < shelf_.size(); ++i) {
 		Vector3D temp;
-		if(shelf_.at(i)->IsLineCutBody(dir, pos, temp)) {
+		if(shelf_.at(i)->ObjectIsSelectedByLeftMouse(perpendicular_vector, opengl_point, temp)) {
 			if(!has_point) {
 				point_on_bb = temp;
-				count = i;
+				shelf_index = i;
 				has_point = true;
 			} else {
 				Vector3D u = point_on_bb - temp;
-				if(u.scalar(dir) < 0) {
+				if(u.scalar(perpendicular_vector) < 0) {
 					point_on_bb = temp;
-					count = i;
+					shelf_index = i;
 				} 
 			}
 		}
 	}
-	return count;
+	return shelf_index;
 }
 
-void BigHouseView::GetPointMouseOnPlane(Vector3D &dir, Vector3D &pos, Vector3D &n, Vector3D &p, Vector3D &point) {
-	if(dir.scalar(n) != 0) {
-		double t = (p.scalar(n) - n.scalar(pos))/(n.scalar(dir));
-		Vector3D u = dir*t;
-		point = pos + u;
+void BigHouseView::GetMousePointOnAnyPlane( Vector3D &perpendicular_screen_vector, Vector3D &opengl_point, Vector3D &oz_unit, Vector3D &origin_coordinate_point, Vector3D &room_mouse_point )
+{
+	// if oz_vector and oz_unit is not Perpendicular 
+  if (perpendicular_screen_vector.scalar(oz_unit) != 0) {
+		double t = (origin_coordinate_point.scalar(oz_unit) - oz_unit.scalar(opengl_point))/(oz_unit.scalar(perpendicular_screen_vector));
+		Vector3D u = perpendicular_screen_vector*t;
+		room_mouse_point = opengl_point + u;
 	} else {
-		point.Set(0, 0, 0);
+		// when perpendicular line // room bottom face
+		// shelf is moved to O point
+		room_mouse_point.Set(0, 0, 0);
 	}
 }
 
 
 void BigHouseView::ResetColor() {
-	//for() 
 }
 
-void BigHouseView::SetCadToView(std::pair<Floor, std::vector<Triangle3D*>> &body) {
-	body_ = body;
-
+void BigHouseView::SetCadInfo(std::pair<Floor, std::vector<Triangle3D*>> &cad_info) {
+	// body include information about production 
+	cad_info_ = cad_info;
 }
 
-void BigHouseView::MakeSimpleShelf(float width, float length, float height,
-																	int count_floor, RectShelf::TypeRecShelf direction)
+void BigHouseView::MakeSimpleShelf( float width, float length, float height, int count_floor )
 {
-	RectShelf *rec_shelf = new RectShelf(width, length, height, count_floor , direction);
+	RectShelf *rec_shelf = new RectShelf(width, length, height, count_floor);
 	UINT space_distance_length = length;
 	UINT space_distance_width = width;
 	RenderShelf(rec_shelf, space_distance_length, space_distance_width);
 }
 	
 
-void BigHouseView::MakeDoubleShelf(float width, float length, float height,
-																	int count_floor,
-																	RectShelfFront_Back::DirectionShelf direction )
+void BigHouseView::MakeDoubleShelf( float width, float length, float height, int count_floor )
 {
   
   RectShelfFront_Back *double_shelf = new RectShelfFront_Back(width, length, height,
-																													count_floor, direction);
+																													count_floor);
 	UINT space_distance_length = length;
 	UINT space_distance_width = 2*width;
 	RenderShelf(double_shelf, space_distance_length, space_distance_width);
@@ -1043,7 +1058,7 @@ void BigHouseView::MakeCircleShelf(float radius, float height,
 void BigHouseView::RenderShelf( Shelf* sh, UINT space_distance_length, UINT space_distance_width )
 {
 	if (can_add_shelf == false) {
-		AfxMessageBox(_T("Không th? thêm du?c n?a"));
+		AfxMessageBox(_T("KhÃ´ng thá»ƒ thÃªm Ä‘Æ°á»£c ná»¯a"));
 		return;
 	}
 
@@ -1051,12 +1066,12 @@ void BigHouseView::RenderShelf( Shelf* sh, UINT space_distance_length, UINT spac
 	UINT size = shelf_.size();
 	if (size > 1) {
 		Vector3D bbmin;
-		shelf_.at(size - 2)->GetOriginBody(bbmin);
+		shelf_.at(size - 2)->GetShelfPosition(bbmin);
 		if (bbmin.v[1] + space_distance_length + 50 < room_size_.width/2 - space_distance_length - room_size_.depth) {
 			 bbmin.v[1] = bbmin.v[1] + space_distance_length + 50;
 			} else {
 			if (bbmin.v[0] + 2*space_distance_width + 50 > room_size_.longs/2 - room_size_.depth) {
-				AfxMessageBox(_T("Không th? thêm du?c n?a"));
+				AfxMessageBox(_T("KhÃ´ng thá»ƒ thÃªm Ä‘Æ°á»£c ná»¯a"));
 				shelf_.pop_back();
 				can_add_shelf = false;
 				return;
@@ -1066,16 +1081,16 @@ void BigHouseView::RenderShelf( Shelf* sh, UINT space_distance_length, UINT spac
 				bbmin_first = bbmin;
 			}
 		}
-		shelf_.at(size - 1)->SetOriginBody(bbmin);
+		shelf_.at(size - 1)->SetShelfPosition(bbmin);
 	} else {
 		if (1/*sh->IsCircleShelf() == true*/) {
 			Vector3D bbmin(-(room_size_.longs/2 - space_distance_length), -(room_size_.width/2 - space_distance_width), 0);
 			bbmin_first = bbmin;
-			shelf_.at(size - 1)->SetOriginBody(bbmin);
+			shelf_.at(size - 1)->SetShelfPosition(bbmin);
 		} else {
 			Vector3D bbmin(-(room_size_.longs/2 - 25), -(room_size_.width/2 - 25), 0);
 			bbmin_first = bbmin;
-			shelf_.at(size - 1)->SetOriginBody(bbmin);
+			shelf_.at(size - 1)->SetShelfPosition(bbmin);
 		}
 	}
 	InvalidateRect(NULL, FALSE);
@@ -1198,9 +1213,9 @@ void BigHouseView::DrawStringAt(double x, double y, double z, char* s) {
 
 void BigHouseView::DeleteShelf() {
 	Vector3D pos;
-	ConvertScrenToOpengl(left_point_down_2d_, pos);
+	ConvertWindowToOpenGL(left_point_down_2d_, pos);
 	Vector3D dir;
-	GetVectorPerpendicularToThescreen(dir);
+	GetPerpendicularVectorWithScreen(dir);
 	int count = SelecteShelf(dir, pos);
 	if(!shelf_.empty() && count != -1 && left_point_down_2d_.x != - 1) {
 		shelf_.erase(shelf_.begin() + count);
@@ -1210,9 +1225,9 @@ void BigHouseView::DeleteShelf() {
 
 void BigHouseView::RotateShelf() {
 	Vector3D pos;
-	ConvertScrenToOpengl(left_point_down_2d_, pos);
+	ConvertWindowToOpenGL(left_point_down_2d_, pos);
 	Vector3D dir;
-	GetVectorPerpendicularToThescreen(dir);
+	GetPerpendicularVectorWithScreen(dir);
 	int count = SelecteShelf(dir, pos);
 	if(!shelf_.empty() && count != -1 && left_point_down_2d_.x != - 1) {
 		shelf_.at(count)->RotateShelf();
@@ -1241,7 +1256,7 @@ void BigHouseView::SetupShelf()
 		  number_of_shelf_++;
 		  form_bar_->SetDataForListShelf(number_of_shelf_);
 		} else {
-			::MessageBox(NULL, _T("Lo?i K? Này Ðã T?n T?i Trong List R?i"), _T("Thông Báo"), MB_OK | MB_ICONINFORMATION);
+			::MessageBox(NULL, _T("Lo?i K? Nï¿½y ï¿½ï¿½ T?n T?i Trong List R?i"), _T("Thï¿½ng Bï¿½o"), MB_OK | MB_ICONINFORMATION);
 			return;
 		}
 	}
@@ -1264,7 +1279,7 @@ void BigHouseView::SetupProduction()
 			number_of_product_++;
 			form_bar_->SetDataForListProduct(number_of_product_);
 		} else {
-			::MessageBox(NULL, _T("Lo?i S?n Ph?m Này Ðã T?n T?i Trong List R?i"), _T("Thông Báo"), MB_OK | MB_ICONINFORMATION);
+			::MessageBox(NULL, _T("Sáº£n pháº©m nÃ y Ä‘Ã£ tá»“n táº¡i"), _T("ThÃ´ng bÃ¡o"), MB_OK | MB_ICONINFORMATION);
 			return;
 		}
 	}

@@ -19,7 +19,7 @@ Vector3D::~Vector3D() {
 
 }
 
-double Vector3D::scalar(const Vector3D & v1) {
+double Vector3D::scalar(const Vector3D& v1) {
   return v[0]*v1.v[0] + v[1]*v1.v[1] + v[2]*v1.v[2];
 }
 

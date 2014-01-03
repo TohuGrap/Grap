@@ -23,7 +23,8 @@ BEGIN_MESSAGE_MAP(BigHouseApp, CWinAppEx)
 	ON_COMMAND(ID_APP_ABOUT, &BigHouseApp::OnAppAbout)
 	// Standard file based document commands
 	ON_COMMAND(ID_FILE_NEW, &CWinAppEx::OnFileNew)
- // ON_COMMAND(ID_FILE_OPEN, &BigHouseApp::OnFileOpen)
+  ON_COMMAND(ID_FILE_OPEN, &BigHouseApp::OnFileOpen)
+	ON_COMMAND(ID_FILE_SAVE, &BigHouseApp::OnFileSave)
 	// Standard print setup command
 	ON_COMMAND(ID_FILE_PRINT_SETUP, &CWinAppEx::OnFilePrintSetup)
 END_MESSAGE_MAP()
@@ -290,53 +291,58 @@ void BigHouseApp::LoadFileCad (CString strs) {
 	InvalidateRect(NULL, NULL, FALSE);
 }
 
-std::vector<std::pair<RectBody, std::vector<Triangle3D*>>> BigHouseApp::GetCadBoy() {
+std::vector<std::pair<FloorSize, std::vector<Triangle3D*>>> BigHouseApp::GetCadBoy() {
 	return list_cad_boydy_;
 }
 
-void BigHouseApp::GetRectBody(std::vector<Triangle3D*> &cad_body) {
-	if(cad_body.empty()) {
+void BigHouseApp::GetRectBody(std::vector<Triangle3D*>& cad_triangle_list) {
+	if(cad_triangle_list.empty()) {
 		return ;
 	}
-	Vector3D bbmin(cad_body.at(0)->m_v0.v);
-	Vector3D bbmax(cad_body.at(0)->m_v1.v);
+	// assign first point of first triangle is min_point
+	Vector3D min_point(cad_triangle_list.at(0)->m_v0.v);
 
-	for(int i = 0; i < cad_body.size(); i ++) {
-		for(int j = 0; j < 2; j ++) {
-			if(cad_body.at(i)->m_v0.v[j] < bbmin.v[j]) {
-			  bbmin.v[j] = cad_body.at(i)->m_v0.v[j];
+	// assign second point of first triangle is max_point
+	Vector3D max_point(cad_triangle_list.at(0)->m_v1.v);
+
+	// Check total list point from list triangle to find min_point and max_point
+	for(int i = 0; i < cad_triangle_list.size(); ++i) {
+		for(int j = 0; j < 2; ++j) {  // one point has 3 coordinate
+			if(cad_triangle_list.at(i)->m_v0.v[j] < min_point.v[j]) {
+			  min_point.v[j] = cad_triangle_list.at(i)->m_v0.v[j];
 			}
-			if(cad_body.at(i)->m_v1.v[j] < bbmin.v[j]) {
-			  bbmin.v[j] = cad_body.at(i)->m_v1.v[j];
+			if(cad_triangle_list.at(i)->m_v1.v[j] < min_point.v[j]) {
+			  min_point.v[j] = cad_triangle_list.at(i)->m_v1.v[j];
 			}
-			if(cad_body.at(i)->m_v2.v[j] < bbmin.v[j]) {
-				bbmin.v[j] = cad_body.at(i)->m_v2.v[j];
+			if(cad_triangle_list.at(i)->m_v2.v[j] < min_point.v[j]) {
+				min_point.v[j] = cad_triangle_list.at(i)->m_v2.v[j];
 			}
 
-
-			if(cad_body.at(i)->m_v0.v[j] > bbmax.v[j]) {
-				bbmax.v[j] = cad_body.at(i)->m_v0.v[j];
+			if(cad_triangle_list.at(i)->m_v0.v[j] > max_point.v[j]) {
+				max_point.v[j] = cad_triangle_list.at(i)->m_v0.v[j];
 			}
-			if(cad_body.at(i)->m_v1.v[j] > bbmax.v[j]) {
-				bbmax.v[j] = cad_body.at(i)->m_v1.v[j];
+			if(cad_triangle_list.at(i)->m_v1.v[j] > max_point.v[j]) {
+				max_point.v[j] = cad_triangle_list.at(i)->m_v1.v[j];
 			}
-			if(cad_body.at(i)->m_v2.v[j] > bbmax.v[j]) {
-				bbmax.v[j] = cad_body.at(i)->m_v2.v[j];
+			if(cad_triangle_list.at(i)->m_v2.v[j] > max_point.v[j]) {
+				max_point.v[j] = cad_triangle_list.at(i)->m_v2.v[j];
 			}
 		}
 	}
-	RectBody rect;
-	//bbmax.v[2] = 0;
-	//bbmin.v[2] = 0;
-	rect.x = bbmax.v[0] - bbmin.v[0];
-	rect.y = bbmax.v[1] - bbmin.v[1];
+	// Get rect of cad product 
+	FloorSize rect; // rect is S (xoy) of production 
+	rect.x_size = max_point.v[0] - min_point.v[0];
+	rect.y_size = max_point.v[1] - min_point.v[1];
+
 	std::pair<Floor, std::vector<Triangle3D*>> temp;
-	temp.first.s_b = rect;
-	temp.second = cad_body;
-	//list_cad_boydy_.push_back(temp);
+	temp.first.floor_size = rect;  // first is floor which has sb = rect
+	temp.second = cad_triangle_list; // second is cad product
+
+
 	MainFrame *pMainFrame = (MainFrame*)this->m_pMainWnd;
   BigHouseView*pView = reinterpret_cast<BigHouseView*>(pMainFrame->splitter_.GetPane(0, 1));
-	pView->SetCadToView(temp);
+	// 
+	pView->SetCadInfo(temp);
 
 }
 
@@ -371,3 +377,19 @@ bool BigHouseApp::IsOpenedFile( CString str, int& index ) {
 	return ret;
 }
 
+void BigHouseApp::OnFileOpen() {
+	CFileDialog dlg(TRUE, L"", L"",
+		OFN_HIDEREADONLY | OFN_FILEMUSTEXIST,
+		_T("Sim Shelf File (*.xml)|*.xml||"));
+	CString path_file(_T(""));
+	if (dlg.DoModal() == IDOK) {
+    path_file = dlg.GetPathName();
+		MainFrame *pMainFrame = (MainFrame*)this->m_pMainWnd;
+		FormBar* form_view = reinterpret_cast<FormBar*>(pMainFrame->splitter_.GetPane(0, 0));
+		form_view->LoadSimShelfFile(path_file);
+	}
+}
+
+void BigHouseApp::OnFileSave() {
+  
+}

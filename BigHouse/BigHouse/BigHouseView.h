@@ -68,22 +68,22 @@ public:
     pos[1] = p[1];
     pos[2] = p[2];
   }
-  void DrawCad();
+  void CreateShelf();
 	void ViewDirection();
-	void GetVectorPerpendicularToThescreen(Vector3D &v_oz);
-	int SelecteShelf(Vector3D &dir, Vector3D &pos);
-	void ConvertScrenToOpengl(const CPoint &point2D, Vector3D &point_3D);
-	void GetPointMouseOnPlane(Vector3D &dir, Vector3D &pos, Vector3D &n, Vector3D &p, Vector3D &point);
+	void GetPerpendicularVectorWithScreen(Vector3D & perpendicular_screen_vector);
+	int SelecteShelf(Vector3D &perpendicular_vector, Vector3D &opengl_point);
+	void ConvertWindowToOpenGL(const CPoint &point2D, Vector3D &point_3D);
+	void GetMousePointOnAnyPlane(Vector3D &perpendicular_screen_vector, Vector3D &opengl_point, Vector3D &oz_unit, Vector3D &origin_coordinate_point, Vector3D &room_mouse_point);
 	void ResetColor();
-	void SetCadToView(std::pair<Floor, std::vector<Triangle3D*>> &body);
+	void SetCadInfo(std::pair<Floor, std::vector<Triangle3D*>> &body);
 
   void SetShefLong(float longs) {shelf_long_ = longs;};
   void SetShefWidth(float width) {shelf_width_ = width;};
   void SetShefHeight(float height) {shelf_height_ = height;};
   void SetNumberOfShelf(float nums) {number_shelf_ = nums;};
   void SetNumberOfFloor(float numf) {number_floor_ = numf;};
-	void MakeSimpleShelf(float width, float length, float height, int count_floor, RectShelf::TypeRecShelf direction);
-	void MakeDoubleShelf(float width, float length, float height, int count_floor, RectShelfFront_Back::DirectionShelf direction);
+	void MakeSimpleShelf(float width, float length, float height, int count_floor);
+	void MakeDoubleShelf(float width, float length, float height, int count_floor);
 	void MakeCircleShelf(float radius, float height, float start_angle, float end_angle, float flat_angle, int floor);
 	void RenderShelf(Shelf* sh, UINT space_distance_length, UINT space_distance_width);
   void ClearShelf();
@@ -189,7 +189,7 @@ private:
 	double theta_;
 	Vector3D point_m_in_opengl_;
 	Vector3D dr_oz_;
-	std::pair<Floor, std::vector<Triangle3D*>> body_;
+	std::pair<Floor, std::vector<Triangle3D*>> cad_info_;
 	std::vector<Shelf*> shelf_;
 	Vector3D point_left_button_down_;
 	CPoint left_point_down_2d_;

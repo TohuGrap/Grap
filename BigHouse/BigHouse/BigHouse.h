@@ -22,21 +22,23 @@ typedef struct _Triangle {
  Point Vertex[3];
 } Triangle;
 
-	struct Size_rec {
-		int i;
-		int j;
+	struct CadPosOnFloor {
+		int x_pos;
+		int y_pos;
 	};
-struct RectBody{
-	float x;
-	float y;
+
+struct FloorSize{
+	float x_size;
+	float y_size;
 };
-	struct Floor {
-		Vector3D color;
-		int height_floor;
-		Size_rec s_r;
-		RectBody s_b;
-		Vector3D o_floor;
-	};
+
+struct Floor {
+	Vector3D			color;
+	int						height_floor;
+	CadPosOnFloor	cad_pos;
+	FloorSize			floor_size;
+	Vector3D		cad_origin_point;
+};
 
 
 
@@ -51,16 +53,16 @@ public:
 public:
 	virtual BOOL InitInstance();
 	virtual int ExitInstance();
-  std::vector<std::pair<RectBody, std::vector<Triangle3D*>>> GetCadBoy();
+  std::vector<std::pair<FloorSize, std::vector<Triangle3D*>>> GetCadBoy();
 private:
-	void GetRectBody(std::vector<Triangle3D*> &cad_body);
+	void GetRectBody(std::vector<Triangle3D*>& cad_triangle_list);
 
 	// Passion88 TODO
 	std::vector<Triangle3D*> production_triangle_list_;
 	std::vector<CString> opened_file_list_;
 	std::vector<std::vector<Triangle3D*>> production_list_;
 
-	std::vector<std::pair<RectBody, std::vector<Triangle3D*>>> list_cad_boydy_;
+	std::vector<std::pair<FloorSize, std::vector<Triangle3D*>>> list_cad_boydy_;
 
 
 // Implementation
@@ -70,6 +72,7 @@ public:
 public:
   void FreePoint();
   void OnFileOpen();
+	void OnFileSave();
   void LoadFileCad(CString str_file);
 	bool IsOpenedFile(CString str, int &index);
 	virtual void PreLoadState();

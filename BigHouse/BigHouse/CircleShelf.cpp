@@ -22,14 +22,13 @@ CircleShelf::CircleShelf(double radius,
 		}
 		Origin_.Set(0 , 0, 0);
 	  floor_count_ = -1;
-		//is_circle_shelf_ = true;
 }
 
 CircleShelf::~CircleShelf() {
 
 }
 
-bool CircleShelf::IsLineCutBody(const Vector3D &dir, const Vector3D& pos, Vector3D &p) {
+bool CircleShelf::ObjectIsSelectedByLeftMouse(const Vector3D &dir, const Vector3D& pos, Vector3D &p) {
 	double x = pos.v[0] - Origin_.v[0];
 	double y = pos.v[1] - Origin_.v[1];
 	double b = (dir.v[0]*x + dir.v[1]*y);
@@ -95,12 +94,19 @@ bool CircleShelf::IsLineCutBody(const Vector3D &dir, const Vector3D& pos, Vector
 	}
 	return false;
 }
+
+
 void CircleShelf::DrawShelf() {
+	// Draw Frame
 	glColor3f(1.0, 0, 0);
 	CircleShelfFrame(radius_, height_, start_angle_, end_angle_, flat_angle_); 
+
+	// Draw Floor
 	glColor3f(1.0, 1.0, 0);
 	double h_solo = height_/12.0;
 	DrawFloor(radius_, h_solo/5.0, start_angle_, end_angle_, flat_angle_, h_solo);
+
+	// Draw Product
   DrawCommodity(stocks_, h_solo, radius_);
 	glPushMatrix();
 		DrawCommodity(stocks_, h_solo, radius_);
@@ -112,25 +118,24 @@ void CircleShelf::DrawShelf() {
 		DrawCommodity(stocks_, h_solo, radius_);
 		glRotatef(90, 0, 0, 1);
 	glPopMatrix();
-	glPopMatrix();
 }
 void CircleShelf::SetCadToShelf(std::pair<Floor , std::vector<Triangle3D*>> &body) {
 	if(floor_count_ != -1) {
-		int i = (int)(radius_/body.first.s_b.x);
-		int j = (int)(radius_/body.first.s_b.y);
-		stocks_.at(floor_count_).first.s_r.i = i;
-		stocks_.at(floor_count_).first.s_r.j = j;
-		stocks_.at(floor_count_).first.s_b = body.first.s_b;
-		stocks_.at(floor_count_).first.o_floor.v[0] = - i*body.first.s_b.x;
-		stocks_.at(floor_count_).first.o_floor.v[1] = - j*body.first.s_b.y;
-		stocks_.at(floor_count_).first.o_floor.v[2] = 0;
+		int i = (int)(radius_/body.first.floor_size.x_size);
+		int j = (int)(radius_/body.first.floor_size.y_size);
+		stocks_.at(floor_count_).first.cad_pos.x_pos = i;
+		stocks_.at(floor_count_).first.cad_pos.y_pos = j;
+		stocks_.at(floor_count_).first.floor_size = body.first.floor_size;
+		stocks_.at(floor_count_).first.cad_origin_point.v[0] = - i*body.first.floor_size.x_size;
+		stocks_.at(floor_count_).first.cad_origin_point.v[1] = - j*body.first.floor_size.y_size;
+		stocks_.at(floor_count_).first.cad_origin_point.v[2] = 0;
 		stocks_.at(floor_count_).second = body.second;
 	}
 }
-void CircleShelf::GetOriginBody(Vector3D &p_origin) {
+void CircleShelf::GetShelfPosition(Vector3D &p_origin) {
 	p_origin = Origin_;
 }
-void CircleShelf::SetOriginBody(Vector3D &p_move) {
+void CircleShelf::SetShelfPosition(Vector3D &p_move) {
 	Origin_ = Origin_ + p_move;
 	Vector3D temp(0, 0, height_);
 	max_origin_ = Origin_ + temp;
@@ -194,13 +199,14 @@ void CircleShelf::DrawFloor(double r, double h, double sp, double ep, double ang
 
 }
 
-void CircleShelf::DrawCommodity(std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks, double h_solo,
-															 double radius) {
+void CircleShelf::DrawCommodity(std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks,
+																double h_solo,
+																double radius) {
 	glPushMatrix();
 	glColor3f(0, 0, 1);
 	glShadeModel(GL_SMOOTH);
-	for(int i = 0 ; i < stocks.size(); i ++) {
-		if(i ==  0) {
+	for (int i = 0 ; i < stocks.size(); ++i) {
+		if (i == 0) {
       glTranslated(0, 0, h_solo);
 		} else {
 		  glTranslated(0, 0, stocks.at(i).first.height_floor); // trans z
@@ -209,20 +215,20 @@ void CircleShelf::DrawCommodity(std::vector<std::pair<Floor, std::vector<Triangl
 			continue;
 		}
 	  glPushMatrix();
-		Vector3D pos_cad = stocks.at(i).first.o_floor;
-		RectBody rect = stocks.at(i).first.s_b;
-		glTranslatef(pos_cad.v[0], pos_cad.v[1], pos_cad.v[2]); // trab to origin - floor
-		if(!stocks.at(i).second.empty()) {
-			for(int j = 0; j < stocks.at(i).first.s_r.i; j++) {
-				if(j != 0)
-				  glTranslated(stocks.at(i).first.s_b.x,0,0); // trans x
+		Vector3D pos_cad = stocks.at(i).first.cad_origin_point;
+		FloorSize rect = stocks.at(i).first.floor_size;
+		glTranslatef(pos_cad.v[0], pos_cad.v[1], pos_cad.v[2]); // tran to origin - floor
+		if (!stocks.at(i).second.empty()) {
+			for (int j = 0; j < stocks.at(i).first.cad_pos.x_pos; j++) {
+				if (j != 0)
+				  glTranslated(stocks.at(i).first.floor_size.x_size,0,0); // trans x
 				glPushMatrix();
-				for(int k = 0 ; k < stocks.at(i).first.s_r.j; k++) {
-					if(k != 0)
-					  glTranslated(0, stocks.at(i).first.s_b.y, 0); //trans y
-					if(IsCadInCircle(pos_cad, rect, radius)) { 
+				for(int k = 0 ; k < stocks.at(i).first.cad_pos.y_pos; k++) {
+					if (k != 0)
+					  glTranslated(0, stocks.at(i).first.floor_size.y_size, 0); //trans y
+					if (IsCadInCircle(pos_cad, rect, radius)) { 
 						glBegin(GL_TRIANGLES) ;
-						for(int l = 0; l < stocks.at(i).second.size(); l ++) {
+						for (int l = 0; l < stocks.at(i).second.size(); l ++) {
 							glNormal3fv(stocks.at(i).second.at(l)->normal.v);
 							glVertex3fv(stocks.at(i).second.at(l)->m_v0.v);
 							glVertex3fv(stocks.at(i).second.at(l)->m_v1.v);
@@ -230,23 +236,22 @@ void CircleShelf::DrawCommodity(std::vector<std::pair<Floor, std::vector<Triangl
 						}
  						glEnd();
 					}
-					pos_cad.v[1] = pos_cad.v[1] + rect.y ;//
+					pos_cad.v[1] = pos_cad.v[1] + rect.y_size ;
 				}
 				glPopMatrix();
-				pos_cad.v[1] = stocks.at(i).first.o_floor.v[1];
-				pos_cad.v[0] = pos_cad.v[0] + rect.x ;//
+				pos_cad.v[1] = stocks.at(i).first.cad_origin_point.v[1];
+				pos_cad.v[0] = pos_cad.v[0] + rect.x_size ;
 			}
   	}
 		glPopMatrix();
 	}
 	glPopMatrix();
-	//glBegin()
 }
 
-bool CircleShelf::IsCadInCircle(Vector3D &o_floor, RectBody & rect, double radius) {
+bool CircleShelf::IsCadInCircle(Vector3D &o_floor, FloorSize& rect, double radius) {
 	Vector3D pos(0, 0, 0);
-	if(o_floor.v[0] < - rect.x/2.0 && o_floor.v[1] < - rect.y/2.0) {
-	 	if(o_floor.abs() <= radius) {
+	if (o_floor.v[0] < -rect.x_size/2.0 && o_floor.v[1] < -rect.y_size/2.0) {
+	 	if (o_floor.abs() <= radius) {
 		  return true;
 	  }
 	}

@@ -17,11 +17,11 @@ public:
 	CircleShelf(double r, double h, double sp, double ep, double flat_angle, UINT floor_count);
   ~CircleShelf();
 
-	virtual bool IsLineCutBody(const Vector3D &dir, const Vector3D& pos, Vector3D &p);
+	virtual bool ObjectIsSelectedByLeftMouse(const Vector3D &dir, const Vector3D& pos, Vector3D &p);
 	virtual void DrawShelf();
 	virtual void SetCadToShelf(std::pair<Floor , std::vector<Triangle3D*>> &body);
-	virtual void GetOriginBody(Vector3D &p_origin);
-	virtual void SetOriginBody(Vector3D &p_move);
+	virtual void GetShelfPosition(Vector3D &p_origin);
+	virtual void SetShelfPosition(Vector3D &p_move);
 	virtual void PointMouseOnFloor(Vector3D &dir, Vector3D &pos);
 	virtual void ReSetSelectFloor();
 	virtual void RotateShelf() {};
@@ -33,7 +33,7 @@ private:
 	void DrawCommodity(std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks,
 		                 double h_solo, 
 										 double radius);
-	bool IsCadInCircle(Vector3D &o_floor, RectBody & rect, double radius);
+	bool IsCadInCircle(Vector3D &o_floor, FloorSize & rect, double radius);
 	float radius_;
 	float height_;
   float height_floor_;

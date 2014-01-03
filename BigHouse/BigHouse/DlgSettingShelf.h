@@ -28,12 +28,6 @@ public:
 		CIRCLE_SHELF = 2
 	};
 
-	enum ShelfShape {
-		FRONT_DRIECTION = 0,
-		BACK_DRIECTION = 1,
-		LEFT_DIRECTION = 2,
-		RIGHT_DIRECTION = 3
-	};
 
 protected:
 	virtual BOOL OnInitDialog();
@@ -49,13 +43,7 @@ protected:
 	afx_msg void OnEditShelfFlatAngle();
 	afx_msg void OnComboxShelfType();
 
-	afx_msg void OnBnClickedRadioFront();
-	afx_msg void OnBnClickedRadioBack();
-	afx_msg void OnBnClickedRadioLeft();
-	afx_msg void OnBnClickedRadioRight();
-
 	DECLARE_MESSAGE_MAP()
-	void SetStatusShelfShape( UINT shelf_type );
 protected:
 	CString str_shelf_long_;
   CString str_shelf_width_;
@@ -82,11 +70,6 @@ protected:
 
 	ShelfInfo shelf_info_;
 	CComboBox combox_shelf_type_;
-	UINT shelf_shape_;
-	CButton shelf_front_;
-	CButton shelf_back_;
-	CButton shelf_left_;
-	CButton shelf_right_;
 
 	CStatic bitmap_shelf_;
 	CBitmap cbitmap_;

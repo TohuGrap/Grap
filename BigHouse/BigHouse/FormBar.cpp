@@ -13,6 +13,7 @@
 #include "Struct.h"
 #include "DlgSettingShelf.h"
 #include "DlgProduction.h"
+#include "XmlUtls.h"
 // FormBar
 
 IMPLEMENT_DYNCREATE(FormBar, CFormView)
@@ -89,15 +90,14 @@ void FormBar::InitListViewShelf() {
 																		LVS_EX_GRIDLINES);
 
 	list_view_shelf_.InsertColumn(0, _T("Loại Kệ"), LVCFMT_LEFT, 80);
-	list_view_shelf_.InsertColumn(1, _T("Hướng Kệ"), LVCFMT_LEFT, 80);
-	list_view_shelf_.InsertColumn(2, _T("Chiêu Dài"), LVCFMT_LEFT, 80);
-	list_view_shelf_.InsertColumn(3, _T("Chiêu Rộng"), LVCFMT_LEFT, 80);
-	list_view_shelf_.InsertColumn(4, _T("Chiêu Cao"), LVCFMT_LEFT, 80);
-	list_view_shelf_.InsertColumn(5, _T("Bán Kính"), LVCFMT_LEFT, 80);
-	list_view_shelf_.InsertColumn(6, _T("Góc Bắt Đầu"), LVCFMT_LEFT, 80);
-	list_view_shelf_.InsertColumn(7, _T("Góc Kết Thúc"), LVCFMT_LEFT, 80);
-	list_view_shelf_.InsertColumn(8, _T("Độ Tròn"), LVCFMT_LEFT, 60);
-	list_view_shelf_.InsertColumn(9, _T("Số tầng"), LVCFMT_LEFT, 60);
+	list_view_shelf_.InsertColumn(1, _T("Chiêu Dài"), LVCFMT_LEFT, 80);
+	list_view_shelf_.InsertColumn(2, _T("Chiêu Rộng"), LVCFMT_LEFT, 80);
+	list_view_shelf_.InsertColumn(3, _T("Chiêu Cao"), LVCFMT_LEFT, 80);
+	list_view_shelf_.InsertColumn(4, _T("Bán Kính"), LVCFMT_LEFT, 80);
+	list_view_shelf_.InsertColumn(5, _T("Góc Bắt Đầu"), LVCFMT_LEFT, 80);
+	list_view_shelf_.InsertColumn(6, _T("Góc Kết Thúc"), LVCFMT_LEFT, 80);
+	list_view_shelf_.InsertColumn(7, _T("Độ Tròn"), LVCFMT_LEFT, 60);
+	list_view_shelf_.InsertColumn(8, _T("Số tầng"), LVCFMT_LEFT, 60);
 }
 
 void FormBar::InitListViewProduct() {
@@ -112,7 +112,6 @@ void FormBar::InitListViewProduct() {
 
 void FormBar::SetDataForListShelf(UINT number_of_shelf) {
   CString str_type;
-	CString str_shape;
 	CString str_longs;
 	CString str_width;
 	CString str_height;
@@ -133,15 +132,6 @@ void FormBar::SetDataForListShelf(UINT number_of_shelf) {
 			str_type = _T("Không rõ");
 		}
 
-		if (shelf_info_list_[i].shelf_shape == 0) {
-			str_shape = _T("Trước");
-		} else if (shelf_info_list_[i].shelf_shape == 1) {
-			str_shape = _T("Sau");
-		} else if (shelf_info_list_[i].shelf_shape == 2) {
-			str_shape = _T("Trái");
-		} else if (shelf_info_list_[i].shelf_shape == 3) {
-			str_shape= _T("Phải");
-		}
 		if (shelf_info_list_[i].shelf_type == ShelfType::SIMPLE_SHELF ||
 			shelf_info_list_[i].shelf_type == ShelfType::DOUBLE_SHELF ) {
 				str_longs.Format(_T("%.2f"), shelf_info_list_[i].longs);
@@ -159,16 +149,14 @@ void FormBar::SetDataForListShelf(UINT number_of_shelf) {
 		}
 
 		list_view_shelf_.InsertItem(0, str_type);
-
-		list_view_shelf_.SetItemText(0, 1, str_shape);
-		list_view_shelf_.SetItemText(0, 2, str_longs);
-		list_view_shelf_.SetItemText(0, 3, str_width);
-		list_view_shelf_.SetItemText(0, 4, str_height);
-		list_view_shelf_.SetItemText(0, 5, str_radius);
-		list_view_shelf_.SetItemText(0, 6, str_start_angle);
-		list_view_shelf_.SetItemText(0, 7, str_end_angle);
-		list_view_shelf_.SetItemText(0, 8, str_flat_angle);
-		list_view_shelf_.SetItemText(0, 9, str_numf_);
+		list_view_shelf_.SetItemText(0, 1, str_longs);
+		list_view_shelf_.SetItemText(0, 2, str_width);
+		list_view_shelf_.SetItemText(0, 3, str_height);
+		list_view_shelf_.SetItemText(0, 4, str_radius);
+		list_view_shelf_.SetItemText(0, 5, str_start_angle);
+		list_view_shelf_.SetItemText(0, 6, str_end_angle);
+		list_view_shelf_.SetItemText(0, 7, str_flat_angle);
+		list_view_shelf_.SetItemText(0, 8, str_numf_);
 }
 
 void FormBar::SetDataForListProduct( int number_of_product )
@@ -244,15 +232,13 @@ void FormBar::OnBnShelfSelected()
 
 	if (shelf_type == ShelfType::SIMPLE_SHELF) {
 	GetBigHouseView()->MakeSimpleShelf(shelf_info_list_[i].width, shelf_info_list_[i].longs,
-																		 shelf_info_list_[i].height, shelf_info_list_[i].numf,
-																		 (RectShelf::TypeRecShelf)shelf_info_list_[i].shelf_shape);
+																		 shelf_info_list_[i].height, shelf_info_list_[i].numf);
 		CButton* btn_select_product = reinterpret_cast<CButton*>(GetDlgItem(IDC_BTN_PRODUCTION_SELECTED));
 		btn_select_product->EnableWindow(TRUE);
 
 	} else if (shelf_type == ShelfType::DOUBLE_SHELF) {
 		GetBigHouseView()->MakeDoubleShelf(shelf_info_list_[i].width, shelf_info_list_[i].longs,
-																			 shelf_info_list_[i].height, shelf_info_list_[i].numf,
-																			 (RectShelfFront_Back::DirectionShelf)shelf_info_list_[i].shelf_shape);
+																			 shelf_info_list_[i].height, shelf_info_list_[i].numf);
 		CButton* btn_select_product = reinterpret_cast<CButton*>(GetDlgItem(IDC_BTN_PRODUCTION_SELECTED));
 		btn_select_product->EnableWindow(TRUE);
 
@@ -268,8 +254,7 @@ void FormBar::OnBnShelfSelected()
 
 	} else {
 		GetBigHouseView()->MakeSimpleShelf(shelf_info_list_[i].width, shelf_info_list_[i].longs,
-		shelf_info_list_[i].height, shelf_info_list_[i].numf,
-			(RectShelf::TypeRecShelf)shelf_info_list_[i].shelf_shape);
+		shelf_info_list_[i].height, shelf_info_list_[i].numf);
 		CButton* btn_select_product = reinterpret_cast<CButton*>(GetDlgItem(IDC_BTN_PRODUCTION_SELECTED));
 		btn_select_product->EnableWindow(TRUE);
 	}
@@ -325,7 +310,6 @@ void FormBar::SetShelfInfoList(ShelfInfo shelf_info, bool &is_exist) {
 	bool is_exist_shelf_ = false;
 	for (int i = 0; i < shelf_info_list_.size(); i++) {
     if (shelf_info_list_[i].shelf_type == shelf_info.shelf_type &&
-			  shelf_info_list_[i].shelf_shape == shelf_info.shelf_shape &&
 				shelf_info_list_[i].longs == shelf_info.longs  &&
 				shelf_info_list_[i].width == shelf_info.width &&
 				shelf_info_list_[i].height == shelf_info.height &&
@@ -365,4 +349,52 @@ void FormBar::SetProductionList(CString name_product, bool &is_exist) {
 void FormBar::DisableLoadProduct() {
 	CButton* btn = reinterpret_cast<CButton*>(GetDlgItem(IDC_BTN_PRODUCTION_SELECTED));
   btn->EnableWindow(FALSE);
+}
+
+void FormBar::LoadSimShelfFile(CString& path_file )
+{
+  xmlDocPtr doc;
+	xmlNodePtr cur;
+	std::string file_name = CStringA(path_file);
+
+	// get doc
+	const char* chstr = file_name.c_str();
+	doc = xmlParseFile(chstr);
+	if (doc == NULL) {
+		return;
+	}
+	// get cur
+	cur = xmlDocGetRootElement(doc);
+	if (cur == NULL) {
+		xmlFree(doc);
+		return;
+	}
+	// get "root" element
+	if (xmlStrcmp(cur->name, (const xmlChar*)"root")) {
+		xmlFree(doc);
+		return;
+	}
+	char* a[] = {"ke", "sp"};
+  for (int i = 0; i < 2; i ++) {
+		if (xmlStrcmp(cur->name, (const xmlChar*)a[i])) {
+			xmlFree(doc);
+			return;
+		}
+		cur = cur->children;
+		while (cur != NULL) {
+			if (!xmlStrcmp(cur->name, (const xmlChar*)"loai"))
+				std::wstring str_type = XmlUtls::GetStringContent(doc, cur);
+			if (!xmlStrcmp(cur->name, (const xmlChar*)"dai"))
+				double longs=  XmlUtls::GetDoubleContent(doc, cur);
+			if (!xmlStrcmp(cur->name, (const xmlChar*)"rong"))
+				double width = XmlUtls::GetDoubleContent(doc, cur);
+			if (!xmlStrcmp(cur->name, (const xmlChar*)"cao"))
+				double height = XmlUtls::GetDoubleContent(doc, cur);
+			if (!xmlStrcmp(cur->name, (const xmlChar*)"tang"))
+				unsigned int floors = XmlUtls::GetIntContent(doc, cur);
+			cur = cur->next;
+		}
+	}
+	xmlFreeDoc(doc);
+
 }

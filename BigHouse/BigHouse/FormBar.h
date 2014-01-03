@@ -39,6 +39,7 @@ public:
 	void HandleListViewShelf(int item);
 	void HandleListViewProduct(int item);
 	void DisableLoadProduct();
+	void LoadSimShelfFile(CString& path_file);
   enum ObjectShape {
     OBJ_TABLE = 0,
     OBJ_DESK = 1,

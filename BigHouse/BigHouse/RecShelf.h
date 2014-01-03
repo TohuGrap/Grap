@@ -22,7 +22,7 @@ public:
 		RIGHT
 	};
 public :
-	RectShelf(float width, float length, float height, UINT floor_count , TypeRecShelf diection);
+	RectShelf(float width, float length, float height, UINT floor_count);
 	RectShelf();
 	~RectShelf();
 	void DrawFaceShelf(Rect &rec);
@@ -69,11 +69,11 @@ public :
 													Vector3D &bbmin,
 													Vector3D &bbmax,
 													Vector3D &p_on_bb);
-	virtual bool IsLineCutBody(const Vector3D &dir, const Vector3D& pos, Vector3D &p);
+	virtual bool ObjectIsSelectedByLeftMouse(const Vector3D &dir, const Vector3D& pos, Vector3D &p);
 	virtual void DrawShelf();
 	virtual void SetCadToShelf(std::pair<Floor , std::vector<Triangle3D*>> &body);
-	virtual void GetOriginBody(Vector3D &p_origin);
-	virtual void SetOriginBody(Vector3D &p_move);
+	virtual void GetShelfPosition(Vector3D &p_origin);
+	virtual void SetShelfPosition(Vector3D &p_move);
 	virtual void PointMouseOnFloor(Vector3D &dir, Vector3D &pos);
 	virtual void ReSetSelectFloor() {selected_floor_ = -1;}
 	virtual void RotateShelf();

@@ -36,7 +36,6 @@ DlgSettingShelf::DlgSettingShelf(CWnd* pParent /*=NULL*/)
 	shelf_info_.shelf_flat_angle_ = 50.0;
 
 	shelf_info_.shelf_type = ShelfType::SIMPLE_SHELF;
-	shelf_info_.shelf_shape = shelf_shape_ = ShelfShape::FRONT_DRIECTION;
 }
 
 DlgSettingShelf::~DlgSettingShelf()
@@ -59,10 +58,6 @@ void DlgSettingShelf::DoDataExchange(CDataExchange* pDX)
 
 
 	DDX_Control(pDX, IDC_COMBO_SHELF_TYPE, combox_shelf_type_);
-	DDX_Control(pDX, IDC_RADIO_FRONT, shelf_front_);
-	DDX_Control(pDX, IDC_RADIO_BACK, shelf_back_);
-	DDX_Control(pDX, IDC_RADIO_LEFT, shelf_left_);
-	DDX_Control(pDX, IDC_RADIO_RIGHT, shelf_right_);
 
   DDX_Control(pDX, IDC_BITMAP_SHELF, bitmap_shelf_);
 }
@@ -78,10 +73,6 @@ BEGIN_MESSAGE_MAP(DlgSettingShelf, CDialogEx)
 	ON_EN_CHANGE(IDC_EDIT_SHELF_END_ANGLE, &DlgSettingShelf::OnEditShelfEndAngle)
 	ON_EN_CHANGE(IDC_EDIT_SHELF_FLAT_ANGLE, &DlgSettingShelf::OnEditShelfFlatAngle)
 	ON_CBN_SELENDOK(IDC_COMBO_SHELF_TYPE, &DlgSettingShelf::OnComboxShelfType)
-	ON_BN_CLICKED(IDC_RADIO_FRONT, &DlgSettingShelf::OnBnClickedRadioFront)
-	ON_BN_CLICKED(IDC_RADIO_BACK, &DlgSettingShelf::OnBnClickedRadioBack)
-	ON_BN_CLICKED(IDC_RADIO_LEFT, &DlgSettingShelf::OnBnClickedRadioLeft)
-	ON_BN_CLICKED(IDC_RADIO_RIGHT, &DlgSettingShelf::OnBnClickedRadioRight)
 END_MESSAGE_MAP()
 
 
@@ -109,10 +100,7 @@ BOOL  DlgSettingShelf::OnInitDialog() {
 	SetBitmapShelf(ShelfType::SIMPLE_SHELF);
 
 	SetStatusInfoShelf(ShelfType::SIMPLE_SHELF);
-	SetStatusShelfShape(ShelfType::SIMPLE_SHELF);
 
-	shelf_front_.SetCheck(1);
-  
 	UpdateData(FALSE);
 	return TRUE;
 }
@@ -188,7 +176,6 @@ void DlgSettingShelf::OnComboxShelfType() {
 	  ;
 	}
   SetStatusInfoShelf(item);
-	SetStatusShelfShape(item);
 }
 
 
@@ -225,71 +212,6 @@ void DlgSettingShelf::SetStatusInfoShelf(UINT shelf_type)
 		default:{
 			break;
 		}
-	}
-}
-
-
-void DlgSettingShelf::OnBnClickedRadioFront()
-{
-	shelf_shape_ = ShelfShape::FRONT_DRIECTION;
-	shelf_info_.shelf_shape = shelf_shape_;
-	shelf_back_.SetCheck(0);
-	shelf_left_.SetCheck(0);
-	shelf_right_.SetCheck(0);
-}
-
-
-void DlgSettingShelf::OnBnClickedRadioBack()
-{
-	shelf_shape_ = ShelfShape::BACK_DRIECTION;
-	shelf_info_.shelf_shape = shelf_shape_;
-	shelf_front_.SetCheck(0);
-	shelf_left_.SetCheck(0);
-	shelf_right_.SetCheck(0);
-}
-
-
-void DlgSettingShelf::OnBnClickedRadioLeft()
-{
-	shelf_shape_ = ShelfShape::LEFT_DIRECTION;
-	shelf_info_.shelf_shape = shelf_shape_;
-	shelf_back_.SetCheck(0);
-	shelf_front_.SetCheck(0);
-	shelf_right_.SetCheck(0);
-}
-
-
-void DlgSettingShelf::OnBnClickedRadioRight() {
-  shelf_shape_ = ShelfShape::RIGHT_DIRECTION;
-	shelf_info_.shelf_shape = shelf_shape_;
-	shelf_back_.SetCheck(0);
-	shelf_left_.SetCheck(0);
-	shelf_front_.SetCheck(0);
-}
-
-void DlgSettingShelf::SetStatusShelfShape( UINT shelf_type )
-{
-	switch (shelf_type) {
-	case ShelfType::SIMPLE_SHELF: {
-		shelf_back_.EnableWindow(TRUE);
-		shelf_right_.EnableWindow(TRUE);
-		break;
-	}
-	case ShelfType::DOUBLE_SHELF: {
-		shelf_back_.EnableWindow(FALSE);
-		shelf_right_.EnableWindow(FALSE);
-		break;
-																}
-	case ShelfType::CIRCLE_SHELF : {
-		shelf_front_.EnableWindow(FALSE);
-		shelf_back_.EnableWindow(FALSE);
-		shelf_left_.EnableWindow(FALSE);
-		shelf_right_.EnableWindow(FALSE);
-		break;
-	}
-	default:{
-		break;
-					}
 	}
 }
 

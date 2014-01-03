@@ -19,7 +19,6 @@ struct ShelfInfo {
   float shelf_end_angle_;
 	float shelf_flat_angle_;
 	UINT shelf_type;
-	UINT shelf_shape;
 };
 
 	struct Rect {
