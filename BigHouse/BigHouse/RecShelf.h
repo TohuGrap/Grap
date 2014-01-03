@@ -31,7 +31,6 @@ public :
 	void ShelfStructure(double width,
 		                  double length,
 											double height,
-											int count_floor,
 											double height_floor,
 											double height_solo,
 											int selected_floor,
@@ -58,8 +57,7 @@ public :
 												 double height,
 												 double height_solo,
 												 double t,
-												 int count_floor, 
-												 double height_floor);
+												 std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks);
 	
 	//void DrawPoint();
 	void DrawCommodity(std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks, double h_solo);
@@ -77,12 +75,15 @@ public :
 	virtual void PointMouseOnFloor(Vector3D &dir, Vector3D &pos);
 	virtual void ReSetSelectFloor() {selected_floor_ = -1;}
 	virtual void RotateShelf();
+	virtual void SetHeightFloor(int selected_count, double height_first, double height_second);
+	virtual void GetHeightFloor(Vector3D &dir, Vector3D &pos, int &selected_count, double &height_first, double &height_second);
 	
 protected:
 	int FindPointMouseOnFloor(Vector3D &dir,
 		                         Vector3D &pos, 
 														 Vector3D &bbmin,
 														 Vector3D &bbmax,
+														 double height_base,
 														 std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks);
 	void DrawSnare(double r,
 		             double h,
@@ -90,6 +91,9 @@ protected:
 								 double ep,
 								 double angle,
 								 double lenght);
+	void DrawAllSizeOZDR(DWORD TextList3D,
+										double height_base,
+								  	std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks) ;
 
 private:
   int length_;

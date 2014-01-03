@@ -257,3 +257,12 @@ bool CircleShelf::IsCadInCircle(Vector3D &o_floor, FloorSize& rect, double radiu
 	}
 	return false;
 }
+
+void CircleShelf::SetHeightFloor(int selected_count, double height_first, double height_second) {
+
+}
+
+void CircleShelf::GetHeightFloor(Vector3D &dir, Vector3D &pos, int &selected_count, double &height_first, double &height_second) {
+
+
+}

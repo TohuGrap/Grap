@@ -55,7 +55,7 @@ void RectShelfFront_Back::DrawShelf() {
 	}
 		glTranslatef(0, -length_/2.0, 0);
 		int selected_floor;
-		if(direct_shelf_ == FONT) {
+		if(direct_shelf_ == FLOOR_FONT) {
 			selected_floor = selected_floor_;
 		} else {
 			selected_floor = -1;
@@ -63,17 +63,17 @@ void RectShelfFront_Back::DrawShelf() {
 		ShelfStructure(width_ ,
 			             length_, 
 									 height_,
-									 stocks_back_.size(),
 									 floor_height_,
 									 h_solo, 
 									 selected_floor,
-									 stocks_back_);
+									 stocks_font_);
 		DrawCommodity(stocks_font_,  h_solo);
+		DrawAllSizeOZDR(513, h_solo, stocks_font_);
 		// draw ke thu 2
 		glPushMatrix();
 		glRotatef(180, 0, 0, 1);
 		glTranslatef(0, - length_, 0 );
-		if(direct_shelf_ == BACK) {
+		if(direct_shelf_ == FLOOR_BACK) {
 			selected_floor = selected_floor_;
 		} else {
 			selected_floor = -1;
@@ -81,13 +81,13 @@ void RectShelfFront_Back::DrawShelf() {
 		ShelfStructure(width_ ,
 			             length_,
 									 height_,
-									 stocks_back_.size(), 
 									 floor_height_,
 									 h_solo,
 									 selected_floor,
-									 stocks_font_,
+									 stocks_back_,
 									 false);
 		DrawCommodity(stocks_back_,  h_solo);
+		DrawAllSizeOZDR(513, h_solo, stocks_back_);
 		glPopMatrix();
 }
 void RectShelfFront_Back::SetCadToShelf(std::pair<Floor , std::vector<Triangle3D*>> &body) {
@@ -132,9 +132,9 @@ void RectShelfFront_Back::SetShelfPosition(Vector3D &p_move) {
 }
 void RectShelfFront_Back::PointMouseOnFloor(Vector3D &dir, Vector3D &pos) {
 	if (direct_shelf_ == FLOOR_FONT) {
-		selected_floor_ = FindPointMouseOnFloor(dir, pos, bbmin_font_, bbmax_font_, stocks_font_);
+		selected_floor_ = FindPointMouseOnFloor(dir, pos, bbmin_font_, bbmax_font_, height_ /12.0, stocks_font_);
 	} else {
-	  selected_floor_ = FindPointMouseOnFloor(dir, pos, bbmin_back_, bbmax_back_, stocks_back_);
+	  selected_floor_ = FindPointMouseOnFloor(dir, pos, bbmin_back_, bbmax_back_, height_ /12.0, stocks_back_);
 	}
 }
 void RectShelfFront_Back::ReSetSelectFloor() {
@@ -155,4 +155,57 @@ void RectShelfFront_Back::RotateShelf() {
 	}
 	Vector3D u(0, 0, 0);
 	SetShelfPosition(u);
+}
+
+void RectShelfFront_Back::SetHeightFloor(int selected_count, double height_first, double height_second) {
+	if(height_first < 16 || height_second < 16) {
+		return;
+	}
+	if(selected_count < stocks_font_.size() && selected_count >= 0) {
+		if(type_ == FLOOR_FONT) {
+			stocks_font_.at(selected_count).first.height_floor = height_first;
+			if(selected_count < stocks_font_.size() - 1) {
+				stocks_font_.at(selected_count + 1).first.height_floor = height_second;
+			}
+		} else {
+			stocks_back_.at(selected_count).first.height_floor = height_first;
+			if(selected_count < stocks_back_.size() - 1) {
+				stocks_back_.at(selected_count + 1).first.height_floor = height_second;
+			}
+		}
+	}
+}
+
+void RectShelfFront_Back::GetHeightFloor(Vector3D &dir,
+	                                       Vector3D &pos,
+																				 int &selected_count,
+																				 double &height_first,
+																				 double &height_second) {
+	if (type_ == FLOOR_FONT) {
+		selected_count = FindPointMouseOnFloor(dir,
+			                                      pos, 
+																						bbmin_font_,
+																						bbmax_font_, 
+																						height_ /12.0, 
+																						stocks_font_);
+		 if(selected_count != - 1) {
+			height_first = stocks_font_.at(selected_count).first.height_floor;
+			if(selected_count< stocks_font_.size() - 1) {
+				height_second = stocks_font_.at(selected_count + 1).first.height_floor;
+			}
+		} 
+	} else {
+	  selected_count = FindPointMouseOnFloor(dir,
+			                                      pos,
+																						bbmin_back_,
+																						bbmax_back_, 
+																						height_ /12.0,
+																						stocks_back_);
+		 if(selected_count != - 1) {
+			height_first = stocks_back_.at(selected_count).first.height_floor;
+			if(selected_count< stocks_back_.size() - 1) {
+				height_second = stocks_back_.at(selected_count + 1).first.height_floor;
+			}
+		} 
+	}
 }

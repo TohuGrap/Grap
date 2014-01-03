@@ -27,10 +27,22 @@ public:
 	virtual void PointMouseOnFloor(Vector3D &dir, Vector3D &pos) = 0;
 	virtual void ReSetSelectFloor() = 0;
 	virtual void RotateShelf() = 0;
+	virtual void SetHeightFloor(int selected_count, double height_first, double height_second) = 0;
+	virtual void GetHeightFloor(Vector3D &dir, Vector3D &pos, int &selected_count, double &height_first, double &height_second) = 0;
+	void DrawAllSizeOZ(DWORD TextList3D,
+										 double height_base,
+								  	 std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks) ;
 protected:
 	void DrawFaceShelf(Rect &rect);
 	void DrawCylinder(double r, double h, double sp, double ep,
 										double angle, bool color_blue = false);
+	void DrawSizeOZ(double height,
+		              DWORD TextList3D);
+	//void DrawAllSizeOZ(DWORD TextList3D,
+	//									 double height_base,
+	//							  	 std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks) ;
+	void DrawALine(Vector3D & A, Vector3D &B);
+	void DrawARawOZ(Vector3D & A, Vector3D &B);
 };
 
 #endif // SHELF_H_

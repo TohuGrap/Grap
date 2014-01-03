@@ -1,4 +1,4 @@
-﻿
+
 // BigHouseView.cpp : implementation of the BigHouseView class
 //
 
@@ -417,7 +417,6 @@ void BigHouseView::RenderScene() {
     DrawCoordinate();
     glPopMatrix();
   }
-
 	if (is_show_size_) {
 		glPushMatrix();
 		DrawSizeLine();
@@ -434,8 +433,8 @@ void BigHouseView::RenderScene() {
 
 	glPushMatrix();
   CreateShelf();
-  DisableLight();
 	glPopMatrix();
+	DisableLight();
 	DrawRoom();
 }
 
@@ -491,6 +490,7 @@ void BigHouseView::DrawSizeLine() {
 	glVertex3f(-room_size_.width/2, 0.0, 0.0f);
 	glVertex3f(room_size_.width/2, 0.0, 0.0f);
 	glEnd();
+//	DrawTextList(room_size_.width);
 	glPopMatrix();
 
 	// long Size Line
@@ -637,7 +637,18 @@ void BigHouseView::OnLButtonDown(UINT nFlags, CPoint point) {
 														 opengl_point, oz, O,
 														 point_left_button_down_);// point click on plane
 		count_selected_ = SelecteShelf(perpendicular_vector, opengl_point);
-		move_shelf_.Set(0, 0, 0);
+		if(GetKeyState(VK_SHIFT) & 0x8000 && count_selected_ != -1) {
+		  if(CalPointOnOZ(dir, pos, point_oz_)) {
+				shelf_.at(count_selected_)->GetHeightFloor(dir,
+				                                          pos,
+																									selected_count_floor_,
+																									height_floor_first_,
+																									height_floor_second_);
+			} else {
+				count_selected_ = -1;
+			}
+		} 
+	  move_shelf_.Set(0, 0, 0);
 	}
 	left_button_down_ = true;
 	CView::OnLButtonDown(nFlags, point);
@@ -699,13 +710,23 @@ void BigHouseView::OnMouseMove(UINT nFlags, CPoint point) {
 				Vector3D O(0, 0, 0);   // origin coordinate (0 point)
 			  GetMousePointOnAnyPlane(perpendicular_screen_vector, opengl_point, oz_unit, O, point_mouse);
 			  move_shelf_ = point_mouse - point_left_button_down_;
+			} else if (count_selected_ != -1 && body_.second.empty()) {
+				Vector3D point_oz;
+				if(count_selected_ != -1 && CalPointOnOZ(dir, pos, point_oz)) {
+					//Vector3D temp = point_oz - point_oz_;
+					double d = point_oz.v[2] - point_oz_.v[2];
+					double d_f = d + height_floor_first_;
+					double d_s = - d + height_floor_second_;
+					shelf_.at(count_selected_)->SetHeightFloor(selected_count_floor_, d_f, d_s);
+				}
 			}
 		} else if (!cad_info_.second.empty()) {
 		  count_selected_ = SelecteShelf(perpendicular_screen_vector, opengl_point);
 			if(count_selected_ != -1) {
 				shelf_.at(count_selected_)->PointMouseOnFloor(perpendicular_screen_vector, opengl_point);
 			}
-		}
+		} 
+
 		if(old_count_selecte_ != - 1 && old_count_selecte_ != count_selected_) {
 			if(shelf_.size() > old_count_selecte_ && old_count_selecte_ >= 0) {
 				shelf_.at(old_count_selecte_)->ReSetSelectFloor();
@@ -1058,7 +1079,7 @@ void BigHouseView::MakeCircleShelf(float radius, float height,
 void BigHouseView::RenderShelf( Shelf* sh, UINT space_distance_length, UINT space_distance_width )
 {
 	if (can_add_shelf == false) {
-		AfxMessageBox(_T("Không thể thêm được nữa"));
+		AfxMessageBox(_T("Kh�ng th? th�m du?c n?a"));
 		return;
 	}
 
@@ -1071,7 +1092,7 @@ void BigHouseView::RenderShelf( Shelf* sh, UINT space_distance_length, UINT spac
 			 bbmin.v[1] = bbmin.v[1] + space_distance_length + 50;
 			} else {
 			if (bbmin.v[0] + 2*space_distance_width + 50 > room_size_.longs/2 - room_size_.depth) {
-				AfxMessageBox(_T("Không thể thêm được nữa"));
+				AfxMessageBox(_T("Kh�ng th? th�m du?c n?a"));
 				shelf_.pop_back();
 				can_add_shelf = false;
 				return;
@@ -1180,25 +1201,34 @@ void BigHouseView::OnUpdateShowCoordinate(CCmdUI* cmd) {
 // draw label "X" "Y" "Z"
 void BigHouseView::CreateOpenGLFont() {
   CFont m_font;
-  m_font.CreateFont( -16,               // Height Of Font 
+	GLYPHMETRICSFLOAT agmf[256]; 
+
+  m_font.CreateFont( -160,               // Height Of Font 
                        0,               // Width Of Font 
                        0,               // Angle Of Escapement 
                        0,               // Orientation Angle 
-                       FW_NORMAL,       // Font Weight 
+                       FW_BOLD,       // Font Weight 
                        FALSE,           // Italic 
                        FALSE,           // Underline 
                        FALSE,           // Strikeout 
                        ANSI_CHARSET,              // Character Set Identifier 
                        OUT_TT_PRECIS,             // Output Precision 
                        CLIP_DEFAULT_PRECIS,       // Clipping Precision 
-                       DEFAULT_QUALITY,           // Output Quality 
+                       ANTIALIASED_QUALITY,           // Output Quality 
                        FF_DONTCARE|DEFAULT_PITCH, // Family And Pitch 
                        _T("Arial"));
-  CFont* m_pOldFont = GetDC()->SelectObject(&m_font); 
+  CFont* m_pOldFont = m_pDC->SelectObject(&m_font); 
   m_editCLTip = glGenLists(256);
   m_textTip = glGenLists(256);
+	m_3DTextList = glGenLists(256);
+
+
   wglUseFontBitmaps(m_pDC->m_hDC, 0, 255, m_editCLTip);
   wglUseFontBitmaps(m_pDC->m_hDC, 0, 255, m_textTip);
+	wglUseFontOutlines(m_pDC->GetSafeHdc(), 0, 255, m_3DTextList, 0.0f, 0.01f, WGL_FONT_POLYGONS, agmf); 
+
+
+
   GetDC()->SelectObject(m_pOldFont); 
 } 
 
@@ -1256,7 +1286,7 @@ void BigHouseView::SetupShelf()
 		  number_of_shelf_++;
 		  form_bar_->SetDataForListShelf(number_of_shelf_);
 		} else {
-			::MessageBox(NULL, _T("Lo?i K? N�y �� T?n T?i Trong List R?i"), _T("Th�ng B�o"), MB_OK | MB_ICONINFORMATION);
+			::MessageBox(NULL, _T("Lo?i K? N?y ?? T?n T?i Trong List R?i"), _T("Th?ng B?o"), MB_OK | MB_ICONINFORMATION);
 			return;
 		}
 	}
@@ -1279,7 +1309,7 @@ void BigHouseView::SetupProduction()
 			number_of_product_++;
 			form_bar_->SetDataForListProduct(number_of_product_);
 		} else {
-			::MessageBox(NULL, _T("Sản phẩm này đã tồn tại"), _T("Thông báo"), MB_OK | MB_ICONINFORMATION);
+			::MessageBox(NULL, _T("S?n ph?m n�y d� t?n t?i"), _T("Th�ng b�o"), MB_OK | MB_ICONINFORMATION);
 			return;
 		}
 	}
@@ -1289,4 +1319,31 @@ void BigHouseView::OnViewFullscreen()
 {
 	MainFrame* main_frame = static_cast<MainFrame*>(AfxGetMainWnd());
 	main_frame->OnViewFullscreen();
+}
+
+
+void BigHouseView::DrawTextList(double size) {
+	glPushMatrix();
+	CString str = _T("");
+	str.Format(_T("%.3f"), size);
+	glColor3f(1, 1, 1);
+	glListBase(m_3DTextList);
+	int length = str.GetLength();
+	glScalef(100,100,100);
+	glCallLists(length, GL_SHORT , str);
+	glPopMatrix();
+}
+
+bool BigHouseView::CalPointOnOZ(Vector3D &dir, Vector3D &pos, Vector3D &Point_oz) {
+	Vector3D oz(0, 0, 1);
+	Vector3D O(0, 0, 0);
+	Vector3D n = oz*dir;
+	if(n.abs() == 0) {
+		return false;
+	}
+	Vector3D u = n*dir;
+	double t = (u.scalar(pos) - u.scalar(O))/(u.scalar(oz));
+	Point_oz = oz*t;
+	Point_oz = Point_oz + O;
+	return true;
 }

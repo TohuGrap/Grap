@@ -112,6 +112,8 @@ public:
 	void ClearAllShelf();
 	void SetupProduction();
 	void OnViewFullscreen();
+	void DrawTextList(double size);
+	bool CalPointOnOZ(Vector3D &dir, Vector3D &pos, Vector3D &Point_oz);
 protected:
   float pos[3];
 
@@ -180,6 +182,7 @@ protected:
 	RoomSize room_size_;
 	GLuint m_textTip;
 	GLuint m_editCLTip;
+	DWORD m_3DTextList;
 	bool is_show_size_;
 // Generated message map functions 
 private:
@@ -189,13 +192,16 @@ private:
 	double theta_;
 	Vector3D point_m_in_opengl_;
 	Vector3D dr_oz_;
-	std::pair<Floor, std::vector<Triangle3D*>> cad_info_;
-	std::vector<Shelf*> shelf_;
+	Vector3D point_oz_;
+    std::pair<Floor, std::vector<Triangle3D*>> cad_info_;	std::vector<Shelf*> shelf_;
 	Vector3D point_left_button_down_;
 	CPoint left_point_down_2d_;
 	Vector3D move_shelf_;
 	int old_count_selecte_;
 	int count_selected_;
+	int selected_count_floor_;
+	double height_floor_first_;
+	double height_floor_second_;
 	// Passion88 add
 	Vector3D bbmin_first;
 	bool can_add_shelf;

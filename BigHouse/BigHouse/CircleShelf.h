@@ -25,6 +25,8 @@ public:
 	virtual void PointMouseOnFloor(Vector3D &dir, Vector3D &pos);
 	virtual void ReSetSelectFloor();
 	virtual void RotateShelf() {};
+	virtual void SetHeightFloor(int selected_count, double height_first, double height_second);
+	virtual void GetHeightFloor(Vector3D &dir, Vector3D &pos, int &selected_count, double &height_first, double &height_second);
 
 
 private:
