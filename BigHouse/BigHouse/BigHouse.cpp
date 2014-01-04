@@ -307,7 +307,7 @@ void BigHouseApp::GetRectBody(std::vector<Triangle3D*>& cad_triangle_list) {
 
 	// Check total list point from list triangle to find min_point and max_point
 	for(int i = 0; i < cad_triangle_list.size(); ++i) {
-		for(int j = 0; j < 2; ++j) {  // one point has 3 coordinate
+		for(int j = 0; j < 3; ++j) {  // one point has 3 coordinate
 			if(cad_triangle_list.at(i)->m_v0.v[j] < min_point.v[j]) {
 			  min_point.v[j] = cad_triangle_list.at(i)->m_v0.v[j];
 			}
@@ -333,6 +333,7 @@ void BigHouseApp::GetRectBody(std::vector<Triangle3D*>& cad_triangle_list) {
 	FloorSize rect; // rect is S (xoy) of production 
 	rect.x_size = max_point.v[0] - min_point.v[0];
 	rect.y_size = max_point.v[1] - min_point.v[1];
+	rect.z_size = max_point.v[2] - min_point.v[2];
 
 	std::pair<Floor, std::vector<Triangle3D*>> temp;
 	temp.first.floor_size = rect;  // first is floor which has sb = rect

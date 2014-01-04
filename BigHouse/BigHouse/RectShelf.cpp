@@ -16,6 +16,9 @@ RectShelf::RectShelf(float width,
 		floor_count = 5;
 	}
 	floor_height_ = (int)(height- height/20.0)/(floor_count);
+  int h = (int)(height- height/20.0)/(floor_count);
+	h = h/3;
+	floor_height_ = h*3;
 	std::pair<Floor, std::vector<Triangle3D*>> stock;
 	for(int i = 0; i < floor_count; i ++) {
 		stock.first.height_floor = floor_height_;
@@ -184,7 +187,9 @@ void RectShelf::DrawShelf() {
 								 selected_floor_,
 								 stocks_);
  	DrawCommodity(stocks_, h_solo);
-	DrawAllSizeOZ(513, h_solo, stocks_);
+	if(GetKeyState(VK_SHIFT) & 0x8000) {
+  	DrawAllSizeOZ(513, h_solo, stocks_);
+	}
 	glPopMatrix();
 }
 
@@ -319,6 +324,12 @@ bool RectShelf::LineCutSurface(Vector3D &dir,
 
 void RectShelf::SetCadToShelf(std::pair<Floor, std::vector<Triangle3D*>> &body) {
 	if(selected_floor_ != -1) {
+		if(selected_floor_< stocks_.size()- 1) {
+			if(stocks_.at(selected_floor_ + 1).first.height_floor < body.first.floor_size.z_size) {
+				AfxMessageBox(L"Chiều cao kệ không đủ");
+				return;
+			}
+	  }
 		stocks_.at(selected_floor_).first.cad_pos.x_pos = (int)width_/body.first.floor_size.x_size;
 		stocks_.at(selected_floor_).first.cad_pos.y_pos = (int)length_/body.first.floor_size.y_size;
 		stocks_.at(selected_floor_).first.floor_size = body.first.floor_size;
@@ -532,14 +543,36 @@ void RectShelf::RotateShelf() {
 }
 
 void RectShelf::SetHeightFloor(int selected_count, double height_first, double height_second) {
-	if(height_first < 16 || height_second < 16) {
+	if(selected_count < stocks_.size() - 1) {
+	  if(height_second < 16)
+			return;
+	}
+	if(height_first < 16) {
 		return;
 	}
-	if(selected_count < stocks_.size() && selected_count >= 0) {
-		stocks_.at(selected_count).first.height_floor = height_first;
+	if( selected_count == stocks_.size() - 1) {
+		double d = height_/12.0;
+		for(int i = 1; i < stocks_.size() - 1; i ++) {
+			d += stocks_.at(i).first.height_floor;
+		}
+		if(d + height_first > height_) {
+			int h = (height_ - d)/3.0;
+			height_first = h*3;
+		}
+	}
+
+	assert(height_first > 0);
+	if(selected_count < stocks_.size() && selected_count > 0) {
+		if(height_first  < stocks_.at(selected_count -1).first.floor_size.z_size + 2) {
+			return;
+		}
 		if(selected_count < stocks_.size() - 1) {
+			if(height_second < stocks_.at(selected_count).first.floor_size.z_size + 2) {
+				return;
+			}
 			stocks_.at(selected_count + 1).first.height_floor = height_second;
 		}
+		stocks_.at(selected_count).first.height_floor = height_first;
 	}
 }
 

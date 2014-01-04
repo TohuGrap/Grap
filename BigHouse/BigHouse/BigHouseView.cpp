@@ -715,7 +715,9 @@ void BigHouseView::OnMouseMove(UINT nFlags, CPoint point) {
 				  Vector3D point_oz;
 					if(count_selected_ != -1 && CalPointOnOZ(perpendicular_screen_vector, opengl_point, point_oz)) {
 						//Vector3D temp = point_oz - point_oz_;
-						double d = point_oz.v[2] - point_oz_.v[2];
+						int d = (int)(point_oz.v[2] - point_oz_.v[2]);
+						d = d/3;
+						d = 3*d;
 						double d_f = d + height_floor_first_;
 						double d_s = - d + height_floor_second_;
 						shelf_.at(count_selected_)->SetHeightFloor(selected_count_floor_, d_f, d_s);
@@ -838,10 +840,14 @@ void BigHouseView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
 		MainFrame * main_frame = static_cast<MainFrame*>(AfxGetMainWnd());
 		main_frame->HandleEscape();
 		}
-	case 82:  // R key button
+	case 82: { // R key button
 		RotateShelf();
 		InvalidateRect(NULL,FALSE);
 		break;
+					 }
+	case VK_SHIFT:{
+				InvalidateRect(NULL,FALSE);
+				}
 	}
 	CView::OnKeyDown(nChar, nRepCnt, nFlags);
 }

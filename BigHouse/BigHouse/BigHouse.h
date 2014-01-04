@@ -30,11 +30,12 @@ typedef struct _Triangle {
 struct FloorSize{
 	float x_size;
 	float y_size;
+	float z_size;
 };
 
 struct Floor {
-	Vector3D			color;
-	int						height_floor;
+	Vector3D	color;
+	double height_floor;
 	CadPosOnFloor	cad_pos;
 	FloorSize			floor_size;
 	Vector3D		cad_origin_point;

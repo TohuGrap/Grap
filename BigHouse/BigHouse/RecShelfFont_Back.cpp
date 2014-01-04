@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "RecShelfFont_Back.h"
 RectShelfFront_Back::RectShelfFront_Back(float width,
 	                                   float length,
@@ -50,7 +50,7 @@ void RectShelfFront_Back::DrawShelf() {
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   glDisable(GL_CULL_FACE);
 	double h_solo = height_/10.0;
-	if(type_ != FONT_BACK) {
+	if(shelf_direction_ != FONT_BACK) {
 		glRotatef(90, 0, 0, 1);
 	}
 		glTranslatef(0, -length_/2.0, 0);
@@ -68,7 +68,9 @@ void RectShelfFront_Back::DrawShelf() {
 									 selected_floor,
 									 stocks_font_);
 		DrawCommodity(stocks_font_,  h_solo);
-		DrawAllSizeOZDR(513, h_solo, stocks_font_);
+		if(GetKeyState(VK_SHIFT) & 0x8000) {
+		  DrawAllSizeOZDR(513, h_solo, stocks_font_);
+		}
 		// draw ke thu 2
 		glPushMatrix();
 		glRotatef(180, 0, 0, 1);
@@ -87,18 +89,32 @@ void RectShelfFront_Back::DrawShelf() {
 									 stocks_back_,
 									 false);
 		DrawCommodity(stocks_back_,  h_solo);
-		DrawAllSizeOZDR(513, h_solo, stocks_back_);
+		if(GetKeyState(VK_SHIFT) & 0x8000) {
+		  DrawAllSizeOZDR(513, h_solo, stocks_back_);
+		}
 		glPopMatrix();
 }
 void RectShelfFront_Back::SetCadToShelf(std::pair<Floor , std::vector<Triangle3D*>> &body) {
 	if (selected_floor_ != -1) {
 	  if (type_ == FLOOR_FONT) {
+			if(selected_floor_< stocks_font_.size()- 1) {
+				if(stocks_font_.at(selected_floor_ + 1).first.height_floor < body.first.floor_size.z_size) {
+					AfxMessageBox(L"Chiều cao kệ không đủ");
+					return;
+				}
+			}
 			stocks_font_.at(selected_floor_).first.cad_pos.x_pos = (int)width_/body.first.floor_size.x_size;
 			stocks_font_.at(selected_floor_).first.cad_pos.y_pos = (int)length_/body.first.floor_size.y_size;
 			stocks_font_.at(selected_floor_).first.floor_size = body.first.floor_size;
 			stocks_font_.at(selected_floor_).second = body.second;
 			//stocks_.assign
 		} else if (type_ == FLOOR_BACK) {
+			if(selected_floor_< stocks_back_.size()- 1) {
+				if(stocks_back_.at(selected_floor_ + 1).first.height_floor < body.first.floor_size.z_size) {
+					AfxMessageBox(L"Chiều cao kệ không đủ");
+					return;
+				}
+			}
 			stocks_back_.at(selected_floor_).first.cad_pos.x_pos = (int)width_/body.first.floor_size.x_size;
 			stocks_back_.at(selected_floor_).first.cad_pos.y_pos = (int)length_/body.first.floor_size.y_size;
 			stocks_back_.at(selected_floor_).first.floor_size = body.first.floor_size;
@@ -158,19 +174,66 @@ void RectShelfFront_Back::RotateShelf() {
 }
 
 void RectShelfFront_Back::SetHeightFloor(int selected_count, double height_first, double height_second) {
-	if(height_first < 16 || height_second < 16) {
+	if(height_first < 16) {
 		return;
 	}
-	if(selected_count < stocks_font_.size() && selected_count >= 0) {
-		if(type_ == FLOOR_FONT) {
-			stocks_font_.at(selected_count).first.height_floor = height_first;
+	if(selected_count >= 0) {
+		if(selected_count < stocks_font_.size() && type_ == FLOOR_FONT) {
 			if(selected_count < stocks_font_.size() - 1) {
-				stocks_font_.at(selected_count + 1).first.height_floor = height_second;
+				if(height_second < 16)
+					return;
 			}
-		} else {
-			stocks_back_.at(selected_count).first.height_floor = height_first;
+			if( selected_count == stocks_font_.size() - 1) {
+				double d = height_/12.0;
+				for(int i = 1; i < stocks_font_.size() - 1; i ++) {
+					d += stocks_font_.at(i).first.height_floor;
+				}
+				if(d + height_first > height_) {
+					int h = (height_ - d)/3.0;
+					height_first = h*3;
+				}
+			}
+			assert(height_first > 0);
+			if(selected_count < stocks_font_.size() && selected_count > 0) {
+				if(height_first  < stocks_font_.at(selected_count -1).first.floor_size.z_size + 2) {
+					return;
+				}
+				if(selected_count < stocks_font_.size() - 1) {
+					if(height_second < stocks_font_.at(selected_count).first.floor_size.z_size + 2) {
+						return;
+					}
+					stocks_font_.at(selected_count + 1).first.height_floor = height_second;
+				}
+				stocks_font_.at(selected_count).first.height_floor = height_first;
+			}
+		} else if(selected_count < stocks_back_.size()) {
 			if(selected_count < stocks_back_.size() - 1) {
-				stocks_back_.at(selected_count + 1).first.height_floor = height_second;
+				if(height_second < 16)
+					return;
+			}
+			if( selected_count == stocks_back_.size() - 1) {
+				double d = height_/12.0;
+				for(int i = 1; i < stocks_back_.size() - 1; i ++) {
+					d += stocks_back_.at(i).first.height_floor;
+				}
+				if(d + height_first > height_) {
+					int h = (height_ - d)/3.0;
+					height_first = h*3;
+				}
+			}
+
+			assert(height_first > 0);
+			if(selected_count < stocks_back_.size() && selected_count > 0) {
+				if(height_first  < stocks_back_.at(selected_count -1).first.floor_size.z_size + 2) {
+					return;
+				}
+				if(selected_count < stocks_back_.size() - 1) {
+					if(height_second < stocks_back_.at(selected_count).first.floor_size.z_size + 2) {
+						return;
+					}
+					stocks_back_.at(selected_count + 1).first.height_floor = height_second;
+				}
+				stocks_back_.at(selected_count).first.height_floor = height_first;
 			}
 		}
 	}
