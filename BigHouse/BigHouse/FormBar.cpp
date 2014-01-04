@@ -15,6 +15,9 @@
 #include "DlgProduction.h"
 #include "XmlUtls.h"
 #include <algorithm>
+#include <libxml/encoding.h>
+#include <libxml/parser.h>
+#include <libxml/xmlwriter.h>
 // FormBar
 
 IMPLEMENT_DYNCREATE(FormBar, CFormView)
@@ -41,6 +44,9 @@ BEGIN_MESSAGE_MAP(FormBar, CFormView)
 	ON_BN_CLICKED(IDC_BTN_SHELF_SELECTED, &FormBar::OnBnShelfSelected)
 	ON_BN_CLICKED(IDC_BTN_PRODUCTION_SELECTED, &FormBar::OnBnProductionSelected)
 	ON_BN_CLICKED(IDC_BTN_SHELF_IMPORT, &FormBar::ImportFile)
+	ON_BN_CLICKED(IDC_BTN_SHELF_EXPORT, &FormBar::ExportFile)
+	ON_BN_CLICKED(IDC_BTN_SHELF_IMPORT_CAD, &FormBar::ImportCad)
+	ON_BN_CLICKED(IDC_BTN_SHELF_EXPORT_CAD, &FormBar::ExportCad)
   ON_WM_PAINT()
   ON_WM_SIZE()
 	ON_WM_LBUTTONUP()
@@ -141,7 +147,7 @@ void FormBar::SetDataForListShelf(UINT number_of_shelf) {
 		}
 
 		str_height.Format(_T("%.2f"), shelf_info_list_[i].height);
-		str_numf_.Format(_T("%.2f"), shelf_info_list_[i].numf);
+		str_numf_.Format(_T("%d"), shelf_info_list_[i].numf);
 
 		if (shelf_info_list_[i].shelf_type == ShelfType::CIRCLE_SHELF) {
 			str_start_angle.Format(_T("%.2f"), shelf_info_list_[i].shelf_start_angle_);
@@ -482,10 +488,229 @@ void FormBar::LoadSimShelfFile(CString& path_file )
 void FormBar::ImportFile() {
 	CFileDialog dlg(TRUE, L"", L"",
 		OFN_HIDEREADONLY | OFN_FILEMUSTEXIST,
-		_T("Sim Shelf File (*.sish)|*.sish||"));
+		_T("File kệ (*.sish)|*.sish||"));
 	CString path_file(_T(""));
 	if (dlg.DoModal() == IDOK) {
 		path_file = dlg.GetPathName();
 		LoadSimShelfFile(path_file);
 	}
+}
+
+void FormBar::ExportFile() {
+	CFileDialog dlg (FALSE, L"", L"",
+									OFN_HIDEREADONLY | OFN_FILEMUSTEXIST,
+		               _T("File kệ(*.sish)|*.sish||"));
+	CString str_path(_T(""));
+	if (dlg.DoModal() == IDOK) {
+    str_path = dlg.GetPathName();
+		SaveSimShelfFile(str_path);
+	}
+}
+
+bool FormBar::SaveSimShelfFile( CString& path_file ) {
+	std::vector<ShelfInfo> shelf_info_list;
+	shelf_info_list = shelf_info_list_;
+	reverse(shelf_info_list.begin(), shelf_info_list.end());
+
+	std::string str = CStringA(path_file);
+
+	xmlTextWriterPtr writer = xmlNewTextWriterFilename(str.c_str(), 0);
+	if (NULL == writer) {
+		return false;
+	}
+
+	// Set indentation
+	int rc = xmlTextWriterSetIndent(writer, 1);
+	if (rc < 0) return false;
+
+	const char* kXmlDefaultVersion = NULL;
+	const char* kUtf8Encoding = "UTF-8";
+	const char* kDefaultStandalon = NULL;
+	rc = xmlTextWriterStartDocument(writer,
+		kXmlDefaultVersion,
+		kUtf8Encoding,
+		kDefaultStandalon);
+	if (rc < 0) {
+		return false;
+	}
+
+	rc = xmlTextWriterStartElement(writer, BAD_CAST "root");
+	if (rc < 0) return false;
+	for (int i = 0; i < shelf_info_list.size(); i++) {
+		 char cstr[10];
+		if (shelf_info_list[i].shelf_type == ShelfType::CIRCLE_SHELF) {
+       strcpy(cstr, "tron");
+		} else if (shelf_info_list[i].shelf_type == ShelfType::DOUBLE_SHELF) {
+       strcpy(cstr, "doi");
+		} else {
+			strcpy(cstr, "don");
+		}
+
+			rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST"loai", "%s", (const xmlChar*)cstr);
+			if (rc < 0) return false;
+
+		if (shelf_info_list[i].shelf_type == ShelfType::SIMPLE_SHELF ||
+				shelf_info_list[i].shelf_type == ShelfType::DOUBLE_SHELF) {
+			rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST"dai", "%f", shelf_info_list[i].longs);
+			if (rc < 0) return false;
+
+			rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST"rong", "%f", shelf_info_list[i].width);
+			if (rc < 0) return false;
+		}
+		// Height
+		rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST"cao","%f",shelf_info_list[i].height);
+		if (rc < 0) return false;
+		
+		// Floor
+		rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST"tang", "%d", shelf_info_list[i].numf);
+		if (rc < 0) return false;
+		
+
+		if (shelf_info_list[i].shelf_type == ShelfType::CIRCLE_SHELF) {
+			rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST"bankinh", "%f", shelf_info_list[i].shelf_radius);
+			if (rc < 0) return false;
+
+			rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST"gocbd", "%f", shelf_info_list[i].shelf_start_angle_);
+			if (rc < 0) return false;
+
+			rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST"gockt", "%f", shelf_info_list[i].shelf_end_angle_);
+			if (rc < 0) return false;
+	
+			rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST"min", "%f", shelf_info_list[i].shelf_flat_angle_);
+			if (rc < 0) return false;
+		}
+	}
+	// End document.
+	rc = xmlTextWriterEndDocument(writer);
+	if (rc < 0) return false;
+
+	xmlFreeTextWriter(writer);
+
+	return true;
+}
+
+
+void FormBar::ImportCad() {
+	CFileDialog dlg (TRUE, L"", L"",
+		OFN_HIDEREADONLY | OFN_FILEMUSTEXIST,
+		_T(" File Sản Phẩm(*.prd)|*.prd||"));
+	CString str_path(_T(""));
+	if (dlg.DoModal() == IDOK) {
+		str_path = dlg.GetPathName();
+		LoadCadFile(str_path);
+	}
+}
+
+void FormBar::LoadCadFile(CString& str) {
+	xmlDocPtr doc;
+	xmlNodePtr cur;
+	std::string file_name = CStringA(str);
+
+	// get doc
+	const char* chstr = file_name.c_str();
+	doc = xmlParseFile(chstr);
+	if (doc == NULL) {
+		::MessageBox(NULL, _T("Load file thất bại \n Cấu trúc xml của file không chính xác"), _T("Thông báo"), MB_OK|MB_ICONERROR);
+		return;
+	}
+	// get cur
+	cur = xmlDocGetRootElement(doc);
+	if (cur == NULL) {
+		xmlFree(doc);
+		return;
+	}
+	// get "root" element
+	if (xmlStrcmp(cur->name, (const xmlChar*)"root")) {
+		xmlFree(doc);
+		return;
+	}
+
+	
+	std::vector<CString> cad_list;
+
+	cur = cur->children;
+	while (cur != NULL) {
+		if (!xmlStrcmp(cur->name, (const xmlChar*)"ten")) {
+			std::wstring name =  XmlUtls::GetStringContent(doc, cur);
+			CString str = name.c_str();
+			str = str + _T(".STL");
+			cad_list.push_back(str);
+		}
+		cur = cur->next;
+	}
+	xmlFreeDoc(doc);
+
+
+	for (int i = 0; i < production_list_.size(); i++) {
+		list_view_product_.DeleteItem(0);
+	}
+
+	production_list_.clear();
+	production_list_ = cad_list;
+	for (int i = cad_list.size(); i > 0; i--) {
+		SetDataForListProduct(i);
+	}
+
+	std::reverse(production_list_.begin(), production_list_.end());
+}
+
+void FormBar::ExportCad() {
+	CFileDialog dlg (FALSE, L"", L"",
+		OFN_HIDEREADONLY | OFN_FILEMUSTEXIST,
+		_T("File Sản Phẩm (*.prd)|*.prd||"));
+	CString str_path(_T(""));
+	if (dlg.DoModal() == IDOK) {
+		str_path = dlg.GetPathName();
+		SaveCadFile(str_path);
+	}
+}
+
+
+
+bool FormBar::SaveCadFile(CString& str) {
+
+	std::vector<CString> cad_list;
+	cad_list = production_list_;
+	reverse(cad_list.begin(), cad_list.end());
+
+	std::string str_file = CStringA(str);
+
+	xmlTextWriterPtr writer = xmlNewTextWriterFilename(str_file.c_str(), 0);
+	if (NULL == writer) {
+		return false;
+	}
+
+	// Set indentation
+	int rc = xmlTextWriterSetIndent(writer, 1);
+	if (rc < 0) return false;
+
+	const char* kXmlDefaultVersion = NULL;
+	const char* kUtf8Encoding = "UTF-8";
+	const char* kDefaultStandalon = NULL;
+	rc = xmlTextWriterStartDocument(writer,
+		kXmlDefaultVersion,
+		kUtf8Encoding,
+		kDefaultStandalon);
+	if (rc < 0) {
+		return false;
+	}
+
+	rc = xmlTextWriterStartElement(writer, BAD_CAST "root");
+	if (rc < 0) 
+		return false;
+	for (int i = 0; i < cad_list.size(); i++) {
+		CString str = Base::RemoveExtensionFile(cad_list[i]);
+		char*  chstr = Base::CStringToChar(str);
+		rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST"ten","%s", (const xmlChar*)chstr);
+		if (rc < 0) 
+			return false;
+	}
+	// End document.
+	rc = xmlTextWriterEndDocument(writer);
+	if (rc < 0) 
+		return false;
+
+	xmlFreeTextWriter(writer);
+
+	return true;
 }

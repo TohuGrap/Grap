@@ -40,7 +40,14 @@ public:
 	void HandleListViewProduct(int item);
 	void DisableLoadProduct();
 	void LoadSimShelfFile(CString& path_file);
+	bool SaveSimShelfFile(CString& path_file);
 	void ImportFile();
+	void ExportFile();
+
+	void ImportCad();
+	void LoadCadFile(CString& str);
+	bool SaveCadFile(CString& str);
+	void ExportCad();
   enum ObjectShape {
     OBJ_TABLE = 0,
     OBJ_DESK = 1,

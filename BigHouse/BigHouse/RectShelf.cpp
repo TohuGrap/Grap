@@ -1,4 +1,4 @@
-
+﻿
 #include "stdafx.h"
 #include"RecShelf.h"
 #include "Struct.h"
@@ -11,6 +11,10 @@ RectShelf::RectShelf(float width,
 	length_(length),
 	width_(width),
   type_(TypeRecShelf::FONT) {
+  if (floor_count <= 0) {
+	  MessageBox(NULL, _T("Số tầng của kệ là 0 \nĐiều này không hợp lệ \nLấy giá trị mặc đinh là 5"), _T("Thông báo"), MB_OK|MB_ICONWARNING);
+		floor_count = 5;
+	}
 	floor_height_ = (int)(height- height/20.0)/(floor_count);
 	std::pair<Floor, std::vector<Triangle3D*>> stock;
 	for(int i = 0; i < floor_count; i ++) {

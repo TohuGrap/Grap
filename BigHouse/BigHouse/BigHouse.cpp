@@ -378,6 +378,7 @@ bool BigHouseApp::IsOpenedFile( CString str, int& index ) {
 }
 
 void BigHouseApp::OnFileOpen() {
+	return;
 	CFileDialog dlg(TRUE, L"", L"",
 		OFN_HIDEREADONLY | OFN_FILEMUSTEXIST,
 		_T("Sim Shelf File (*.sish)|*.sish||"));

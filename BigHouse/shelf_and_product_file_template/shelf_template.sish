@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+ <loai>tron</loai>
+ <cao>400.000000</cao>
+ <tang>0</tang>
+ <bankinh>100.000000</bankinh>
+ <gocbd>0.000000</gocbd>
+ <gockt>360.000000</gockt>
+ <min>5.000000</min>
+ <loai>doi</loai>
+ <dai>200.000000</dai>
+ <rong>200.000000</rong>
+ <cao>400.000000</cao>
+ <tang>0</tang>
+ <loai>don</loai>
+ <dai>200.000000</dai>
+ <rong>200.000000</rong>
+ <cao>400.000000</cao>
+ <tang>0</tang>
+</root>
