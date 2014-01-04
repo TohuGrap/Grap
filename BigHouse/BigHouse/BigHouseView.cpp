@@ -439,6 +439,7 @@ void BigHouseView::RenderScene() {
 }
 
 void BigHouseView::CreateShelf() {
+	glFrontFace(GL_CCW);
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	for(int i = 0; i < shelf_.size(); i ++) {
 		Vector3D origin;
@@ -1220,7 +1221,7 @@ void BigHouseView::CreateOpenGLFont() {
   CFont m_font;
 	GLYPHMETRICSFLOAT agmf[256]; 
 
-  m_font.CreateFont( -160,               // Height Of Font 
+  m_font.CreateFont( -16,               // Height Of Font 
                        0,               // Width Of Font 
                        0,               // Angle Of Escapement 
                        0,               // Orientation Angle 
