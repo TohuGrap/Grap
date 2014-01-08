@@ -14,7 +14,13 @@
 #include "Struct.h"
 class CircleShelf: public Shelf {
 public:
-	CircleShelf(double r, double h, double sp, double ep, double flat_angle, UINT floor_count);
+	CircleShelf(double r,
+		          double h, 
+							double sp, 
+							double ep, 
+							double flat_angle, 
+							double dis_drag,
+							UINT floor_count);
   ~CircleShelf();
 
 	virtual bool ObjectIsSelectedByLeftMouse(const Vector3D &dir, const Vector3D& pos, Vector3D &p);
@@ -26,7 +32,12 @@ public:
 	virtual void ReSetSelectFloor();
 	virtual void RotateShelf() {};
 	virtual void SetHeightFloor(int selected_count, double height_first, double height_second);
-	virtual void GetHeightFloor(Vector3D &dir, Vector3D &pos, int &selected_count, double &height_first, double &height_second);
+	virtual void GetHeightFloor(Vector3D &dir,
+		                          Vector3D &pos, 
+															int &selected_count, 
+															double &height_first, 
+															double &height_second,
+															float & dis_drag);
 
 
 private:
@@ -36,9 +47,11 @@ private:
 		                 double h_solo, 
 										 double radius);
 	bool IsCadInCircle(Vector3D &o_floor, FloorSize & rect, double radius);
+	int FindPointMouseOnFloor(Vector3D &dir, Vector3D &pos);
 	float radius_;
 	float height_;
-  float height_floor_;
+	float dis_drag_;
+  //float height_floor_;
 	UINT  floor_count_;
 	float start_angle_;
 	float end_angle_;

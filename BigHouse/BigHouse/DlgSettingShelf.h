@@ -42,12 +42,14 @@ protected:
 	afx_msg void OnEditShelfEndAngle();
 	afx_msg void OnEditShelfFlatAngle();
 	afx_msg void OnComboxShelfType();
+	afx_msg void OnEditShelfDrag();
 
 	DECLARE_MESSAGE_MAP()
 protected:
 	CString str_shelf_long_;
   CString str_shelf_width_;
   CString str_shelf_height_;
+	CString str_shelf_drag_;
   CString str_number_of_floor_;
 
 	CString str_shelf_radius_;
@@ -62,6 +64,7 @@ protected:
   CEdit edit_shelf_height_;
   CEdit edit_number_of_floor_;
   CEdit edit_shelf_angle_;
+	CEdit edit_shelf_drag_;
 
 	CEdit edit_shelf_radius_;
 	CEdit edit_shelf_start_angle_;
@@ -73,4 +76,5 @@ protected:
 
 	CStatic bitmap_shelf_;
 	CBitmap cbitmap_;
+
 };

@@ -23,12 +23,15 @@ DlgSettingShelf::DlgSettingShelf(CWnd* pParent /*=NULL*/)
 	str_shelf_start_angle_ = L"0";
 	str_shelf_end_angle_  = L"360";
 	str_shelf_flat_angle_ = L"5";
+	str_shelf_drag_ = L"4";
 
 
 
 	shelf_info_.longs = 200;
 	shelf_info_.width = 200;
 	shelf_info_.height = 400;
+	shelf_info_.height = 400;
+	shelf_info_.dis_drag = 4;
 	shelf_info_.numf = 5;
 	shelf_info_.shelf_radius = 100;
 	shelf_info_.shelf_start_angle_ = 0.0;
@@ -51,10 +54,12 @@ void DlgSettingShelf::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT_SHELF_HEIGH, edit_shelf_height_);
 	DDX_Control(pDX, IDC_EDIT_NUMBER_FLOOR, edit_number_of_floor_);
 
+
 	DDX_Control(pDX, IDC_EDIT_SHELF_RADIUS, edit_shelf_radius_);
 	DDX_Control(pDX, IDC_EDIT_SHELF_START_ANGLE, edit_shelf_start_angle_);
 	DDX_Control(pDX, IDC_EDIT_SHELF_END_ANGLE, edit_shelf_end_angle_);
 	DDX_Control(pDX, IDC_EDIT_SHELF_FLAT_ANGLE, edit_shelf_flat_angle_);
+	DDX_Control(pDX, IDC_EDIT_SHELF_DRAG, edit_shelf_drag_);
 
 
 	DDX_Control(pDX, IDC_COMBO_SHELF_TYPE, combox_shelf_type_);
@@ -73,6 +78,7 @@ BEGIN_MESSAGE_MAP(DlgSettingShelf, CDialogEx)
 	ON_EN_CHANGE(IDC_EDIT_SHELF_END_ANGLE, &DlgSettingShelf::OnEditShelfEndAngle)
 	ON_EN_CHANGE(IDC_EDIT_SHELF_FLAT_ANGLE, &DlgSettingShelf::OnEditShelfFlatAngle)
 	ON_CBN_SELENDOK(IDC_COMBO_SHELF_TYPE, &DlgSettingShelf::OnComboxShelfType)
+	ON_EN_CHANGE(IDC_EDIT_SHELF_DRAG, &DlgSettingShelf::OnEditShelfDrag)
 END_MESSAGE_MAP()
 
 
@@ -90,6 +96,7 @@ BOOL  DlgSettingShelf::OnInitDialog() {
 	edit_shelf_start_angle_.SetWindowText(str_shelf_start_angle_);
 	edit_shelf_end_angle_.SetWindowText(str_shelf_end_angle_);
 	edit_shelf_flat_angle_.SetWindowText(str_shelf_flat_angle_);
+	edit_shelf_drag_.SetWindowText(str_shelf_drag_);
 
 	combox_shelf_type_.AddString(_T("Kệ Đơn"));
 	combox_shelf_type_.AddString(_T("Kệ Đôi"));
@@ -121,6 +128,13 @@ void DlgSettingShelf::OnEditShelfWidth() {
   UpdateData(TRUE);
   edit_shelf_width_.GetWindowText(str_shelf_width_);
 	shelf_info_.width = _ttof(str_shelf_width_);
+}
+
+void DlgSettingShelf::OnEditShelfDrag() {
+	UpdateData(TRUE);
+  edit_shelf_drag_.GetWindowText(str_shelf_drag_);
+	shelf_info_.dis_drag = _ttof(str_shelf_drag_);
+
 }
 
 void DlgSettingShelf::OnEditShelfHeight() {
@@ -232,3 +246,6 @@ void DlgSettingShelf::SetBitmapShelf(UINT index_bitmap) {
 	  return;
 	}
 }
+
+
+

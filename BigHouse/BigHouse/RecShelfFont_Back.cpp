@@ -3,15 +3,19 @@
 RectShelfFront_Back::RectShelfFront_Back(float width,
 	                                   float length,
 																		 float height, 
+																		 float dis_drag,
 																		 UINT floor_count) :
 	height_(height),
 	length_(length),
 	width_(width),
+	dis_drag_(dis_drag),
 	shelf_direction_(DirectionShelf::FONT_BACK) {
-	floor_height_ = (int)height/(floor_count);
+	int h = int((height - height/15.0) / dis_drag);
+	h = int(h/floor_count);
+	float d = h*dis_drag;
 	std::pair<Floor, std::vector<Triangle3D*>> stock;
 	for(int i = 0; i < floor_count; i++) {
-		stock.first.height_floor = floor_height_;
+		stock.first.height_floor = d;
 		stocks_font_.push_back(stock);
 		stocks_back_.push_back(stock);
 	}
@@ -63,7 +67,6 @@ void RectShelfFront_Back::DrawShelf() {
 		ShelfStructure(width_ ,
 			             length_, 
 									 height_,
-									 floor_height_,
 									 h_solo, 
 									 selected_floor,
 									 stocks_font_);
@@ -83,7 +86,6 @@ void RectShelfFront_Back::DrawShelf() {
 		ShelfStructure(width_ ,
 			             length_,
 									 height_,
-									 floor_height_,
 									 h_solo,
 									 selected_floor,
 									 stocks_back_,
@@ -174,13 +176,13 @@ void RectShelfFront_Back::RotateShelf() {
 }
 
 void RectShelfFront_Back::SetHeightFloor(int selected_count, double height_first, double height_second) {
-	if(height_first < 16) {
+	if(height_first < 4*dis_drag_) {
 		return;
 	}
 	if(selected_count >= 0) {
 		if(selected_count < stocks_font_.size() && type_ == FLOOR_FONT) {
 			if(selected_count < stocks_font_.size() - 1) {
-				if(height_second < 16)
+				if(height_second < 4*dis_drag_)
 					return;
 			}
 			if( selected_count == stocks_font_.size() - 1) {
@@ -189,8 +191,8 @@ void RectShelfFront_Back::SetHeightFloor(int selected_count, double height_first
 					d += stocks_font_.at(i).first.height_floor;
 				}
 				if(d + height_first > height_) {
-					int h = (height_ - d)/3.0;
-					height_first = h*3;
+					int h = (height_ - d)/dis_drag_;
+					height_first = h*dis_drag_;
 				}
 			}
 			assert(height_first > 0);
@@ -208,7 +210,7 @@ void RectShelfFront_Back::SetHeightFloor(int selected_count, double height_first
 			}
 		} else if(selected_count < stocks_back_.size()) {
 			if(selected_count < stocks_back_.size() - 1) {
-				if(height_second < 16)
+				if(height_second < 4*dis_drag_)
 					return;
 			}
 			if( selected_count == stocks_back_.size() - 1) {
@@ -217,8 +219,8 @@ void RectShelfFront_Back::SetHeightFloor(int selected_count, double height_first
 					d += stocks_back_.at(i).first.height_floor;
 				}
 				if(d + height_first > height_) {
-					int h = (height_ - d)/3.0;
-					height_first = h*3;
+					int h = (height_ - d)/dis_drag_;
+					height_first = h*dis_drag_;
 				}
 			}
 
@@ -243,7 +245,8 @@ void RectShelfFront_Back::GetHeightFloor(Vector3D &dir,
 	                                       Vector3D &pos,
 																				 int &selected_count,
 																				 double &height_first,
-																				 double &height_second) {
+																				 double &height_second,
+																				 float &dis_drag) {
 	if (type_ == FLOOR_FONT) {
 		selected_count = FindPointMouseOnFloor(dir,
 			                                      pos, 
@@ -271,4 +274,5 @@ void RectShelfFront_Back::GetHeightFloor(Vector3D &dir,
 			}
 		} 
 	}
+	dis_drag = dis_drag_;
 }

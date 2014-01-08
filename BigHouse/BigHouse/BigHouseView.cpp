@@ -602,8 +602,10 @@ void BigHouseView::OnLButtonUp(UINT nFlags, CPoint point) {
 	if(count_selected_ != -1) {
 		if(!cad_info_.second.empty()) {
 			shelf_.at(count_selected_)->SetCadToShelf(cad_info_);
+			InvalidateRect(NULL,FALSE);
 		} else {
 			shelf_.at(count_selected_)->SetShelfPosition(move_shelf_);
+			InvalidateRect(NULL,FALSE);
 		}
 	}
 	count_selected_ = - 1;
@@ -644,7 +646,8 @@ void BigHouseView::OnLButtonDown(UINT nFlags, CPoint point) {
 				                                          opengl_point,
 																									selected_count_floor_,
 																									height_floor_first_,
-																									height_floor_second_);
+																									height_floor_second_,
+																									dis_drag_);
 			} else {
 				count_selected_ = -1;
 			}
@@ -716,22 +719,12 @@ void BigHouseView::OnMouseMove(UINT nFlags, CPoint point) {
 				  Vector3D point_oz;
 					if(count_selected_ != -1 && CalPointOnOZ(perpendicular_screen_vector, opengl_point, point_oz)) {
 						//Vector3D temp = point_oz - point_oz_;
-						int d = (int)(point_oz.v[2] - point_oz_.v[2]);
-						d = d/3;
-						d = 3*d;
-						double d_f = d + height_floor_first_;
-						double d_s = - d + height_floor_second_;
+						int d = (int)((point_oz.v[2] - point_oz_.v[2])/dis_drag_);
+						double dis = dis_drag_*d;
+						double d_f = dis + height_floor_first_;
+						double d_s = - dis + height_floor_second_;
 						shelf_.at(count_selected_)->SetHeightFloor(selected_count_floor_, d_f, d_s);
 					}
-				}
-			} else if (count_selected_ != -1 && cad_info_.second.empty()) {
-				Vector3D point_oz;
-				if(count_selected_ != -1 && CalPointOnOZ(perpendicular_screen_vector, opengl_point, point_oz)) {
-					//Vector3D temp = point_oz - point_oz_;
-					double d = point_oz.v[2] - point_oz_.v[2];
-					double d_f = d + height_floor_first_;
-					double d_s = - d + height_floor_second_;
-					shelf_.at(count_selected_)->SetHeightFloor(selected_count_floor_, d_f, d_s);
 				}
 			}
 		} else if (!cad_info_.second.empty()) {
@@ -1065,30 +1058,49 @@ void BigHouseView::SetCadInfo(std::pair<Floor, std::vector<Triangle3D*>> &cad_in
 	cad_info_ = cad_info;
 }
 
-void BigHouseView::MakeSimpleShelf( float width, float length, float height, int count_floor )
+void BigHouseView::MakeSimpleShelf( float width, 
+	                                  float length, 
+																		float height, 
+																		float dis_drag, 
+																		int count_floor )
 {
-	RectShelf *rec_shelf = new RectShelf(width, length, height, count_floor);
+	RectShelf *rec_shelf = new RectShelf(width, length, height, dis_drag, count_floor);
 	UINT space_distance_length = length;
 	UINT space_distance_width = width;
 	RenderShelf(rec_shelf, space_distance_length, space_distance_width);
 }
 	
 
-void BigHouseView::MakeDoubleShelf( float width, float length, float height, int count_floor )
+void BigHouseView::MakeDoubleShelf( float width,
+	                                  float length,
+																		float height,
+																		float dis_drag,
+																		int count_floor )
 {
   
-  RectShelfFront_Back *double_shelf = new RectShelfFront_Back(width, length, height,
-																													count_floor);
+  RectShelfFront_Back *double_shelf = new RectShelfFront_Back(width, 
+		                                                          length, height,
+																														  dis_drag,
+																													    count_floor);
 	UINT space_distance_length = length;
 	UINT space_distance_width = 2*width;
 	RenderShelf(double_shelf, space_distance_length, space_distance_width);
 }
 
 void BigHouseView::MakeCircleShelf(float radius, float height,
-	                                 float start_angle, float end_angle,
-																	 float flat_angle, int floor )
+	                                 float start_angle, 
+																	 float end_angle,
+																	 float flat_angle, 
+																	 float dis_drag,
+																	 int floor )
 {
-	CircleShelf *circle_shelf = new CircleShelf (radius, height, start_angle, end_angle, flat_angle, floor);
+	CircleShelf *circle_shelf = new CircleShelf (radius,
+		                                           height, 
+																							 start_angle,
+																							 end_angle, 
+																							 flat_angle, 
+																							 dis_drag,
+																							 floor);
 	UINT space_distance_length = 2*radius;
 	UINT space_distance_width = 2*radius;
 	RenderShelf(circle_shelf, space_distance_length, space_distance_width);

@@ -18,6 +18,7 @@ struct ShelfInfo {
 	float shelf_start_angle_;
   float shelf_end_angle_;
 	float shelf_flat_angle_;
+	float dis_drag;
 	UINT shelf_type;
 };
 

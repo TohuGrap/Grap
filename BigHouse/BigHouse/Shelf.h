@@ -28,9 +28,10 @@ public:
 	virtual void ReSetSelectFloor() = 0;
 	virtual void RotateShelf() = 0;
 	virtual void SetHeightFloor(int selected_count, double height_first, double height_second) = 0;
-	virtual void GetHeightFloor(Vector3D &dir, Vector3D &pos, int &selected_count, double &height_first, double &height_second) = 0;
+	virtual void GetHeightFloor(Vector3D &dir, Vector3D &pos, int &selected_count, double &height_first, double &height_second, float &dis_drag) = 0;
 	void DrawAllSizeOZ(DWORD TextList3D,
 										 double height_base,
+										 double dis,
 								  	 std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks) ;
 protected:
 	void DrawFaceShelf(Rect &rect);

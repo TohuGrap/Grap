@@ -27,7 +27,7 @@ public:
 	};
 
 public:
-	RectShelfFront_Back(float width, float length, float height, UINT floor_count);
+	RectShelfFront_Back(float width, float length, float height, float dis_drag, UINT floor_count);
   ~RectShelfFront_Back();
 
 	virtual bool ObjectIsSelectedByLeftMouse(const Vector3D &dir,
@@ -41,13 +41,18 @@ public:
 	virtual void ReSetSelectFloor();
 	virtual void RotateShelf();
 	virtual void SetHeightFloor(int selected_count, double height_first, double height_second);
-	virtual void GetHeightFloor(Vector3D &dir, Vector3D &pos, int &selected_count, double &height_first, double &height_second);
+	virtual void GetHeightFloor(Vector3D &dir, 
+		                          Vector3D &pos, 
+															int &selected_count,
+															double &height_first,
+															double &height_second,
+															float &dis_drag);
 
 private:
   int length_;
 	int height_;
 	int width_;
-	int floor_height_;
+	float dis_drag_;
 	//int floor_count_;
 	int selected_floor_;
 	TypeFloor type_;

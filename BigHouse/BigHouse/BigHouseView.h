@@ -82,9 +82,23 @@ public:
   void SetShefHeight(float height) {shelf_height_ = height;};
   void SetNumberOfShelf(float nums) {number_shelf_ = nums;};
   void SetNumberOfFloor(float numf) {number_floor_ = numf;};
-	void MakeSimpleShelf(float width, float length, float height, int count_floor);
-	void MakeDoubleShelf(float width, float length, float height, int count_floor);
-	void MakeCircleShelf(float radius, float height, float start_angle, float end_angle, float flat_angle, int floor);
+	void MakeSimpleShelf(float width,
+		                   float length, 
+											 float height, 
+											 float dis_drag, 
+											 int count_floor);
+	void MakeDoubleShelf(float width, 
+		                   float length, 
+											 float height, 
+											 float dis_drag, 
+											 int count_floor);
+	void MakeCircleShelf(float radius,
+		                   float height,
+											 float start_angle,
+											 float end_angle,
+											 float flat_angle, 
+											 float dis_drag, 
+											 int floor);
 	void RenderShelf(Shelf* sh, UINT space_distance_length, UINT space_distance_width);
   void ClearShelf();
   void OnViewTop();
@@ -201,6 +215,7 @@ private:
 	int count_selected_;
 	int selected_count_floor_;
 	double height_floor_first_;
+	float dis_drag_;
 	double height_floor_second_;
 	// Passion88 add
 	Vector3D bbmin_first;

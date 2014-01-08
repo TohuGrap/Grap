@@ -1,4 +1,4 @@
-
+﻿
 #include "stdafx.h"
 #include "CircleShelf.h"
 CircleShelf::CircleShelf(double radius,
@@ -6,6 +6,7 @@ CircleShelf::CircleShelf(double radius,
 											 double start_angle,
 											 double end_angle,
 											 double flat_angle,
+											 double dis_drag,
 											 UINT floor_count) :
 	radius_(radius),
   height_(height),
@@ -13,11 +14,14 @@ CircleShelf::CircleShelf(double radius,
 	end_angle_(end_angle),
 	flat_angle_(flat_angle),
   smooth_angle_(flat_angle),
+	dis_drag_(dis_drag),
 	fcounts(floor_count) {
 		std::pair<Floor, std::vector<Triangle3D*>> stock;
-		height_floor_ = (height - height/15.0) / fcounts;
+		int h = int((height - height/15.0) / dis_drag);
+		h = int(h/floor_count);
+		float d = h*dis_drag;
 		for(int i = 0; i < floor_count; ++i) {
-			stock.first.height_floor = height_floor_;
+			stock.first.height_floor = d/*height_floor_*/;
 			stocks_.push_back(stock);
 		}
 		Origin_.Set(0 , 0, 0);
@@ -98,6 +102,7 @@ bool CircleShelf::ObjectIsSelectedByLeftMouse(const Vector3D &dir, const Vector3
 
 void CircleShelf::DrawShelf() {
 	// Draw Frame
+	glPushMatrix();
 	glColor3f(1.0, 0, 0);
 	CircleShelfFrame(radius_, height_, start_angle_, end_angle_, flat_angle_); 
 
@@ -118,9 +123,19 @@ void CircleShelf::DrawShelf() {
 		DrawCommodity(stocks_, h_solo, radius_);
 		glRotatef(90, 0, 0, 1);
 	glPopMatrix();
+	if(GetKeyState(VK_SHIFT) & 0x8000) {
+		DrawAllSizeOZ(513, h_solo, radius_, stocks_);
+	}
+	glPopMatrix();
 }
 void CircleShelf::SetCadToShelf(std::pair<Floor , std::vector<Triangle3D*>> &body) {
 	if(floor_count_ != -1) {
+		if(floor_count_ < stocks_.size()- 1) {
+			if(stocks_.at(floor_count_ + 1).first.height_floor < body.first.floor_size.z_size) {
+				AfxMessageBox(L"Chiều cao kệ không đủ");
+				return;
+			}
+	  }
 		int i = (int)(radius_/body.first.floor_size.x_size);
 		int j = (int)(radius_/body.first.floor_size.y_size);
 		stocks_.at(floor_count_).first.cad_pos.x_pos = i;
@@ -141,16 +156,22 @@ void CircleShelf::SetShelfPosition(Vector3D &p_move) {
 	max_origin_ = Origin_ + temp;
 }
 void CircleShelf::PointMouseOnFloor(Vector3D &dir, Vector3D &pos) {
-	floor_count_ = - 1;
+  floor_count_ = FindPointMouseOnFloor(dir, pos);
+}
+
+int CircleShelf::FindPointMouseOnFloor(Vector3D &dir, Vector3D &pos) {
+	int selecte_floor = - 1;
 	Vector3D oz(0, 0, 1);
 	if(oz.scalar(dir) == 0) {
-		return;
+		return - 1;
 	}
 	Vector3D temp;
 	Vector3D O = Origin_;
-	double count = 0;
+	double count = height_/12.0;
 	for(int i = 0; i < stocks_.size(); i ++) {
-		count = count + stocks_.at(i).first.height_floor;
+		if(i != 0) {
+	  	count = count + stocks_.at(i).first.height_floor;
+		}
 		O.v[2] = count;
 		double t = (oz.scalar(O) - oz.scalar(pos))/(oz.scalar(dir));
 		Vector3D u = (Vector3D)dir*t;
@@ -159,17 +180,19 @@ void CircleShelf::PointMouseOnFloor(Vector3D &dir, Vector3D &pos) {
 		if(v.abs() <= radius_ ) {
 			if(floor_count_ == -1){
 			  temp = v;
-		  	floor_count_ = i;
+		  	selecte_floor = i;
 			} else {
 				Vector3D sp = temp - v;
 				if(sp.scalar(dir) < 0) {
 					temp = v;
-					floor_count_ = i;
+					selecte_floor = i;
 				}
 			}
 		}
 	}
+	return selecte_floor;
 }
+
 void CircleShelf::ReSetSelectFloor() {
 	floor_count_ = - 1;
 }
@@ -259,10 +282,51 @@ bool CircleShelf::IsCadInCircle(Vector3D &o_floor, FloorSize& rect, double radiu
 }
 
 void CircleShelf::SetHeightFloor(int selected_count, double height_first, double height_second) {
+	if(selected_count < stocks_.size() - 1) {
+	  if(height_second < 4*dis_drag_)
+			return;
+	}
+	if(height_first < 4*dis_drag_) {
+		return;
+	}
+	if( selected_count == stocks_.size() - 1) {
+		double d = height_/12.0;
+		for(int i = 1; i < stocks_.size() - 1; i ++) {
+			d += stocks_.at(i).first.height_floor;
+		}
+		if(d + height_first > height_) {
+			int h = (height_ - d)/dis_drag_;
+			height_first = h*dis_drag_;
+		}
+	}
 
+	assert(height_first > 0);
+	if(selected_count < stocks_.size() && selected_count > 0) {
+		if(height_first  < stocks_.at(selected_count -1).first.floor_size.z_size + 2) {
+			return;
+		}
+		if(selected_count < stocks_.size() - 1) {
+			if(height_second < stocks_.at(selected_count).first.floor_size.z_size + 2) {
+				return;
+			}
+			stocks_.at(selected_count + 1).first.height_floor = height_second;
+		}
+		stocks_.at(selected_count).first.height_floor = height_first;
+	}
 }
 
-void CircleShelf::GetHeightFloor(Vector3D &dir, Vector3D &pos, int &selected_count, double &height_first, double &height_second) {
-
-
+void CircleShelf::GetHeightFloor(Vector3D &dir,
+	                               Vector3D &pos,
+																 int &selected_count,
+																 double &height_first,
+																 double &height_second,
+																 float &dis_drag) {
+  selected_count = FindPointMouseOnFloor(dir, pos);
+	if(selected_count != - 1) {
+    height_first = stocks_.at(selected_count).first.height_floor;
+		if(selected_count< stocks_.size() - 1) {
+			height_second = stocks_.at(selected_count + 1).first.height_floor;
+		}
+	} 
+	dis_drag = dis_drag_;
 }

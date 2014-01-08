@@ -98,12 +98,14 @@ void Shelf::DrawCylinder(double r, double h, double sp, double ep,
 
 void Shelf::DrawAllSizeOZ(DWORD TextList3D,
 													double height_base,
+													double dis,
 										      std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks) {
 	if(stocks.empty()) {
 		return;
 	}
+
 	glPushMatrix();
-	glTranslatef(0, 0, height_base);
+	glTranslatef(0, - dis, height_base);
 	Vector3D A(0, 0, 0);
 	Vector3D B(0, - 60, 0);
 	DrawALine(A, B);
@@ -116,6 +118,8 @@ void Shelf::DrawAllSizeOZ(DWORD TextList3D,
 
 void Shelf::DrawSizeOZ(double height,
 	                     DWORD TextList3D) {
+	glDisable(GL_LIGHTING);
+	glLineWidth(0.5f);
 	glPushMatrix();
 
 	Vector3D A(0, 0, 0);
@@ -138,6 +142,7 @@ void Shelf::DrawSizeOZ(double height,
 	glCallLists(length, GL_SHORT , str);
 
 	glPopMatrix();
+	glEnable(GL_LIGHTING);
 }
 
 void Shelf::DrawALine(Vector3D & A, Vector3D &B) {

@@ -22,7 +22,7 @@ public:
 		RIGHT
 	};
 public :
-	RectShelf(float width, float length, float height, UINT floor_count);
+	RectShelf(float width, float length, float height, float dis_drag, UINT floor_count);
 	RectShelf();
 	~RectShelf();
 	void DrawFaceShelf(Rect &rec);
@@ -31,7 +31,6 @@ public :
 	void ShelfStructure(double width,
 		                  double length,
 											double height,
-											double height_floor,
 											double height_solo,
 											int selected_floor,
 											std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks,
@@ -76,7 +75,12 @@ public :
 	virtual void ReSetSelectFloor() {selected_floor_ = -1;}
 	virtual void RotateShelf();
 	virtual void SetHeightFloor(int selected_count, double height_first, double height_second);
-	virtual void GetHeightFloor(Vector3D &dir, Vector3D &pos, int &selected_count, double &height_first, double &height_second);
+	virtual void GetHeightFloor(Vector3D &dir,
+		                          Vector3D &pos,
+															int &selected_count, 
+															double &height_first, 
+															double &height_second,
+															float &dis_drag);
 	
 protected:
 	int FindPointMouseOnFloor(Vector3D &dir,
@@ -99,8 +103,9 @@ private:
   int length_;
 	int height_;
 	int width_;
-	double floor_height_;
 	int selected_floor_;
+	float dis_drag_;
+
 	TypeRecShelf type_;
 	std::vector<std::pair<Floor, std::vector<Triangle3D*>>> stocks_;
 	Vector3D bbmin_;

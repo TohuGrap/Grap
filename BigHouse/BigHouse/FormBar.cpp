@@ -240,14 +240,20 @@ void FormBar::OnBnShelfSelected()
 	CButton *production_selected = reinterpret_cast<CButton*>(GetDlgItem(IDC_BTN_PRODUCTION_SELECTED));
 
 	if (shelf_type == ShelfType::SIMPLE_SHELF) {
-	GetBigHouseView()->MakeSimpleShelf(shelf_info_list_[i].width, shelf_info_list_[i].longs,
-																		 shelf_info_list_[i].height, shelf_info_list_[i].numf);
+	GetBigHouseView()->MakeSimpleShelf(shelf_info_list_[i].width, 
+		                                 shelf_info_list_[i].longs,
+																		 shelf_info_list_[i].height, 
+																		 shelf_info_list_[i].dis_drag,
+																		 shelf_info_list_[i].numf);
 		CButton* btn_select_product = reinterpret_cast<CButton*>(GetDlgItem(IDC_BTN_PRODUCTION_SELECTED));
 		btn_select_product->EnableWindow(TRUE);
 
 	} else if (shelf_type == ShelfType::DOUBLE_SHELF) {
-		GetBigHouseView()->MakeDoubleShelf(shelf_info_list_[i].width, shelf_info_list_[i].longs,
-																			 shelf_info_list_[i].height, shelf_info_list_[i].numf);
+		GetBigHouseView()->MakeDoubleShelf(shelf_info_list_[i].width, 
+			                                 shelf_info_list_[i].longs,
+																			 shelf_info_list_[i].height, 
+																			 shelf_info_list_[i].dis_drag, 
+																			 shelf_info_list_[i].numf);
 		CButton* btn_select_product = reinterpret_cast<CButton*>(GetDlgItem(IDC_BTN_PRODUCTION_SELECTED));
 		btn_select_product->EnableWindow(TRUE);
 
@@ -257,13 +263,17 @@ void FormBar::OnBnShelfSelected()
 																			 shelf_info_list_[i].shelf_start_angle_,
 																			 shelf_info_list_[i].shelf_end_angle_,
 																			 shelf_info_list_[i].shelf_flat_angle_,
+																			 shelf_info_list_[i].dis_drag,
 																			 shelf_info_list_[i].numf);
 		CButton* btn_select_product = reinterpret_cast<CButton*>(GetDlgItem(IDC_BTN_PRODUCTION_SELECTED));
 		btn_select_product->EnableWindow(TRUE);
 
 	} else {
-		GetBigHouseView()->MakeSimpleShelf(shelf_info_list_[i].width, shelf_info_list_[i].longs,
-		shelf_info_list_[i].height, shelf_info_list_[i].numf);
+		GetBigHouseView()->MakeSimpleShelf(shelf_info_list_[i].width, 
+			                                 shelf_info_list_[i].longs,
+		                                   shelf_info_list_[i].height, 
+																			 shelf_info_list_[i].dis_drag,
+																			 shelf_info_list_[i].numf);
 		CButton* btn_select_product = reinterpret_cast<CButton*>(GetDlgItem(IDC_BTN_PRODUCTION_SELECTED));
 		btn_select_product->EnableWindow(TRUE);
 	}

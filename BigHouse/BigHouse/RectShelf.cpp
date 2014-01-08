@@ -6,22 +6,27 @@
 RectShelf::RectShelf(float width,
 	                  float length,
 									  float height,
+										float dis_drag,
 									  UINT floor_count):
 	height_(height),
 	length_(length),
 	width_(width),
+	dis_drag_(dis_drag),
   type_(TypeRecShelf::FONT) {
   if (floor_count <= 0) {
 	  MessageBox(NULL, _T("Số tầng của kệ là 0 \nĐiều này không hợp lệ \nLấy giá trị mặc đinh là 5"), _T("Thông báo"), MB_OK|MB_ICONWARNING);
 		floor_count = 5;
 	}
-	floor_height_ = (int)(height- height/20.0)/(floor_count);
-  int h = (int)(height- height/20.0)/(floor_count);
-	h = h/3;
-	floor_height_ = h*3;
+	//floor_height_ = (int)(height- height/20.0)/(floor_count);
+ //// int h = (int)(height- height/20.0)/(floor_count);
+	////h = h/3;
+	////h = h*3;
+	int h = int((height - height/20.0) / dis_drag);
+	h = int(h/floor_count);
+	float d = h*dis_drag;
 	std::pair<Floor, std::vector<Triangle3D*>> stock;
 	for(int i = 0; i < floor_count; i ++) {
-		stock.first.height_floor = floor_height_;
+		stock.first.height_floor = d;
 		stocks_.push_back(stock);
 	}
 	bbmin_.Set(0, 0, 0);
@@ -96,7 +101,6 @@ void RectShelf::DrawCube(double width, double length, double height) {
 void RectShelf::ShelfStructure(double width,
 															double length,
 															double height,
-															double height_floor,
 															double height_solo,
 															int selected_floor,
 															std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks,
@@ -182,13 +186,12 @@ void RectShelf::DrawShelf() {
 	ShelfStructure(width_ ,
 		             length_, 
 								 height_ , 
-								 floor_height_,
 								 h_solo, 
 								 selected_floor_,
 								 stocks_);
  	DrawCommodity(stocks_, h_solo);
 	if(GetKeyState(VK_SHIFT) & 0x8000) {
-  	DrawAllSizeOZ(513, h_solo, stocks_);
+  	DrawAllSizeOZ(513, h_solo,0, stocks_);
 	}
 	glPopMatrix();
 }
@@ -544,10 +547,10 @@ void RectShelf::RotateShelf() {
 
 void RectShelf::SetHeightFloor(int selected_count, double height_first, double height_second) {
 	if(selected_count < stocks_.size() - 1) {
-	  if(height_second < 16)
+		if(height_second < 4*dis_drag_)
 			return;
 	}
-	if(height_first < 16) {
+	if(height_first < 4*dis_drag_) {
 		return;
 	}
 	if( selected_count == stocks_.size() - 1) {
@@ -556,8 +559,8 @@ void RectShelf::SetHeightFloor(int selected_count, double height_first, double h
 			d += stocks_.at(i).first.height_floor;
 		}
 		if(d + height_first > height_) {
-			int h = (height_ - d)/3.0;
-			height_first = h*3;
+			int h = (height_ - d)/dis_drag_;
+			height_first = h*dis_drag_;
 		}
 	}
 
@@ -580,7 +583,8 @@ void RectShelf::GetHeightFloor(Vector3D &dir,
 	                             Vector3D &pos,
 															 int &selected_count, 
 															 double &height_first,
-															 double &height_second) {
+															 double &height_second,
+															 float &dis_drag) {
   selected_count = FindPointMouseOnFloor(dir, pos, bbmin_, bbmax_, height_/12.0, stocks_);
 	if(selected_count != - 1) {
     height_first = stocks_.at(selected_count).first.height_floor;
@@ -588,10 +592,11 @@ void RectShelf::GetHeightFloor(Vector3D &dir,
 			height_second = stocks_.at(selected_count + 1).first.height_floor;
 		}
 	} 
+	dis_drag = dis_drag_;
 }
 
 void RectShelf::DrawAllSizeOZDR(DWORD TextList3D,
 												      	double height_base,
 										            std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks) {
-  DrawAllSizeOZ(TextList3D, height_base, stocks);
+  DrawAllSizeOZ(TextList3D, height_base, 0, stocks);
 }
