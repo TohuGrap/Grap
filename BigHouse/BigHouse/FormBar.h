@@ -33,7 +33,7 @@ public:
 	void	InitListViewShelf();
 	void InitListViewProduct();
 	void SetShelfInfoList(ShelfInfo shelf_info, bool &is_exist);
-	void SetProductionList(CString str, bool &is_exist);
+	void SetProductionList(CadInfo & cad_info, bool &is_exist);
 	void SetDataForListShelf(UINT number_of_shelf); 
 	void SetDataForListProduct(int number_of_product);
 	void HandleListViewShelf(int item);
@@ -74,7 +74,8 @@ protected:
 private:
 	int index_shelf_;
 	int index_product_;
-	std::vector<CString> production_list_;
+	//std::vector<CString> production_list_;
+	std::vector<CadInfo> cad_info_;
 	std::vector<ShelfInfo> shelf_info_list_;
 	CustomListView list_view_product_;
 	CustomListView list_view_shelf_;

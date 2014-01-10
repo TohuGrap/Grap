@@ -171,9 +171,8 @@ void RectShelf::DrawShelfFloor(int width,
 
 
 void RectShelf::DrawShelf() {
-  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	double h_solo = height_/12.0;
-  glDisable(GL_CULL_FACE);
+
+
 	glPushMatrix();
 	if(type_ == BACK) {
 		glRotated(180, 0, 0, 1);
@@ -182,17 +181,32 @@ void RectShelf::DrawShelf() {
 	} else if(type_ == RIGHT) {
 		glRotated(90, 0, 0, 1);
 	}
-	glTranslatef(- width_/2.0, - length_/2.0, 0);
-	ShelfStructure(width_ ,
-		             length_, 
-								 height_ , 
-								 h_solo, 
-								 selected_floor_,
-								 stocks_);
- 	DrawCommodity(stocks_, h_solo);
-	if(GetKeyState(VK_SHIFT) & 0x8000) {
-  	DrawAllSizeOZ(513, h_solo,0, stocks_);
-	}
+	//if(!is_update_) {
+	//	glCallList(index_);
+	//} else {
+ //   index_ = glGenLists(1);
+ // 	glNewList(index_, GL_COMPILE);
+
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		double h_solo = height_/12.0;
+		glDisable(GL_CULL_FACE);
+		glTranslatef(- width_/2.0, - length_/2.0, 0);
+		ShelfStructure(width_ ,
+									 length_, 
+									 height_ , 
+									 h_solo, 
+									 selected_floor_,
+									 stocks_);
+ 		DrawCommodity(stocks_, h_solo);
+		if(GetKeyState(VK_SHIFT) & 0x8000) {
+  		DrawAllSizeOZ(513, h_solo,0, stocks_);
+			is_update_ = true;
+		}else {
+	  	is_update_ = false;
+		}
+		//glEndList();
+		//glCallList(index_);
+//	}
 	glPopMatrix();
 }
 
@@ -261,6 +275,7 @@ int RectShelf::FindPointMouseOnFloor(Vector3D &dir,
 
 void RectShelf::PointMouseOnFloor(Vector3D &dir, Vector3D &pos) {
 	selected_floor_ = FindPointMouseOnFloor(dir, pos, bbmin_, bbmax_, height_/12.0,stocks_);
+	is_update_ = true;
 }
 
 void RectShelf::DrawCommodity(std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks, double h_solo) {
@@ -274,13 +289,10 @@ void RectShelf::DrawCommodity(std::vector<std::pair<Floor, std::vector<Triangle3
 		  glTranslated(0, 0, stocks.at(i).first.height_floor); // trans z
 		}
 	  glPushMatrix();
-		//glTranslatef(stocks.at(i).first.o_floor.v[0],
-		//	           stocks.at(i).first.o_floor.v[1], 
-		//						 stocks.at(i).first.o_floor.v[2]); // trab to origin - floor
 		if(!stocks.at(i).second.empty()) {
 			for(int j = 0; j < stocks.at(i).first.cad_pos.x_pos; j++) {
 				if(j != 0)
-				  glTranslated(stocks.at(i).first.floor_size.x_size,0,0); // trans x
+				  glTranslated(stocks.at(i).first.floor_size.x_size, 0, 0); // trans x
 				glPushMatrix();
 				for(int k = 0 ; k < stocks.at(i).first.cad_pos.y_pos; k++) {
 					if(k != 0)
@@ -338,6 +350,7 @@ void RectShelf::SetCadToShelf(std::pair<Floor, std::vector<Triangle3D*>> &body) 
 		stocks_.at(selected_floor_).first.floor_size = body.first.floor_size;
 		stocks_.at(selected_floor_).second = body.second;
 		//stocks_.assign
+		is_update_ = true;
 	}
 }
 
@@ -577,6 +590,7 @@ void RectShelf::SetHeightFloor(int selected_count, double height_first, double h
 		}
 		stocks_.at(selected_count).first.height_floor = height_first;
 	}
+	is_update_ = true;
 }
 
 void RectShelf::GetHeightFloor(Vector3D &dir,

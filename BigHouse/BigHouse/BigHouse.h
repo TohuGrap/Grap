@@ -11,6 +11,7 @@
 #include "Triangle3D.h"
 #include <vector>
 #include <afxtempl.h>
+#include "Struct.h"
 // BigHouseApp:
 // See BigHouse.cpp for the implementation of this class
 //
@@ -55,8 +56,10 @@ public:
 	virtual BOOL InitInstance();
 	virtual int ExitInstance();
   std::vector<std::pair<FloorSize, std::vector<Triangle3D*>>> GetCadBoy();
+	void ConvertCommodityZise(CadInfo &cad_info,
+														std::pair<Floor, std::vector<Triangle3D*>> &body);
 private:
-	void GetRectBody(std::vector<Triangle3D*>& cad_triangle_list);
+	void GetRectBody(std::vector<Triangle3D*>& cad_triangle_list, CadInfo & cad_info);
 
 	// Passion88 TODO
 	std::vector<Triangle3D*> production_triangle_list_;
@@ -74,7 +77,7 @@ public:
   void FreePoint();
   void OnFileOpen();
 	void OnFileSave();
-  void LoadFileCad(CString str_file);
+	void LoadFileCad(CadInfo &cad_info);
 	bool IsOpenedFile(CString str, int &index);
 	virtual void PreLoadState();
 	virtual void LoadCustomState();

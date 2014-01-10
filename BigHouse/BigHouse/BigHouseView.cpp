@@ -1333,11 +1333,15 @@ void BigHouseView::SetupProduction()
 	DlgProduction dlg;
 	CString str;
 	if (dlg.DoModal() == IDOK) {
-		str = dlg.GetProductName();
-		form_bar_->SetProductionList(str, is_exist);
+		//str = dlg.GetProductName();
+		CadInfo cad_info;
+		dlg.GetCadInfor(cad_info);
+		form_bar_->SetProductionList(cad_info, is_exist);
+		str = cad_info.production;
 		if (is_exist == false) {
 			number_of_product_++;
 			form_bar_->SetDataForListProduct(number_of_product_);
+
 		} else {
 			::MessageBox(NULL, _T("S?n ph?m n?y d? t?n t?i"), _T("Th?ng b?o"), MB_OK | MB_ICONINFORMATION);
 			return;

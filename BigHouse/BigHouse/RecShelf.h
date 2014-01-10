@@ -100,6 +100,8 @@ protected:
 								  	std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks) ;
 
 private:
+	bool is_update_;
+	GLuint index_;
   int length_;
 	int height_;
 	int width_;

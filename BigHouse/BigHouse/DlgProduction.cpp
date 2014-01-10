@@ -17,6 +17,15 @@ DlgProduction::DlgProduction(CWnd* pParent /*=NULL*/)
 	module_path_ = Base::GetPathModule();
 	product_cad_path_  = module_path_ + _T("\\cad\\");
   product_bitmap_path_ = module_path_ + _T("\\bitmap_cad\\");
+  str_cad_lenght_ = L"50";
+  str_cad_width_ = L"50";
+  str_cad_height_ = L"50";
+	str_cad_proportion_ = L"1";
+	cad_info_.width = 50;
+	cad_info_.lenght = 50;
+	cad_info_.height = 50;
+	cad_info_.proportion = 1;
+	cad_info_.change_proportion = true;
 }
 
 DlgProduction::~DlgProduction()
@@ -28,6 +37,12 @@ void DlgProduction::DoDataExchange(CDataExchange* pDX)
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_LIST_FILE_OBJ, list_box_ctrl_);
 	DDX_Control(pDX, IDC_BITMAP_PICTURE, bitmap_image_ctrl);
+	DDX_Control(pDX, IDC_EDIT_CAD_LENGHT, edit_cad_lenght_);
+	DDX_Control(pDX, IDC_EDIT_CAD_WIDTH, edit_cad_width_);
+	DDX_Control(pDX, IDC_EDIT_CAD_HEIGHT, edit_cad_height_);
+	DDX_Control(pDX, IDC_CHECKBOX_PROPORTION , check_proportion_);
+	DDX_Control(pDX, IDC_EDIT_PROPORTION , edit_cad_proportion_);
+
 }
 
 
@@ -36,6 +51,11 @@ BEGIN_MESSAGE_MAP(DlgProduction, CDialogEx)
 	ON_BN_CLICKED(IDC_BTN_NEW_PRODUCT, DlgProduction::NewProduction)
 	ON_BN_CLICKED(IDC_BTN_CLEAR, DlgProduction::ClearProduction)
 	ON_BN_CLICKED(IDC_BTN_NEW_IMAGE, DlgProduction::NewImage)
+	ON_BN_CLICKED(IDC_CHECKBOX_PROPORTION , OnCheckProportion)
+	ON_EN_CHANGE(IDC_EDIT_CAD_LENGHT, &OnEditCadLenght)
+	ON_EN_CHANGE(IDC_EDIT_CAD_WIDTH, &OnEditCadWidth)
+	ON_EN_CHANGE(IDC_EDIT_CAD_HEIGHT, &OnEditCadHeight)
+	ON_EN_CHANGE(IDC_EDIT_PROPORTION, &OnEditProportion)
 END_MESSAGE_MAP()
 
 
@@ -59,6 +79,17 @@ BOOL DlgProduction::OnInitDialog() {
   }
 
   UpdateData(FALSE);
+	check_proportion_.SetCheck(1);
+	edit_cad_lenght_.SetWindowText(str_cad_lenght_);
+	edit_cad_width_.SetWindowText(str_cad_width_);
+	edit_cad_height_.SetWindowText(str_cad_height_);
+	edit_cad_proportion_.SetWindowText(str_cad_proportion_);
+
+	edit_cad_lenght_.EnableWindow(false);
+  edit_cad_width_.EnableWindow(false);
+  edit_cad_height_.EnableWindow(false);
+	edit_cad_proportion_.EnableWindow(true);
+
 
 	CButton *clear_btn = static_cast<CButton*>(GetDlgItem(IDC_BTN_CLEAR));
 	clear_btn->EnableWindow(FALSE);
@@ -226,4 +257,51 @@ void DlgProduction::NewImage() {
       MessageBox(L"Thêm Ảnh Thất Bại", L"Copy File", MB_OK |MB_ICONERROR);
 		}
 	}
+}
+
+void DlgProduction::OnEditCadLenght() {
+	UpdateData(TRUE);
+	edit_cad_lenght_.GetWindowText(str_cad_lenght_);
+	cad_info_.lenght = _ttof(str_cad_lenght_);
+}
+void DlgProduction::OnEditCadWidth() {
+	UpdateData(TRUE);
+	edit_cad_width_.GetWindowText(str_cad_width_);
+	cad_info_.width = _ttof(str_cad_width_);
+}
+void DlgProduction::OnEditCadHeight() {
+	UpdateData(TRUE);
+	edit_cad_height_.GetWindowText(str_cad_height_);
+	cad_info_.height = _ttof(str_cad_height_);
+}
+
+void DlgProduction::GetCadInfor(CadInfo & cad_info) const{
+	cad_info = cad_info_;
+	cad_info.production = str_current_production_;
+}
+
+void DlgProduction::OnCheckProportion() {
+	UpdateData(true);
+	if(check_proportion_.GetCheck() == 0) {
+		cad_info_.change_proportion = false;
+
+		edit_cad_lenght_.EnableWindow(true);
+    edit_cad_width_.EnableWindow(true);
+    edit_cad_height_.EnableWindow(true);
+		edit_cad_proportion_.EnableWindow(false);
+	} else {
+		edit_cad_lenght_.EnableWindow(false);
+    edit_cad_width_.EnableWindow(false);
+    edit_cad_height_.EnableWindow(false);
+		edit_cad_proportion_.EnableWindow(true);
+
+		cad_info_.change_proportion = true;
+	}
+	UpdateData(false);
+}
+
+void DlgProduction::OnEditProportion() {
+	UpdateData(TRUE);
+	edit_cad_proportion_.GetWindowText(str_cad_proportion_);
+	cad_info_.proportion = _ttof(str_cad_proportion_);
 }

@@ -103,7 +103,7 @@ void Shelf::DrawAllSizeOZ(DWORD TextList3D,
 	if(stocks.empty()) {
 		return;
 	}
-
+	glDisable(GL_LIGHTING);
 	glPushMatrix();
 	glTranslatef(0, - dis, height_base);
 	Vector3D A(0, 0, 0);
@@ -112,13 +112,27 @@ void Shelf::DrawAllSizeOZ(DWORD TextList3D,
 	for(int i = 1; i < stocks.size(); i ++) {
 		glTranslatef(0, 0, stocks.at(i).first.height_floor);
 		DrawSizeOZ(stocks.at(i).first.height_floor, TextList3D);
+		if(i == stocks.size() - 1) {
+			glPushMatrix();
+			glTranslated(200, 200 , 0);
+				glRotatef(90, 0, 1, 0);
+				glRotatef(180, 0 , 0, 1);
+				DrawSizeOZ(200, TextList3D);
+			  //DrawALine(A, B);
+			glPopMatrix();
+			glPushMatrix();
+
+
+			glPopMatrix();
+		}
 	}
 	glPopMatrix();
+		glEnable(GL_LIGHTING);
 }
 
 void Shelf::DrawSizeOZ(double height,
 	                     DWORD TextList3D) {
-	glDisable(GL_LIGHTING);
+	//glDisable(GL_LIGHTING);
 	glLineWidth(0.5f);
 	glPushMatrix();
 
@@ -142,7 +156,7 @@ void Shelf::DrawSizeOZ(double height,
 	glCallLists(length, GL_SHORT , str);
 
 	glPopMatrix();
-	glEnable(GL_LIGHTING);
+	//glEnable(GL_LIGHTING);
 }
 
 void Shelf::DrawALine(Vector3D & A, Vector3D &B) {

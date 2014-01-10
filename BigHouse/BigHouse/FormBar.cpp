@@ -115,6 +115,12 @@ void FormBar::InitListViewProduct() {
 
 	list_view_product_.InsertColumn(0, _T("Mã Sản Phẩm"), LVCFMT_LEFT, 80);
 	list_view_product_.InsertColumn(1, _T("Tên Sản Phẩm"), LVCFMT_LEFT, 80);
+	list_view_product_.InsertColumn(2, _T("chiều rộng"), LVCFMT_LEFT, 80);
+	list_view_product_.InsertColumn(3, _T("chiều dài"), LVCFMT_LEFT, 80);
+	list_view_product_.InsertColumn(4, _T("chiều cao"), LVCFMT_LEFT, 80);
+	list_view_product_.InsertColumn(5, _T("tỷ lê"), LVCFMT_LEFT, 80);
+	list_view_product_.InsertColumn(6, _T("dùng tỉ lệ"), LVCFMT_LEFT, 80);
+	
 }
 
 
@@ -173,8 +179,32 @@ void FormBar::SetDataForListProduct( int number_of_product )
 	UINT i = number_of_product - 1;
 	CString str_id;
 	str_id.Format(_T("%d"), i);
+	CString str_w;
+	str_w.Format(_T("%0.2f"), cad_info_.at(i).width);
+	CString str_l;
+	str_l.Format(_T("%0.2f"), cad_info_.at(i).lenght);
+	CString str_h;
+	str_h.Format(_T("%0.2f"), cad_info_.at(i).height);
+	str_h.Format(_T("%0.2f"), cad_info_.at(i).height);
+
+	CString str_t_l;
+	str_t_l.Format(_T("%0.2f"), cad_info_.at(i).proportion);
+	
+	CString str_c_t;
+	if(cad_info_.at(i).change_proportion) {
+	  str_c_t = L"tỉ lệ";
+	} else {
+	  str_c_t = L"không";
+		str_t_l = L"";
+	} 
+
 	list_view_product_.InsertItem(0, str_id);
-	list_view_product_.SetItemText(0, 1, Base::RemoveExtensionFile(production_list_[i]));
+	list_view_product_.SetItemText(0, 1, Base::RemoveExtensionFile(cad_info_.at(i).production));
+	list_view_product_.SetItemText(0, 2, str_w);
+	list_view_product_.SetItemText(0, 3, str_l);
+	list_view_product_.SetItemText(0, 4, str_h);
+	list_view_product_.SetItemText(0, 5, str_c_t);
+	list_view_product_.SetItemText(0, 6, str_t_l);
 }
 
 
@@ -217,12 +247,12 @@ BigHouseView *FormBar::GetBigHouseView() {
 
 void FormBar::OnBnProductionSelected()
 {
-	int i = production_list_.size() - 1 - index_product_;
+	int i = cad_info_.size() - 1 - index_product_;
 	if (i < 0) {
 		AfxMessageBox(_T("Bạn chưa chọn sản phẩm trong danh sách"));
 		return;
 	}
-	theApp.LoadFileCad(production_list_[i]);
+	theApp.LoadFileCad(cad_info_.at(i));
 }
 
 
@@ -349,10 +379,10 @@ void FormBar::SetShelfInfoList(ShelfInfo shelf_info, bool &is_exist) {
 	}
 }
 
-void FormBar::SetProductionList(CString name_product, bool &is_exist) {
+void FormBar::SetProductionList(CadInfo & cad_info, bool &is_exist) {
 	bool is_exist_product_ = false;
-  for (int i = 0; i < production_list_.size(); i++) {
-	  if (production_list_[i] == name_product) {
+  for (int i = 0; i < cad_info_.size(); i++) {
+		if (cad_info_.at(i).production == cad_info.production) {
 			is_exist_product_ = true;
 			break;
 		} else {
@@ -361,7 +391,7 @@ void FormBar::SetProductionList(CString name_product, bool &is_exist) {
 	}
 	is_exist = is_exist_product_;
 	if (is_exist_product_ == false) {
-		production_list_.push_back(name_product);
+		cad_info_.push_back(cad_info);
 	}
 }
 
@@ -635,8 +665,8 @@ void FormBar::LoadCadFile(CString& str) {
 		return;
 	}
 
-	
-	std::vector<CString> cad_list;
+	std::vector<CadInfo> cad_info;
+	//std::vector<CString> cad_list;
 
 	cur = cur->children;
 	while (cur != NULL) {
@@ -644,24 +674,28 @@ void FormBar::LoadCadFile(CString& str) {
 			std::wstring name =  XmlUtls::GetStringContent(doc, cur);
 			CString str = name.c_str();
 			str = str + _T(".STL");
-			cad_list.push_back(str);
+			CadInfo production;
+			production.production = str;
+			cad_info.push_back(production);
+			//cad_list.push_back(str);
 		}
 		cur = cur->next;
 	}
 	xmlFreeDoc(doc);
 
 
-	for (int i = 0; i < production_list_.size(); i++) {
+	for (int i = 0; i < cad_info_.size(); i++) {
 		list_view_product_.DeleteItem(0);
 	}
 
-	production_list_.clear();
-	production_list_ = cad_list;
-	for (int i = cad_list.size(); i > 0; i--) {
+	cad_info_.clear();
+	//production_list_ = cad_list;
+	cad_info_ = cad_info;
+	for (int i = cad_info_.size(); i > 0; i--) {
 		SetDataForListProduct(i);
 	}
 
-	std::reverse(production_list_.begin(), production_list_.end());
+	//std::reverse(cad_info_.begin(), production_list_.end());
 }
 
 void FormBar::ExportCad() {
@@ -679,9 +713,11 @@ void FormBar::ExportCad() {
 
 bool FormBar::SaveCadFile(CString& str) {
 
-	std::vector<CString> cad_list;
-	cad_list = production_list_;
-	reverse(cad_list.begin(), cad_list.end());
+	//std::vector<CString> cad_list;
+	std::vector<CadInfo> cad_info;
+	//cad_list = production_list_;
+	cad_info = cad_info_;
+	//reverse(cad_list.begin(), cad_list.end());
 
 	std::string str_file = CStringA(str);
 
@@ -708,8 +744,8 @@ bool FormBar::SaveCadFile(CString& str) {
 	rc = xmlTextWriterStartElement(writer, BAD_CAST "root");
 	if (rc < 0) 
 		return false;
-	for (int i = 0; i < cad_list.size(); i++) {
-		CString str = Base::RemoveExtensionFile(cad_list[i]);
+	for (int i = 0; i < cad_info.size(); i++) {
+		CString str = Base::RemoveExtensionFile(cad_info_.at(i).production);
 		char*  chstr = Base::CStringToChar(str);
 		rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST"ten","%s", (const xmlChar*)chstr);
 		if (rc < 0) 

@@ -27,4 +27,14 @@ struct ShelfInfo {
 		Vector3D p[4];
 	};
 
+	struct CadInfo {
+	CString production;
+	float lenght;
+	float width;
+	float height;
+	bool change_proportion;
+	float proportion;
+	
+	};
+
 #endif // STRUCT_H_
