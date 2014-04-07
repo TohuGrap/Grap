@@ -35,7 +35,7 @@ public:
 	void SetShelfInfoList(ShelfInfo shelf_info, bool &is_exist);
 	void SetProductionList(CadInfo & cad_info, bool &is_exist);
 	void SetDataForListShelf(UINT number_of_shelf); 
-	void SetDataForListProduct(int number_of_product);
+	void SetDataForListProduct();
 	void HandleListViewShelf(int item);
 	void HandleListViewProduct(int item);
 	void DisableLoadProduct();
@@ -43,6 +43,8 @@ public:
 	bool SaveSimShelfFile(CString& path_file);
 	void ImportFile();
 	void ExportFile();
+	void RemoveListShelf();
+	void RemoveListCommodity();
 
 	void ImportCad();
 	void LoadCadFile(CString& str);
@@ -56,7 +58,8 @@ public:
 	enum ShelfType {
 		SIMPLE_SHELF = 0,
 		DOUBLE_SHELF = 1,
-		CIRCLE_SHELF = 2
+		CIRCLE_SHELF = 2,
+		CONTAINER = 3
 	};
 
 protected:

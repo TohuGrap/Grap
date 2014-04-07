@@ -39,10 +39,10 @@ BEGIN_MESSAGE_MAP(MainFrame, CFrameWndEx)
 	ON_COMMAND(ID_SETUP_SHELF, &MainFrame::SetupShelf)
 	ON_COMMAND(ID_CLEAR_ALL_SHELF, &MainFrame::ClearAllShelf)
 	ON_COMMAND(ID_SETUP_PRODUCT, &MainFrame::SetupProduction)
+	ON_COMMAND(ID_ARRANGE_PRODUCTION, &MainFrame::ArrangeProduction)
 END_MESSAGE_MAP()
 
-static UINT indicators[] =
-{
+static UINT indicators[] = {
 	ID_SEPARATOR,           // status line indicator
 	ID_INDICATOR_CAPS,
 	ID_INDICATOR_NUM,
@@ -361,6 +361,10 @@ void MainFrame::ClearAllShelf() {
 
 void MainFrame::SetupProduction() {
   big_house_view_->SetupProduction();
+}
+
+void MainFrame::ArrangeProduction() {
+	
 }
 
 

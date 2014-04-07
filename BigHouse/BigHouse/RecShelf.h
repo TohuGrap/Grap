@@ -12,6 +12,8 @@
 
 #include"Shelf.h"
 #include "Struct.h"
+#include "Commodity.h"
+//#include "ArrangeCommodity.h"
 
 class RectShelf: public Shelf {
 public:
@@ -22,7 +24,7 @@ public:
 		RIGHT
 	};
 public :
-	RectShelf(float width, float length, float height, float dis_drag, UINT floor_count);
+	RectShelf(float width, float length, float height, float dis_drag, float slit, UINT floor_count);
 	RectShelf();
 	~RectShelf();
 	void DrawFaceShelf(Rect &rec);
@@ -33,14 +35,14 @@ public :
 											double height,
 											double height_solo,
 											int selected_floor,
-											std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks,
+											std::vector<Floor> &floor/*std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks*/,
 											bool draw_snare = true);
 	void DrawShelfFloor(int width, 
 		                  int length,
 											int heigth ,
 											double height_solo,
 											int count,
-											std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks);
+										  std::vector<Floor> &floor/*std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks*/);
 	void GetBoundingBox(Vector3D &bbmin, Vector3D &bbmax) const;
 	void GetBBmin(Vector3D &bbmin) const;
   void SetBoundingBox(Vector3D &bbmin /*Vector3D &bbmax*/);
@@ -56,10 +58,17 @@ public :
 												 double height,
 												 double height_solo,
 												 double t,
-												 std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks);
+												 std::vector<Floor> &floor/*std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks*/);
 	
 	//void DrawPoint();
 	void DrawCommodity(std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks, double h_solo);
+	void DrawCommodityFromDownToUp(std::vector<Floor> &floor, 
+		                             std::vector<Commodity*> List_commodity, 
+																 float lenght,
+																 float width,
+																 float h_solo,
+																 float drag,
+																 float slit);
 	//*******&&**********
 	bool LineCutBoundingBox(const Vector3D &dir,
 		                      const Vector3D &pos,
@@ -81,14 +90,21 @@ public :
 															double &height_first, 
 															double &height_second,
 															float &dis_drag);
-	
+	virtual void SetCommodity(std::vector<Commodity*> list_commodity);
+	void DrawContainer(std::vector<Commodity*> list_commodity,
+									int &i,
+									int &j,
+									float lenght,
+									float width, 
+									float height,
+									float slit);
 protected:
 	int FindPointMouseOnFloor(Vector3D &dir,
 		                         Vector3D &pos, 
 														 Vector3D &bbmin,
 														 Vector3D &bbmax,
 														 double height_base,
-														 std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks);
+														 std::vector<Floor> &floor/*std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks*/);
 	void DrawSnare(double r,
 		             double h,
 								 double sp,
@@ -97,7 +113,8 @@ protected:
 								 double lenght);
 	void DrawAllSizeOZDR(DWORD TextList3D,
 										double height_base,
-								  	std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks) ;
+								  	std::vector<Floor> &floor/*std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks*/);
+
 
 private:
 	bool is_update_;
@@ -107,9 +124,12 @@ private:
 	int width_;
 	int selected_floor_;
 	float dis_drag_;
+	float slit_;
 
 	TypeRecShelf type_;
-	std::vector<std::pair<Floor, std::vector<Triangle3D*>>> stocks_;
+	//std::vector<std::pair<Floor, std::vector<Triangle3D*>>> stocks_;
+	std::vector<Floor> all_floor_;
+	std::vector<Commodity*> List_commodity_;
 	Vector3D bbmin_;
 	Vector3D bbmax_;
 	Vector3D point_center_;

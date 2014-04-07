@@ -9,11 +9,12 @@
 #include "Triangle3D.h"
 #include "Shelf.h"
 #include "RecShelf.h"
+#include "ArrangeCommodity.h"
 #include "RecShelfFont_Back.h"
 #include "CircleShelf.h"
 #include "Struct.h"
 #include "MainFrm.h"
-
+//#include "Commodity.h"
 #define PI 3.1415926535
 class BigHouseView : public CView
 {
@@ -86,6 +87,7 @@ public:
 		                   float length, 
 											 float height, 
 											 float dis_drag, 
+											 float dis_wall,
 											 int count_floor);
 	void MakeDoubleShelf(float width, 
 		                   float length, 
@@ -94,11 +96,9 @@ public:
 											 int count_floor);
 	void MakeCircleShelf(float radius,
 		                   float height,
-											 float start_angle,
-											 float end_angle,
-											 float flat_angle, 
 											 float dis_drag, 
 											 int floor);
+	void MakeArrangeCommodity(float lenght, float width, float height, float slit);
 	void RenderShelf(Shelf* sh, UINT space_distance_length, UINT space_distance_width);
   void ClearShelf();
   void OnViewTop();
@@ -128,6 +128,9 @@ public:
 	void OnViewFullscreen();
 	void DrawTextList(double size);
 	bool CalPointOnOZ(Vector3D &dir, Vector3D &pos, Vector3D &Point_oz);
+
+	void CreateArrangeCommodity(std::vector<CadInfo> &list_commodity_info);
+	void CreatContainer(float length, float width, float height);
 protected:
   float pos[3];
 
@@ -176,7 +179,7 @@ protected:
 
   GLfloat m_scaling;
 
-  GLuint m_texture[4];
+  GLuint m_texture[6];
 
   CPoint mouse_down_point_;
 
@@ -207,7 +210,9 @@ private:
 	Vector3D point_m_in_opengl_;
 	Vector3D dr_oz_;
 	Vector3D point_oz_;
-    std::pair<Floor, std::vector<Triangle3D*>> cad_info_;	std::vector<Shelf*> shelf_;
+	std::vector<Commodity*> list_commodity_;
+ // std::pair<Floor, std::vector<Triangle3D*>> cad_info_;
+	std::vector<Shelf*> shelf_;
 	Vector3D point_left_button_down_;
 	CPoint left_point_down_2d_;
 	Vector3D move_shelf_;
@@ -222,7 +227,9 @@ private:
 	bool can_add_shelf;
 	GLuint m_nRoomList;
 	UINT number_of_shelf_;
-	UINT number_of_product_;
+	bool display_room_;
+
+
 protected:
 	afx_msg void OnFilePrintPreview();
 	afx_msg void OnRButtonUp(UINT nFlags, CPoint point);

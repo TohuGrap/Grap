@@ -231,7 +231,7 @@ void BigHouseApp::LoadFileCad(CadInfo &cad_info) {
   unsigned int n_size = 0;
   char str[MAX_PATH];
   FILE *pFile = NULL;
-	CString str_file = Base::GetPathModule() + _T("\\cad\\") + cad_info.production;
+	CString str_file = Base::GetPathModule() + _T("\\cad\\") + cad_info.name_production;
   
 	// convert CString to char*
   char file_name[MAX_PATH];
@@ -247,14 +247,14 @@ void BigHouseApp::LoadFileCad(CadInfo &cad_info) {
 	 }
 
 	int index = -1;
-	bool ret = IsOpenedFile(cad_info.production, index);
+	bool ret = IsOpenedFile(cad_info.name_production, index);
 	if (ret == true) {
 		GetRectBody(production_list_[index], cad_info);	
 	} else {
 		// if production is not opened
 		// Save name production into list
 		production_triangle_list_.clear(); // clear data old production 
-		opened_file_list_.push_back(cad_info.production);
+		opened_file_list_.push_back(cad_info.name_production);
 
 		// read data form stl file
 		pFile = fopen(file_name, "r");
@@ -399,45 +399,46 @@ void BigHouseApp::OnFileSave() {
 void BigHouseApp::ConvertCommodityZise(CadInfo &cad_info, 
 																			 std::pair<Floor, std::vector<Triangle3D*>> &body) {
 
-  float dx;
-	float dy;
-	float dz;
-	if(cad_info.change_proportion) {
-		for(int i = 0; i < body.second.size(); i++) {
-			body.second.at(i)->m_v0.v[0] = cad_info.proportion*body.second.at(i)->m_v0.v[0];
-			body.second.at(i)->m_v0.v[1] = cad_info.proportion*body.second.at(i)->m_v0.v[1];
-			body.second.at(i)->m_v0.v[2] = cad_info.proportion*body.second.at(i)->m_v0.v[2];
+ // float dx;
+	//float dy;
+	//float dz;
+	//if(cad_info.change_proportion) {
+	//	for(int i = 0; i < body.second.size(); i++) {
+	//		body.second.at(i)->m_v0.v[0] = cad_info.proportion*body.second.at(i)->m_v0.v[0];
+	//		body.second.at(i)->m_v0.v[1] = cad_info.proportion*body.second.at(i)->m_v0.v[1];
+	//		body.second.at(i)->m_v0.v[2] = cad_info.proportion*body.second.at(i)->m_v0.v[2];
 
-			body.second.at(i)->m_v1.v[0] = cad_info.proportion*body.second.at(i)->m_v1.v[0];
-			body.second.at(i)->m_v1.v[1] = cad_info.proportion*body.second.at(i)->m_v1.v[1];
-			body.second.at(i)->m_v1.v[2] = cad_info.proportion*body.second.at(i)->m_v1.v[2];
+	//		body.second.at(i)->m_v1.v[0] = cad_info.proportion*body.second.at(i)->m_v1.v[0];
+	//		body.second.at(i)->m_v1.v[1] = cad_info.proportion*body.second.at(i)->m_v1.v[1];
+	//		body.second.at(i)->m_v1.v[2] = cad_info.proportion*body.second.at(i)->m_v1.v[2];
 
-			body.second.at(i)->m_v2.v[0] = cad_info.proportion*body.second.at(i)->m_v2.v[0];
-			body.second.at(i)->m_v2.v[1] = cad_info.proportion*body.second.at(i)->m_v2.v[1];
-			body.second.at(i)->m_v2.v[2] = cad_info.proportion*body.second.at(i)->m_v2.v[2];
-		}
-		body.first.floor_size.x_size *= cad_info.proportion;
-		body.first.floor_size.y_size *= cad_info.proportion;
-		body.first.floor_size.z_size *= cad_info.proportion;
-	} else {
-		dx = cad_info.width/body.first.floor_size.x_size;
-		dy = cad_info.lenght/body.first.floor_size.y_size;
-		dz = cad_info.height/body.first.floor_size.z_size;
-		for(int i = 0; i < body.second.size(); i++) {
-			body.second.at(i)->m_v0.v[0] = dx*body.second.at(i)->m_v0.v[0];
-			body.second.at(i)->m_v0.v[1] = dy*body.second.at(i)->m_v0.v[1];
-			body.second.at(i)->m_v0.v[2] = dz*body.second.at(i)->m_v0.v[2];
+	//		body.second.at(i)->m_v2.v[0] = cad_info.proportion*body.second.at(i)->m_v2.v[0];
+	//		body.second.at(i)->m_v2.v[1] = cad_info.proportion*body.second.at(i)->m_v2.v[1];
+	//		body.second.at(i)->m_v2.v[2] = cad_info.proportion*body.second.at(i)->m_v2.v[2];
+	//	}
+	//	body.first.floor_size.x_size *= cad_info.proportion;
+	//	body.first.floor_size.y_size *= cad_info.proportion;
+	//	body.first.floor_size.z_size *= cad_info.proportion;
+	//} else {
+	//	dx = cad_info.width/body.first.floor_size.x_size;
+	//	dy = cad_info.lenght/body.first.floor_size.y_size;
+	//	dz = cad_info.height/body.first.floor_size.z_size;
+	//	for(int i = 0; i < body.second.size(); i++) {
+	//		body.second.at(i)->m_v0.v[0] = dx*body.second.at(i)->m_v0.v[0];
+	//		body.second.at(i)->m_v0.v[1] = dy*body.second.at(i)->m_v0.v[1];
+	//		body.second.at(i)->m_v0.v[2] = dz*body.second.at(i)->m_v0.v[2];
 
-			body.second.at(i)->m_v1.v[0] = dx*body.second.at(i)->m_v1.v[0];
-			body.second.at(i)->m_v1.v[1] = dy*body.second.at(i)->m_v1.v[1];
-			body.second.at(i)->m_v1.v[2] = dz*body.second.at(i)->m_v1.v[2];
+	//		body.second.at(i)->m_v1.v[0] = dx*body.second.at(i)->m_v1.v[0];
+	//		body.second.at(i)->m_v1.v[1] = dy*body.second.at(i)->m_v1.v[1];
+	//		body.second.at(i)->m_v1.v[2] = dz*body.second.at(i)->m_v1.v[2];
 
-			body.second.at(i)->m_v2.v[0] = dx*body.second.at(i)->m_v2.v[0];
-			body.second.at(i)->m_v2.v[1] = dy*body.second.at(i)->m_v2.v[1];
-			body.second.at(i)->m_v2.v[2] = dz*body.second.at(i)->m_v2.v[2];
-		}
-		body.first.floor_size.x_size = cad_info.width;
-		body.first.floor_size.y_size = cad_info.lenght;
-		body.first.floor_size.z_size = cad_info.height;
-	}
+	//		body.second.at(i)->m_v2.v[0] = dx*body.second.at(i)->m_v2.v[0];
+	//		body.second.at(i)->m_v2.v[1] = dy*body.second.at(i)->m_v2.v[1];
+	//		body.second.at(i)->m_v2.v[2] = dz*body.second.at(i)->m_v2.v[2];
+	//	}
+	//	body.first.floor_size.x_size = cad_info.width;
+	//	body.first.floor_size.y_size = cad_info.lenght;
+	//	body.first.floor_size.z_size = cad_info.height;
+	//}
 }
+

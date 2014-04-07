@@ -7,32 +7,34 @@ RectShelf::RectShelf(float width,
 	                  float length,
 									  float height,
 										float dis_drag,
+										float slit,
 									  UINT floor_count):
 	height_(height),
 	length_(length),
 	width_(width),
 	dis_drag_(dis_drag),
+	slit_(slit),
   type_(TypeRecShelf::FONT) {
   if (floor_count <= 0) {
 	  MessageBox(NULL, _T("Số tầng của kệ là 0 \nĐiều này không hợp lệ \nLấy giá trị mặc đinh là 5"), _T("Thông báo"), MB_OK|MB_ICONWARNING);
 		floor_count = 5;
 	}
-	//floor_height_ = (int)(height- height/20.0)/(floor_count);
- //// int h = (int)(height- height/20.0)/(floor_count);
-	////h = h/3;
-	////h = h*3;
+
 	int h = int((height - height/20.0) / dis_drag);
 	h = int(h/floor_count);
 	float d = h*dis_drag;
-	std::pair<Floor, std::vector<Triangle3D*>> stock;
+	//std::pair<Floor, std::vector<Triangle3D*>> stock;
+	Floor floor;
 	for(int i = 0; i < floor_count; i ++) {
-		stock.first.height_floor = d;
-		stocks_.push_back(stock);
+		floor.height_floor = d;
+		all_floor_.push_back(floor);
+		//stock.first.height_floor = d;
+		//stocks_.push_back(stock);
 	}
 	bbmin_.Set(0, 0, 0);
 	bbmax_.Set(width_, length_, height_);
 	selected_floor_ = - 1;
-	//is_circle_shelf_ = false;
+
 }
 
 RectShelf::RectShelf() {
@@ -103,7 +105,7 @@ void RectShelf::ShelfStructure(double width,
 															double height,
 															double height_solo,
 															int selected_floor,
-															std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks,
+															std::vector<Floor> &floor/*std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks*/,
 															bool draw_snare) {
   int size_col = (int)(width/20.0);
 	if(size_col < 3) {
@@ -130,8 +132,8 @@ void RectShelf::ShelfStructure(double width,
 			glPopMatrix();
 		}
 
-		DrawTwoHandeFloor(width, length, width/8.0, height_solo, size_col/2.0, stocks);
-		DrawShelfFloor(width, length, 1, height_solo, selected_floor, stocks);
+		DrawTwoHandeFloor(width, length, width/8.0, height_solo, size_col/2.0, floor);
+		DrawShelfFloor(width, length, 1, height_solo, selected_floor, floor/*stocks*/);
 	glPopMatrix();
 }
 
@@ -140,8 +142,8 @@ void RectShelf::DrawShelfFloor(int width,
 															int heigth,
 															double height_solo,
 															int count,
-															std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks) {
-	if(stocks.empty()) {
+															std::vector<Floor> &floor/*std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks*/) {
+	if(floor.empty()) {
 		return;
 	}
 	glPushMatrix();
@@ -152,8 +154,8 @@ void RectShelf::DrawShelfFloor(int width,
 	}
 
 	//DrawSizeOZ(stocks.at(0).first.height_floor, 513);
-	for(int i = 1; i < stocks.size(); i ++) {
-		glTranslated(0, 0, stocks.at(i).first.height_floor);
+	for(int i = 1; i < floor.size(); i ++) {
+		glTranslated(0, 0, floor.at(i).height_floor);
 		if(count == i /*&& stocks.at(i).second.empty()*/) {
 			glColor3f(0, 0, 1);
 		} else {
@@ -196,10 +198,11 @@ void RectShelf::DrawShelf() {
 									 height_ , 
 									 h_solo, 
 									 selected_floor_,
-									 stocks_);
- 		DrawCommodity(stocks_, h_solo);
+									 all_floor_);
+ 		//DrawCommodity(stocks_, h_solo);
+		DrawCommodityFromDownToUp(all_floor_, List_commodity_, length_, width_, h_solo, 4*dis_drag_, slit_);
 		if(GetKeyState(VK_SHIFT) & 0x8000) {
-  		DrawAllSizeOZ(513, h_solo,0, stocks_);
+			DrawAllSizeOZ(513, h_solo,0, all_floor_);
 			is_update_ = true;
 		}else {
 	  	is_update_ = false;
@@ -230,7 +233,7 @@ int RectShelf::FindPointMouseOnFloor(Vector3D &dir,
 																		  Vector3D &bbmin,
 														          Vector3D &bbmax,
 																			double height_base,
-																		 std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks) {
+																		  std::vector<Floor> &floor/*std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks*/) {
 	Vector3D oz(0, 0, 1);
 	if(dir.scalar(oz) == 0) {
 		return - 1;
@@ -243,9 +246,9 @@ int RectShelf::FindPointMouseOnFloor(Vector3D &dir,
 	double height = height_base;
 	bool has_point = false;
 	Vector3D point_floor;
-	for(int i = 0; i < stocks.size(); i ++) {
+	for(int i = 0; i < floor.size(); i ++) {
 		if(i != 0) {
-			height += stocks.at(i).first.height_floor;
+			height += floor.at(i).height_floor;
 		}
 		Vector3D P1 = bbmin;
 		P1.v[2] = height;
@@ -274,7 +277,7 @@ int RectShelf::FindPointMouseOnFloor(Vector3D &dir,
 
 
 void RectShelf::PointMouseOnFloor(Vector3D &dir, Vector3D &pos) {
-	selected_floor_ = FindPointMouseOnFloor(dir, pos, bbmin_, bbmax_, height_/12.0,stocks_);
+	selected_floor_ = FindPointMouseOnFloor(dir, pos, bbmin_, bbmax_, height_/12.0,all_floor_);
 	is_update_ = true;
 }
 
@@ -338,20 +341,24 @@ bool RectShelf::LineCutSurface(Vector3D &dir,
 }
 
 void RectShelf::SetCadToShelf(std::pair<Floor, std::vector<Triangle3D*>> &body) {
-	if(selected_floor_ != -1) {
-		if(selected_floor_< stocks_.size()- 1) {
-			if(stocks_.at(selected_floor_ + 1).first.height_floor < body.first.floor_size.z_size) {
-				AfxMessageBox(L"Chiều cao kệ không đủ");
-				return;
-			}
-	  }
-		stocks_.at(selected_floor_).first.cad_pos.x_pos = (int)width_/body.first.floor_size.x_size;
-		stocks_.at(selected_floor_).first.cad_pos.y_pos = (int)length_/body.first.floor_size.y_size;
-		stocks_.at(selected_floor_).first.floor_size = body.first.floor_size;
-		stocks_.at(selected_floor_).second = body.second;
-		//stocks_.assign
-		is_update_ = true;
-	}
+	//if(selected_floor_ != -1) {
+	//	if(selected_floor_< stocks_.size()- 1) {
+	//		if(stocks_.at(selected_floor_ + 1).first.height_floor < body.first.floor_size.z_size) {
+	//			AfxMessageBox(L"Chiều cao kệ không đủ");
+	//			return;
+	//		}
+	//  }
+	//	stocks_.at(selected_floor_).first.cad_pos.x_pos = (int)width_/body.first.floor_size.x_size;
+	//	stocks_.at(selected_floor_).first.cad_pos.y_pos = (int)length_/body.first.floor_size.y_size;
+	//	stocks_.at(selected_floor_).first.floor_size = body.first.floor_size;
+	//	stocks_.at(selected_floor_).second = body.second;
+	//	//stocks_.assign
+	//	is_update_ = true;
+	//}
+}
+
+void RectShelf::SetCommodity(std::vector<Commodity*> list_commodity) {
+	List_commodity_ = list_commodity;
 }
 
 //**********************************&&*************************
@@ -406,11 +413,11 @@ void RectShelf::DrawTwoHandeFloor(double width,
 																 double height,
 																 double height_solo,
 																 double t,
-																 std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks){
+																 std::vector<Floor> &floor/*std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks*/){
 	glPushMatrix();
 	glTranslatef(0, - t, height_solo);
-	for(int i = 1; i < stocks.size(); i ++){
-		glTranslatef(0, 0, stocks.at(i).first.height_floor);
+	for(int i = 1; i < floor.size(); i ++){
+		glTranslatef(0, 0, floor.at(i).height_floor);
 		DrawFloorHande(width,length, height, t , true);
 		glPushMatrix();
 		glTranslatef(0, length + t, 0);
@@ -506,11 +513,13 @@ void RectShelf::SetShelfPosition(Vector3D &p_move) {
 	bbmin_ = bbmin_ + p_move;
 	if(type_ == FONT || type_ == BACK) {
 		Vector3D p(width_, length_, height_);
+		bbmax_ = bbmin_ + p;
 	} else {
 		Vector3D p(length_, width_, height_);
+		bbmax_ = bbmin_ + p;
 	}
-  Vector3D p(width_, length_, height_);
-	bbmax_ = bbmin_ + p;
+ // Vector3D p(width_, length_, height_);
+	//bbmax_ = bbmin_ + p;
 
 }
 
@@ -559,36 +568,39 @@ void RectShelf::RotateShelf() {
 }
 
 void RectShelf::SetHeightFloor(int selected_count, double height_first, double height_second) {
-	if(selected_count < stocks_.size() - 1) {
+	if(selected_count < all_floor_.size() - 1) {
 		if(height_second < 4*dis_drag_)
 			return;
 	}
 	if(height_first < 4*dis_drag_) {
 		return;
 	}
-	if( selected_count == stocks_.size() - 1) {
+	if( selected_count == all_floor_.size() - 1) {
 		double d = height_/12.0;
-		for(int i = 1; i < stocks_.size() - 1; i ++) {
-			d += stocks_.at(i).first.height_floor;
+		for(int i = 1; i < all_floor_.size() - 1; i ++) {
+			d += all_floor_.at(i).height_floor;
 		}
 		if(d + height_first > height_) {
 			int h = (height_ - d)/dis_drag_;
 			height_first = h*dis_drag_;
 		}
+		height_second = height_ - d - height_first;
 	}
 
 	assert(height_first > 0);
-	if(selected_count < stocks_.size() && selected_count > 0) {
-		if(height_first  < stocks_.at(selected_count -1).first.floor_size.z_size + 2) {
+	if(selected_count < all_floor_.size() && selected_count > 0) {
+		if(height_first  < all_floor_.at(selected_count -1).floor_size.z_size + 2) {
 			return;
 		}
-		if(selected_count < stocks_.size() - 1) {
-			if(height_second < stocks_.at(selected_count).first.floor_size.z_size + 2) {
+		if(selected_count < all_floor_.size() - 1) {
+			if(height_second < all_floor_.at(selected_count).floor_size.z_size + 2) {
 				return;
 			}
-			stocks_.at(selected_count + 1).first.height_floor = height_second;
+			all_floor_.at(selected_count + 1).height_floor = height_second;
+		} else {
+			all_floor_.at(0).height_floor = height_second; // kich thuoc cua khoang tren cung
 		}
-		stocks_.at(selected_count).first.height_floor = height_first;
+		all_floor_.at(selected_count).height_floor = height_first;
 	}
 	is_update_ = true;
 }
@@ -599,11 +611,11 @@ void RectShelf::GetHeightFloor(Vector3D &dir,
 															 double &height_first,
 															 double &height_second,
 															 float &dis_drag) {
-  selected_count = FindPointMouseOnFloor(dir, pos, bbmin_, bbmax_, height_/12.0, stocks_);
+	 selected_count = FindPointMouseOnFloor(dir, pos, bbmin_, bbmax_, height_/12.0, all_floor_);
 	if(selected_count != - 1) {
-    height_first = stocks_.at(selected_count).first.height_floor;
-		if(selected_count< stocks_.size() - 1) {
-			height_second = stocks_.at(selected_count + 1).first.height_floor;
+    height_first = all_floor_.at(selected_count).height_floor;
+		if(selected_count< all_floor_.size() - 1) {
+			height_second = all_floor_.at(selected_count + 1).height_floor;
 		}
 	} 
 	dis_drag = dis_drag_;
@@ -611,6 +623,140 @@ void RectShelf::GetHeightFloor(Vector3D &dir,
 
 void RectShelf::DrawAllSizeOZDR(DWORD TextList3D,
 												      	double height_base,
-										            std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks) {
-  DrawAllSizeOZ(TextList3D, height_base, 0, stocks);
+										            std::vector<Floor> &floor/*std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks*/) {
+  DrawAllSizeOZ(TextList3D, height_base, 0, floor);
+}
+
+void RectShelf::DrawCommodityFromDownToUp(std::vector<Floor> &floor, 
+																				 std::vector<Commodity*> List_commodity, 
+																				 float lenght,
+																				 float width,
+																				 float h_solo,
+																				 float drag,
+																				 float slit) {
+  if(List_commodity.empty()) {
+		return;
+	}
+	glPushMatrix();
+	glShadeModel(GL_SMOOTH);
+	int j = 0;
+	int k = 0;
+	for(int i = 0; i < floor.size(); i ++) {
+		if(i == 0) {
+			glTranslated(0, 0, h_solo);
+		} else {
+			glTranslated(0, 0, floor.at(i).height_floor); // trans z
+		}
+		if(i != floor.size() - 1) {
+			DrawContainer(List_commodity, j, k, lenght, width, floor.at(i + 1).height_floor - drag, slit);
+		} else {
+			DrawContainer(List_commodity, j, k, lenght, width, floor.at(0).height_floor - drag, slit);
+		}
+	}
+
+	glPopMatrix();
+}
+
+void RectShelf::DrawContainer(std::vector<Commodity*> list_commodity,
+													int &i,
+													int &j,
+													float lenght,
+													float width, 
+													float height,
+													float slit) {
+	//glDisable(GL_DEPTH_TEST);
+	//glBegin(GL_LINE_LOOP);
+ // glVertex3f(0, 0, height);
+	//glVertex3f(width, 0, height);//1
+ // glVertex3f(width, lenght, height);
+	//glVertex3f(0, lenght, height);
+	//glEnd();
+
+	//glBegin(GL_LINE_LOOP);
+ // glVertex3f(0, 0, 0);
+ // glVertex3f( width, 0, 0);//2
+	//glVertex3f( width, 0, height);
+	//glVertex3f(0, 0, height);
+	//glEnd();
+
+	//glBegin(GL_LINE_LOOP);
+
+ // glVertex3f(0,lenght , 0);
+ // glVertex3f(0, 0, 0);
+	//glVertex3f(0, 0, height);
+	//glVertex3f(0, lenght, height);
+	//glEnd();
+
+	//glBegin(GL_LINE_LOOP);
+	//glVertex3f(width, 0, 0);
+ // glVertex3f(width, lenght, 0);      //4
+ // glVertex3f(width, lenght, height);
+ // glVertex3f(width, 0, height);
+	//glEnd();
+
+	//glBegin(GL_LINE_LOOP);
+ // glVertex3f(width, lenght, 0);
+ // glVertex3f(0, lenght, 0);
+ // glVertex3f(0, lenght, height); //5
+ // glVertex3f(width, lenght, height);
+ // glEnd();
+
+	//glEnable(GL_DEPTH_TEST);
+
+
+	if(list_commodity.empty()) {
+		return;
+	}
+	float dx = 0;
+	float dy = 0;
+	float dz = 0;
+	float old_x = 0;
+	float old_y = 0;
+	float old_z = 0;
+	bool end = false;
+	glPushMatrix();
+	for(; i < list_commodity.size(); i++) {
+		float c_y = list_commodity.at(i)->GetLenght();
+		float c_x = list_commodity.at(i)->Getwidth();
+		float c_z = list_commodity.at(i)->GetHeight();
+		if(c_x > width || c_y > lenght || c_z > height) {
+			break;
+		}
+		for(; j < list_commodity.at(i)->GetCout(); j ++) {
+			dz += old_z;
+			if(dz > height - c_z) {
+				dz = 0;
+				dx += old_x + slit;//
+				old_x = c_x;
+				if(dx > width - c_x) {
+					dx = 0;
+					dy += old_y + slit;
+					old_y = c_y;
+					if(dy > lenght - c_y) {
+						end = true;
+						break;
+					}
+				} 
+			} 
+			glPushMatrix();
+			glTranslatef(dx, dy, dz);
+			list_commodity.at(i)->DrawProduction();
+			glPopMatrix();
+			old_z = c_z;
+			if(old_x < c_x) {
+				old_x = c_x;
+			}
+
+			if(old_y < c_y) {
+				old_y = c_y;
+			}
+		}
+		if(end) {
+			break;
+		} else {
+			j = 0;
+		}
+	}
+	glPopMatrix();
+
 }

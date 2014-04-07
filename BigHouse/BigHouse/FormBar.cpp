@@ -47,6 +47,8 @@ BEGIN_MESSAGE_MAP(FormBar, CFormView)
 	ON_BN_CLICKED(IDC_BTN_SHELF_EXPORT, &FormBar::ExportFile)
 	ON_BN_CLICKED(IDC_BTN_SHELF_IMPORT_CAD, &FormBar::ImportCad)
 	ON_BN_CLICKED(IDC_BTN_SHELF_EXPORT_CAD, &FormBar::ExportCad)
+	ON_BN_CLICKED(IDC_BTN_REMOVE_LIST_SHELF, &FormBar::RemoveListShelf)
+	ON_BN_CLICKED(IDC_BTN_REMOVE_LIST_COMMODITY, &FormBar::RemoveListCommodity)
   ON_WM_PAINT()
   ON_WM_SIZE()
 	ON_WM_LBUTTONUP()
@@ -78,8 +80,6 @@ void FormBar::OnInitialUpdate() {
 
 	CButton* production_btn = reinterpret_cast<CButton*>(GetDlgItem(IDC_BTN_PRODUCTION_SELECTED));
 	production_btn->EnableWindow(FALSE);
-
-
 	list_view_shelf_.SetFormBarShelf(this);
 	list_view_product_.SetFormBarProduct(this);
   CButton* btn_select_shelf = reinterpret_cast<CButton*>(GetDlgItem(IDC_BTN_SHELF_SELECTED));
@@ -96,16 +96,13 @@ void FormBar::InitListViewShelf() {
   list_view_shelf_.SetExtendedStyle(list_view_shelf_.GetExtendedStyle() |
 																		LVS_EX_FULLROWSELECT |
 																		LVS_EX_GRIDLINES);
-
-	list_view_shelf_.InsertColumn(0, _T("Loại Kệ"), LVCFMT_LEFT, 80);
-	list_view_shelf_.InsertColumn(1, _T("Chiêu Dài"), LVCFMT_LEFT, 80);
-	list_view_shelf_.InsertColumn(2, _T("Chiêu Rộng"), LVCFMT_LEFT, 80);
-	list_view_shelf_.InsertColumn(3, _T("Chiêu Cao"), LVCFMT_LEFT, 80);
-	list_view_shelf_.InsertColumn(4, _T("Bán Kính"), LVCFMT_LEFT, 80);
-	list_view_shelf_.InsertColumn(5, _T("Góc Bắt Đầu"), LVCFMT_LEFT, 80);
-	list_view_shelf_.InsertColumn(6, _T("Góc Kết Thúc"), LVCFMT_LEFT, 80);
-	list_view_shelf_.InsertColumn(7, _T("Độ Tròn"), LVCFMT_LEFT, 60);
-	list_view_shelf_.InsertColumn(8, _T("Số tầng"), LVCFMT_LEFT, 60);
+	list_view_shelf_.InsertColumn(0, _T("Tên"), LVCFMT_LEFT, 50);
+	list_view_shelf_.InsertColumn(1, _T("Loại"), LVCFMT_LEFT, 50);
+	list_view_shelf_.InsertColumn(2, _T("Chiêu Dài"), LVCFMT_LEFT, 50);
+	list_view_shelf_.InsertColumn(3, _T("Chiêu Rộng"), LVCFMT_LEFT, 50);
+	list_view_shelf_.InsertColumn(4, _T("Chiêu Cao"), LVCFMT_LEFT, 50);
+	list_view_shelf_.InsertColumn(5, _T("Bán Kính"), LVCFMT_LEFT, 50);
+	list_view_shelf_.InsertColumn(6, _T("Số tầng"), LVCFMT_LEFT, 50);
 }
 
 void FormBar::InitListViewProduct() {
@@ -113,98 +110,107 @@ void FormBar::InitListViewProduct() {
 																			LVS_EX_FULLROWSELECT |
 																			LVS_EX_GRIDLINES);
 
-	list_view_product_.InsertColumn(0, _T("Mã Sản Phẩm"), LVCFMT_LEFT, 80);
-	list_view_product_.InsertColumn(1, _T("Tên Sản Phẩm"), LVCFMT_LEFT, 80);
-	list_view_product_.InsertColumn(2, _T("chiều rộng"), LVCFMT_LEFT, 80);
-	list_view_product_.InsertColumn(3, _T("chiều dài"), LVCFMT_LEFT, 80);
-	list_view_product_.InsertColumn(4, _T("chiều cao"), LVCFMT_LEFT, 80);
-	list_view_product_.InsertColumn(5, _T("tỷ lê"), LVCFMT_LEFT, 80);
-	list_view_product_.InsertColumn(6, _T("dùng tỉ lệ"), LVCFMT_LEFT, 80);
+
+	list_view_product_.InsertColumn(0, _T("Tên Sản Phẩm"), LVCFMT_LEFT, 60);
+	list_view_product_.InsertColumn(1, _T("loại"), LVCFMT_LEFT, 60);
+	list_view_product_.InsertColumn(2, _T("chiều dài"), LVCFMT_LEFT, 60);
+	list_view_product_.InsertColumn(3, _T("chiều rộng"), LVCFMT_LEFT, 60);
+	list_view_product_.InsertColumn(4, _T("chiều cao"), LVCFMT_LEFT, 60);
+	list_view_product_.InsertColumn(5, _T("trong lượng"), LVCFMT_LEFT, 60);
+	list_view_product_.InsertColumn(6, _T("chon tầng"), LVCFMT_LEFT, 60);
 	
 }
 
 
 void FormBar::SetDataForListShelf(UINT number_of_shelf) {
+	CString str_name_project;
   CString str_type;
 	CString str_longs;
 	CString str_width;
 	CString str_height;
   CString str_radius;
-  CString str_start_angle;
-	CString str_end_angle;
-	CString str_flat_angle;
-	CString str_numf_;
+	CString str_numf;
 
-	UINT i = number_of_shelf - 1;
-		if (shelf_info_list_[i].shelf_type == ShelfType::SIMPLE_SHELF) {
-			str_type = _T("Kệ Đơn");
-		} else if (shelf_info_list_[i].shelf_type == ShelfType::DOUBLE_SHELF) {
-			str_type = _T("Kệ Đôi");
-		} else if (shelf_info_list_[i].shelf_type == ShelfType::CIRCLE_SHELF) {
-			str_type = _T("Kệ Tròn");
-		} else {
-			str_type = _T("Không rõ");
-		}
+	//UINT i = number_of_shelf - 1;
+	for (int i = shelf_info_list_.size(); i > 0; i) {
+	str_name_project = shelf_info_list_[i].name_project;
 
-		if (shelf_info_list_[i].shelf_type == ShelfType::SIMPLE_SHELF ||
-			shelf_info_list_[i].shelf_type == ShelfType::DOUBLE_SHELF ) {
-				str_longs.Format(_T("%.2f"), shelf_info_list_[i].longs);
-				str_width.Format(_T("%.2f"), shelf_info_list_[i].width);
-		}
+	if (shelf_info_list_[i].shelf_type == ShelfType::SIMPLE_SHELF) {
+		str_type = _T("Kệ Đơn");
+	} else if (shelf_info_list_[i].shelf_type == ShelfType::DOUBLE_SHELF) {
+		str_type = _T("Kệ Đôi");
+	} else if (shelf_info_list_[i].shelf_type == ShelfType::CIRCLE_SHELF) {
+		str_type = _T("Kệ Tròn");
+	} else if (shelf_info_list_[i].shelf_type == ShelfType::CONTAINER) {
+		str_type = _T("Thùng chứa");
+	} else {
+		str_type = _T("Không rõ");
+	}
 
-		str_height.Format(_T("%.2f"), shelf_info_list_[i].height);
-		str_numf_.Format(_T("%d"), shelf_info_list_[i].numf);
+	if(shelf_info_list_[i].shelf_type == ShelfType::SIMPLE_SHELF ||
+		 shelf_info_list_[i].shelf_type == ShelfType::DOUBLE_SHELF||
+		 shelf_info_list_[i].shelf_type == ShelfType::CONTAINER) {
+		str_longs.Format(_T("%.2f"), shelf_info_list_[i].longs);
+		str_width.Format(_T("%.2f"), shelf_info_list_[i].width);
+	}
 
-		if (shelf_info_list_[i].shelf_type == ShelfType::CIRCLE_SHELF) {
-			str_start_angle.Format(_T("%.2f"), shelf_info_list_[i].shelf_start_angle_);
-			str_end_angle.Format(_T("%.2f"), shelf_info_list_[i].shelf_end_angle_);
-			str_flat_angle.Format(_T("%.2f"), shelf_info_list_[i].shelf_flat_angle_);
-			str_radius.Format(_T("%.2f"), shelf_info_list_[i].shelf_radius);
-		}
+	str_height.Format(_T("%.2f"), shelf_info_list_[i].height);
 
-		list_view_shelf_.InsertItem(0, str_type);
-		list_view_shelf_.SetItemText(0, 1, str_longs);
-		list_view_shelf_.SetItemText(0, 2, str_width);
-		list_view_shelf_.SetItemText(0, 3, str_height);
-		list_view_shelf_.SetItemText(0, 4, str_radius);
-		list_view_shelf_.SetItemText(0, 5, str_start_angle);
-		list_view_shelf_.SetItemText(0, 6, str_end_angle);
-		list_view_shelf_.SetItemText(0, 7, str_flat_angle);
-		list_view_shelf_.SetItemText(0, 8, str_numf_);
+	if(shelf_info_list_[i].shelf_type != ShelfType::CONTAINER) {
+		str_numf.Format(_T("%d"), shelf_info_list_[i].numf);
+	}
+
+	if (shelf_info_list_[i].shelf_type == ShelfType::CIRCLE_SHELF) {
+		str_radius.Format(_T("%.2f"), shelf_info_list_[i].shelf_radius);
+	}
+
+	list_view_shelf_.InsertItem(0, str_name_project);
+	list_view_shelf_.SetItemText(0, 1, str_type);
+	list_view_shelf_.SetItemText(0, 2, str_longs);
+	list_view_shelf_.SetItemText(0, 3, str_width);
+	list_view_shelf_.SetItemText(0, 4, str_height);
+	list_view_shelf_.SetItemText(0, 5, str_radius);
+	list_view_shelf_.SetItemText(0, 6, str_numf);
+	}
 }
 
 
-void FormBar::SetDataForListProduct( int number_of_product )
-{
-	UINT i = number_of_product - 1;
-	CString str_id;
-	str_id.Format(_T("%d"), i);
-	CString str_w;
-	str_w.Format(_T("%0.2f"), cad_info_.at(i).width);
-	CString str_l;
-	str_l.Format(_T("%0.2f"), cad_info_.at(i).lenght);
-	CString str_h;
-	str_h.Format(_T("%0.2f"), cad_info_.at(i).height);
-	str_h.Format(_T("%0.2f"), cad_info_.at(i).height);
+void FormBar::SetDataForListProduct() {
+	int size_item = list_view_product_.GetItemCount();
+	for(int i = 0; i< size_item; i++) {
+		list_view_product_.DeleteItem(0);
+	}
+	for(int i = 0; i < cad_info_.size(); i ++) {
+		CString str_name = cad_info_.at(i).name_production;
+		CString str_type = cad_info_.at(i).type_production;
+		CString str_width;
+		str_width.Format(_T("%0.2f"), cad_info_.at(i).width);
+		CString str_l;
+		str_l.Format(_T("%0.2f"), cad_info_.at(i).lenght);
+		CString str_h;
+		str_h.Format(_T("%0.2f"), cad_info_.at(i).height);
+		CString str_weight;
+		str_weight.Format(_T("%0.2f"), cad_info_.at(i).weight);
+		CString str_floor;
+		str_floor.Format(_T("%d"), cad_info_.at(i).floor);
 
-	CString str_t_l;
-	str_t_l.Format(_T("%0.2f"), cad_info_.at(i).proportion);
 	
-	CString str_c_t;
-	if(cad_info_.at(i).change_proportion) {
-	  str_c_t = L"tỉ lệ";
-	} else {
-	  str_c_t = L"không";
-		str_t_l = L"";
-	} 
+		//CString str_c_t;
+		//if(cad_info_.at(i).change_proportion) {
+		//  str_c_t = L"tỉ lệ";
+		//} else {
+		//  str_c_t = L"không";
+		//	str_t_l = L"";
+		//} 
 
-	list_view_product_.InsertItem(0, str_id);
-	list_view_product_.SetItemText(0, 1, Base::RemoveExtensionFile(cad_info_.at(i).production));
-	list_view_product_.SetItemText(0, 2, str_w);
-	list_view_product_.SetItemText(0, 3, str_l);
-	list_view_product_.SetItemText(0, 4, str_h);
-	list_view_product_.SetItemText(0, 5, str_c_t);
-	list_view_product_.SetItemText(0, 6, str_t_l);
+		list_view_product_.InsertItem(0, str_name);
+		list_view_product_.SetItemText(0, 1, cad_info_.at(i).type_production);
+		list_view_product_.SetItemText(0, 2, str_l);
+		list_view_product_.SetItemText(0, 3, str_width);
+		list_view_product_.SetItemText(0, 4, str_h);
+		list_view_product_.SetItemText(0, 5, str_weight);
+		list_view_product_.SetItemText(0, 6, str_floor);
+	}
 }
 
 
@@ -252,7 +258,8 @@ void FormBar::OnBnProductionSelected()
 		AfxMessageBox(_T("Bạn chưa chọn sản phẩm trong danh sách"));
 		return;
 	}
-	theApp.LoadFileCad(cad_info_.at(i));
+	//theApp.LoadFileCad(cad_info_.at(i));
+	GetBigHouseView()->CreateArrangeCommodity(cad_info_);
 }
 
 
@@ -274,6 +281,7 @@ void FormBar::OnBnShelfSelected()
 		                                 shelf_info_list_[i].longs,
 																		 shelf_info_list_[i].height, 
 																		 shelf_info_list_[i].dis_drag,
+																		 shelf_info_list_[i].dis_wall,
 																		 shelf_info_list_[i].numf);
 		CButton* btn_select_product = reinterpret_cast<CButton*>(GetDlgItem(IDC_BTN_PRODUCTION_SELECTED));
 		btn_select_product->EnableWindow(TRUE);
@@ -290,20 +298,25 @@ void FormBar::OnBnShelfSelected()
 	} else if (shelf_type == ShelfType::CIRCLE_SHELF) {
 	  GetBigHouseView()->MakeCircleShelf(shelf_info_list_[i].shelf_radius,
 																			 shelf_info_list_[i].height,
-																			 shelf_info_list_[i].shelf_start_angle_,
-																			 shelf_info_list_[i].shelf_end_angle_,
-																			 shelf_info_list_[i].shelf_flat_angle_,
 																			 shelf_info_list_[i].dis_drag,
 																			 shelf_info_list_[i].numf);
 		CButton* btn_select_product = reinterpret_cast<CButton*>(GetDlgItem(IDC_BTN_PRODUCTION_SELECTED));
 		btn_select_product->EnableWindow(TRUE);
 
-	} else {
+	} else if (shelf_type == ShelfType::CIRCLE_SHELF) {
 		GetBigHouseView()->MakeSimpleShelf(shelf_info_list_[i].width, 
 			                                 shelf_info_list_[i].longs,
 		                                   shelf_info_list_[i].height, 
 																			 shelf_info_list_[i].dis_drag,
+																			 shelf_info_list_[i].dis_wall,
 																			 shelf_info_list_[i].numf);
+		CButton* btn_select_product = reinterpret_cast<CButton*>(GetDlgItem(IDC_BTN_PRODUCTION_SELECTED));
+		btn_select_product->EnableWindow(TRUE);
+	} else {
+		GetBigHouseView()->MakeArrangeCommodity(shelf_info_list_[i].longs,
+																			shelf_info_list_[i].width,
+																			shelf_info_list_[i].height,
+																			shelf_info_list_[i].dis_wall);
 		CButton* btn_select_product = reinterpret_cast<CButton*>(GetDlgItem(IDC_BTN_PRODUCTION_SELECTED));
 		btn_select_product->EnableWindow(TRUE);
 	}
@@ -363,10 +376,7 @@ void FormBar::SetShelfInfoList(ShelfInfo shelf_info, bool &is_exist) {
 				shelf_info_list_[i].width == shelf_info.width &&
 				shelf_info_list_[i].height == shelf_info.height &&
 				shelf_info_list_[i].numf == shelf_info.numf &&
-				shelf_info_list_[i].shelf_start_angle_ == shelf_info.shelf_start_angle_ &&
-				shelf_info_list_[i].shelf_end_angle_ == shelf_info.shelf_end_angle_ &&
-				shelf_info_list_[i].shelf_radius == shelf_info.shelf_radius &&
-				shelf_info_list_[i].shelf_flat_angle_ == shelf_info.shelf_flat_angle_) {
+				shelf_info_list_[i].shelf_radius == shelf_info.shelf_radius) {
       is_exist_shelf_ = true;
 			break;
 		} else {
@@ -382,7 +392,7 @@ void FormBar::SetShelfInfoList(ShelfInfo shelf_info, bool &is_exist) {
 void FormBar::SetProductionList(CadInfo & cad_info, bool &is_exist) {
 	bool is_exist_product_ = false;
   for (int i = 0; i < cad_info_.size(); i++) {
-		if (cad_info_.at(i).production == cad_info.production) {
+		if (cad_info_.at(i).name_production == cad_info.name_production) {
 			is_exist_product_ = true;
 			break;
 		} else {
@@ -504,22 +514,14 @@ void FormBar::LoadSimShelfFile(CString& path_file )
 		shelf_info.height = height_list[i];
 		shelf_info.numf = floor_list[i];
 		shelf_info.shelf_radius = radius_list[i];
-		shelf_info.shelf_start_angle_ = angle_start_list[i];
-		shelf_info.shelf_end_angle_ = angle_end_list[i];
-		shelf_info.shelf_flat_angle_ = angle_flat_list[i];
-
 		shelf_info_list.push_back(shelf_info);
 	}
 
-	for (int i = 0; i <shelf_info_list_.size(); i++) {
-    list_view_shelf_.DeleteItem(0);
-	}
-
-	shelf_info_list_.clear();
+  RemoveListShelf();
 	shelf_info_list_ = shelf_info_list;
-	for (int i = shelf_info_list.size(); i > 0; i--) {
-    SetDataForListShelf(i);
-	}
+	//for (int i = shelf_info_list.size(); i > 0; i--) {
+    SetDataForListShelf(0);
+	//}
 
 	std::reverse(shelf_info_list_.begin(), shelf_info_list_.end());
 }
@@ -609,15 +611,6 @@ bool FormBar::SaveSimShelfFile( CString& path_file ) {
 		if (shelf_info_list[i].shelf_type == ShelfType::CIRCLE_SHELF) {
 			rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST"bankinh", "%f", shelf_info_list[i].shelf_radius);
 			if (rc < 0) return false;
-
-			rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST"gocbd", "%f", shelf_info_list[i].shelf_start_angle_);
-			if (rc < 0) return false;
-
-			rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST"gockt", "%f", shelf_info_list[i].shelf_end_angle_);
-			if (rc < 0) return false;
-	
-			rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST"min", "%f", shelf_info_list[i].shelf_flat_angle_);
-			if (rc < 0) return false;
 		}
 	}
 	// End document.
@@ -669,31 +662,59 @@ void FormBar::LoadCadFile(CString& str) {
 	//std::vector<CString> cad_list;
 
 	cur = cur->children;
+	CadInfo production;
 	while (cur != NULL) {
+
 		if (!xmlStrcmp(cur->name, (const xmlChar*)"ten")) {
 			std::wstring name =  XmlUtls::GetStringContent(doc, cur);
 			CString str = name.c_str();
-			str = str + _T(".STL");
-			CadInfo production;
-			production.production = str;
-			cad_info.push_back(production);
-			//cad_list.push_back(str);
+			production.name_production = str;
 		}
+		if (!xmlStrcmp(cur->name, (const xmlChar*)"loai")) {
+			std::wstring name =  XmlUtls::GetStringContent(doc, cur);
+			CString str = name.c_str();
+			production.type_production = str;
+		}
+		if (!xmlStrcmp(cur->name, (const xmlChar*)"dai")) {
+			double lenght =  XmlUtls::GetDoubleContent(doc, cur);
+			production.lenght = lenght;
+		}
+
+		if (!xmlStrcmp(cur->name, (const xmlChar*)"rong")) {
+			double width =  XmlUtls::GetDoubleContent(doc, cur);
+			production.width = width;
+		}
+
+		if (!xmlStrcmp(cur->name, (const xmlChar*)"cao")) {
+			double height =  XmlUtls::GetDoubleContent(doc, cur);
+			production.height = height;
+		}
+		if (!xmlStrcmp(cur->name, (const xmlChar*)"trong_luong")) {
+			double weight =  XmlUtls::GetDoubleContent(doc, cur);
+			production.weight = weight;
+		}
+
+		if (!xmlStrcmp(cur->name, (const xmlChar*)"so_luong")) {
+			double count =  XmlUtls::GetDoubleContent(doc, cur);
+			production.count = count;
+		}
+
+		if (!xmlStrcmp(cur->name, (const xmlChar*)"tang")) {
+			double floor =  XmlUtls::GetDoubleContent(doc, cur);
+			production.floor = floor;
+			cad_info.push_back(production);
+		}
+		//if (!xmlStrcmp(cur->name, (const xmlChar*)"End")) {
+		//	cad_info.push_back(production);
+		//}
 		cur = cur->next;
 	}
 	xmlFreeDoc(doc);
 
-
-	for (int i = 0; i < cad_info_.size(); i++) {
-		list_view_product_.DeleteItem(0);
-	}
-
-	cad_info_.clear();
+	RemoveListCommodity();
 	//production_list_ = cad_list;
 	cad_info_ = cad_info;
-	for (int i = cad_info_.size(); i > 0; i--) {
-		SetDataForListProduct(i);
-	}
+	SetDataForListProduct();
 
 	//std::reverse(cad_info_.begin(), production_list_.end());
 }
@@ -745,11 +766,28 @@ bool FormBar::SaveCadFile(CString& str) {
 	if (rc < 0) 
 		return false;
 	for (int i = 0; i < cad_info.size(); i++) {
-		CString str = Base::RemoveExtensionFile(cad_info_.at(i).production);
-		char*  chstr = Base::CStringToChar(str);
+		char* chstr = Base::CStringToChar(cad_info_.at(i).name_production/*str*/);
 		rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST"ten","%s", (const xmlChar*)chstr);
-		if (rc < 0) 
+		if (rc < 0) {
 			return false;
+		}
+    chstr = Base::CStringToChar(cad_info_.at(i).type_production/*str*/);
+		rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST"loai","%s", (const xmlChar*)chstr);
+		if (rc < 0) {
+			return false;
+		}
+		rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST"dai", "%f", cad_info.at(i).lenght);
+		if (rc < 0) return false;
+		rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST"rong", "%f", cad_info.at(i).width);
+		if (rc < 0) return false;
+		rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST"cao", "%f", cad_info.at(i).height);
+		if (rc < 0) return false;
+		rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST"trong_luong", "%f", cad_info.at(i).weight);
+		if (rc < 0) return false;
+		rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST"so_luong", "%d", cad_info.at(i).count);
+		if (rc < 0) return false;
+		rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST"tang", "%d", cad_info.at(i).floor);
+		if (rc < 0) return false;
 	}
 	// End document.
 	rc = xmlTextWriterEndDocument(writer);
@@ -759,4 +797,17 @@ bool FormBar::SaveCadFile(CString& str) {
 	xmlFreeTextWriter(writer);
 
 	return true;
+}
+
+void FormBar::RemoveListShelf() {
+	for (int i = 0; i <shelf_info_list_.size(); i++) {
+    list_view_shelf_.DeleteItem(0);
+	}
+	shelf_info_list_.clear();
+}
+void FormBar::RemoveListCommodity() {
+	for (int i = 0; i < cad_info_.size(); i++) {
+		list_view_product_.DeleteItem(0);
+	}
+	cad_info_.clear();
 }

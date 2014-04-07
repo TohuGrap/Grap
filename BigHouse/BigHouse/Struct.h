@@ -7,19 +7,25 @@ struct RoomSize {
 	float depth;
 };
 
+	enum TypeArrange {
+		SEQUENTIAL = 0,
+		FLOOR
+	};
+
 
 struct ShelfInfo {
   // Get info from fomrview to view
   float longs;
   float height;
   float width;
+
   int numf;
 	float shelf_radius;
-	float shelf_start_angle_;
-  float shelf_end_angle_;
-	float shelf_flat_angle_;
 	float dis_drag;
+	float dis_wall;
+	CString name_project;
 	UINT shelf_type;
+	TypeArrange type_arrange;
 };
 
 	struct Rect {
@@ -28,12 +34,16 @@ struct ShelfInfo {
 	};
 
 	struct CadInfo {
-	CString production;
+	CString name_production;
+	CString type_production;
 	float lenght;
 	float width;
 	float height;
-	bool change_proportion;
-	float proportion;
+	float weight;
+	int floor;
+	//bool change_proportion;
+	int count;
+	//
 	
 	};
 

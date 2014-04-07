@@ -14,6 +14,7 @@
 #include "Triangle3D.h"
 #include "BigHouse.h"
 #include "Struct.h"
+#include "Commodity.h"
 class Shelf {
 public:
   Shelf();
@@ -21,7 +22,8 @@ public:
 
 	virtual bool ObjectIsSelectedByLeftMouse(const Vector3D &dir, const Vector3D& pos, Vector3D &p) = 0;
 	virtual void DrawShelf() = 0;
-	virtual void SetCadToShelf(std::pair<Floor , std::vector<Triangle3D*>> &body) = 0;
+//	virtual void SetCadToShelf(std::pair<Floor , std::vector<Triangle3D*>> &body) = 0;
+	virtual void SetCommodity(std::vector<Commodity*> list_commodity) = 0;
 	virtual void GetShelfPosition(Vector3D &p_origin) = 0; // get position of shelf
 	virtual void SetShelfPosition(Vector3D &p_move) = 0;   // set position of shelf
 	virtual void PointMouseOnFloor(Vector3D &dir, Vector3D &pos) = 0;
@@ -32,7 +34,14 @@ public:
 	void DrawAllSizeOZ(DWORD TextList3D,
 										 double height_base,
 										 double dis,
-								  	 std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks) ;
+								  	 std::vector<Floor> &floor/*std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks*/) ;
+	//void DrawContainer(std::vector<Commodity*> list_commodity,
+	//									 int &i,
+	//									 int &j,
+	//									 float lenght,
+	//									 float with, 
+	//									 float height,
+	//									 float slit);
 protected:
 	void DrawFaceShelf(Rect &rect);
 	void DrawCylinder(double r, double h, double sp, double ep,

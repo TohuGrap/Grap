@@ -12,6 +12,7 @@
 
 #include"Shelf.h"
 #include "Struct.h"
+
 class CircleShelf: public Shelf {
 public:
 	CircleShelf(double r,
@@ -26,6 +27,7 @@ public:
 	virtual bool ObjectIsSelectedByLeftMouse(const Vector3D &dir, const Vector3D& pos, Vector3D &p);
 	virtual void DrawShelf();
 	virtual void SetCadToShelf(std::pair<Floor , std::vector<Triangle3D*>> &body);
+	virtual void SetCommodity(std::vector<Commodity*> list_commodity);
 	virtual void GetShelfPosition(Vector3D &p_origin);
 	virtual void SetShelfPosition(Vector3D &p_move);
 	virtual void PointMouseOnFloor(Vector3D &dir, Vector3D &pos);
@@ -61,6 +63,7 @@ private:
 	Vector3D max_origin_;
 	float fcounts;
 	std::vector<std::pair<Floor, std::vector<Triangle3D*>>> stocks_;
+	std::vector<Floor> all_floor_;
 
 };
 

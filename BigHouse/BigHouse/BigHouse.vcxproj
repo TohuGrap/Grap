@@ -134,6 +134,7 @@
     <ClInclude Include="BigHouseDoc.h" />
     <ClInclude Include="BigHouseView.h" />
     <ClInclude Include="CircleShelf.h" />
+    <ClInclude Include="Commodity.h" />
     <ClInclude Include="CustomListView.h" />
     <ClInclude Include="DlgProduction.h" />
     <ClInclude Include="DlgSettingShelf.h" />
@@ -144,6 +145,7 @@
     <ClInclude Include="Resource.h" />
     <ClInclude Include="SettingRoomDlg.h" />
     <ClInclude Include="Shelf.h" />
+    <ClInclude Include="ArrangeCommodity.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="Struct.h" />
     <ClInclude Include="targetver.h" />
@@ -156,6 +158,7 @@
     <ClCompile Include="BigHouseDoc.cpp" />
     <ClCompile Include="BigHouseView.cpp" />
     <ClCompile Include="CircleShelf.cpp" />
+    <ClCompile Include="Commodity.cpp" />
     <ClCompile Include="CustomListView.cpp" />
     <ClCompile Include="DlgProduction.cpp" />
     <ClCompile Include="DlgSettingShelf.cpp" />
@@ -165,6 +168,7 @@
     <ClCompile Include="RectShelf.cpp" />
     <ClCompile Include="SettingRoomDlg.cpp" />
     <ClCompile Include="Shelf.cpp" />
+    <ClCompile Include="ArrangeCommodity.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>

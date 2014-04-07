@@ -116,11 +116,12 @@ BigHouseView::BigHouseView():
 	bbmin_first.v[2]= 0.0;
 	can_add_shelf = true;
 	number_of_shelf_ = 0;
-	number_of_product_ = 0;
+	display_room_ = true;
 }
 
 BigHouseView::~BigHouseView()
 {
+//	delete arrange_commodity_;
 }
 
 BOOL BigHouseView::PreCreateWindow(CREATESTRUCT& cs)
@@ -435,7 +436,14 @@ void BigHouseView::RenderScene() {
   CreateShelf();
 	glPopMatrix();
 	DisableLight();
-	DrawRoom();
+	//if(arrange_commodity_ != NULL) {
+	//	arrange_commodity_->DisplayCommodity();
+	//	//arrange_commodity_->DrawContainer();
+	//	arrange_commodity_->DrawBoundingbox();
+	//}
+	if(display_room_) {
+		DrawRoom();
+	}
 }
 
 void BigHouseView::CreateShelf() {
@@ -449,7 +457,7 @@ void BigHouseView::CreateShelf() {
 		glTranslatef(origin.v[0], origin.v[1], origin.v[2]);
 
 		// if shelf is moved by left mouse move
-		if(count_selected_ == i && cad_info_.second.empty()) {
+		if(count_selected_ == i && list_commodity_.empty()) {
 			glPushMatrix();
 			glTranslatef(move_shelf_.v[0], move_shelf_.v[1], move_shelf_.v[2]);
 			shelf_.at(i)->DrawShelf();
@@ -600,8 +608,9 @@ void BigHouseView::OnRButtonUp(UINT nFlags, CPoint point)
 void BigHouseView::OnLButtonUp(UINT nFlags, CPoint point) {
 	left_button_down_ = false;
 	if(count_selected_ != -1) {
-		if(!cad_info_.second.empty()) {
-			shelf_.at(count_selected_)->SetCadToShelf(cad_info_);
+		if(!list_commodity_.empty()/*cad_info_.second.empty()*/) {
+			//shelf_.at(count_selected_)->SetCadToShelf(cad_info_);
+			shelf_.at(count_selected_)->SetCommodity(list_commodity_);
 			InvalidateRect(NULL,FALSE);
 		} else {
 			shelf_.at(count_selected_)->SetShelfPosition(move_shelf_);
@@ -615,12 +624,13 @@ void BigHouseView::OnRButtonDown(UINT nFlags, CPoint point) {
   mouse_down_point_ = point;
   SetCapture();
 	right_button_down_ = true;
+	list_commodity_.clear();
 	//if(shelf_.size() > old_count_selecte_ && old_count_selecte_ >= 0) {
 	//	shelf_.at(old_count_selecte_)->ReSetSelectFloor();
 	//	old_count_selecte_ = -1;
 	//}
 	// Clear creating production when right mouse is down
-	cad_info_.second.clear();
+	//cad_info_.second.clear();
 
   //CView::OnLButtonDown(nFlags, point);
 }
@@ -629,7 +639,7 @@ void BigHouseView::OnLButtonDown(UINT nFlags, CPoint point) {
 	// get coordinate windows left mouse
 	left_point_down_2d_ = point;
 
-	if(cad_info_.second.empty()) { // shelf only move when cad is not selected
+	if(/*cad_info_.second.empty()*/ list_commodity_.empty()) { // shelf only move when cad is not selected
 		Vector3D opengl_point;
 		Vector3D perpendicular_vector;
 		Vector3D oz(0, 0, 1);
@@ -708,14 +718,14 @@ void BigHouseView::OnMouseMove(UINT nFlags, CPoint point) {
 		GetPerpendicularVectorWithScreen(perpendicular_screen_vector);
 		Vector3D point_mouse;
 		if(left_button_down_) {
-			if(count_selected_ != -1 && cad_info_.second.empty()) { // if shelf is selected
+			if(count_selected_ != -1 && /*cad_info_.second.empty()*/ list_commodity_.empty()) { // if shelf is selected
 				                                                  // and cad_production is empty
-				if(count_selected_ != -1 && cad_info_.second.empty() && !(GetKeyState(VK_SHIFT) & 0x8000)) {
+				if(count_selected_ != -1 && list_commodity_.empty()/*cad_info_.second.empty()*/ && !(GetKeyState(VK_SHIFT) & 0x8000)) {
 					Vector3D oz_unit(0, 0, 1);   // oz unit vector
 					Vector3D O(0, 0, 0);   // origin coordinate (0 point)
 					GetMousePointOnAnyPlane(perpendicular_screen_vector, opengl_point, oz_unit, O, point_mouse);
 					move_shelf_ = point_mouse - point_left_button_down_;
-				} else if (count_selected_ != -1 && cad_info_.second.empty()) {
+				} else if (count_selected_ != -1 && list_commodity_.empty()/*cad_info_.second.empty()*/) {
 				  Vector3D point_oz;
 					if(count_selected_ != -1 && CalPointOnOZ(perpendicular_screen_vector, opengl_point, point_oz)) {
 						//Vector3D temp = point_oz - point_oz_;
@@ -727,7 +737,7 @@ void BigHouseView::OnMouseMove(UINT nFlags, CPoint point) {
 					}
 				}
 			}
-		} else if (!cad_info_.second.empty()) {
+		} else if (!list_commodity_.empty()/*cad_info_.second.empty()*/) {
 		  count_selected_ = SelecteShelf(perpendicular_screen_vector, opengl_point);
 			if(count_selected_ != -1) {
 				shelf_.at(count_selected_)->PointMouseOnFloor(perpendicular_screen_vector, opengl_point);
@@ -851,9 +861,8 @@ void BigHouseView::OnLoadTexture() {
   //Create Texture Names
   glGenTextures(2, m_texture);
   CString str_path = Base::GetPathModule();
-  
   LoadTexture(str_path + L"\\bitmap\\TAB.bmp",  0);
-  //LoadTexture(str_path + L"\\bitmap\\TAB.bmp",  1);
+  LoadTexture(str_path + L"\\bitmap\\Floor.bmp",  1);
 }
 
 
@@ -963,7 +972,7 @@ void BigHouseView::DrawRectangleBox(float width, float height, float depth, char
 
 void BigHouseView::DrawRoom() { 
 	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, m_texture[0]);
+	glBindTexture(GL_TEXTURE_2D, m_texture[1]);
 
 	float longs = room_size_.longs;    // y
 	float width = room_size_.width;    // x
@@ -1055,19 +1064,21 @@ void BigHouseView::ResetColor() {
 
 void BigHouseView::SetCadInfo(std::pair<Floor, std::vector<Triangle3D*>> &cad_info) {
 	// body include information about production 
-	cad_info_ = cad_info;
+	//cad_info_ = cad_info;
 }
 
 void BigHouseView::MakeSimpleShelf( float width, 
 	                                  float length, 
 																		float height, 
 																		float dis_drag, 
+																		float dis_wall,
 																		int count_floor )
 {
-	RectShelf *rec_shelf = new RectShelf(width, length, height, dis_drag, count_floor);
+	RectShelf *rec_shelf = new RectShelf(width, length, height, dis_drag,dis_wall, count_floor);
 	UINT space_distance_length = length;
 	UINT space_distance_width = width;
 	RenderShelf(rec_shelf, space_distance_length, space_distance_width);
+	display_room_ = true;
 }
 	
 
@@ -1085,20 +1096,18 @@ void BigHouseView::MakeDoubleShelf( float width,
 	UINT space_distance_length = length;
 	UINT space_distance_width = 2*width;
 	RenderShelf(double_shelf, space_distance_length, space_distance_width);
+	display_room_ = true;
 }
 
 void BigHouseView::MakeCircleShelf(float radius, float height,
-	                                 float start_angle, 
-																	 float end_angle,
-																	 float flat_angle, 
 																	 float dis_drag,
-																	 int floor )
-{
+																	 int floor ) {
+	display_room_ = true;
 	CircleShelf *circle_shelf = new CircleShelf (radius,
 		                                           height, 
-																							 start_angle,
-																							 end_angle, 
-																							 flat_angle, 
+																							 0,
+																							 360, 
+																							 5, 
 																							 dis_drag,
 																							 floor);
 	UINT space_distance_length = 2*radius;
@@ -1106,8 +1115,16 @@ void BigHouseView::MakeCircleShelf(float radius, float height,
 	RenderShelf(circle_shelf, space_distance_length, space_distance_width);
 }
 
-void BigHouseView::RenderShelf( Shelf* sh, UINT space_distance_length, UINT space_distance_width )
-{
+void BigHouseView::MakeArrangeCommodity(float lenght, float width, float height, float slit) {
+	ClearAllShelf();
+	display_room_ = false;
+	ArrangeCommodity *arrange_commodity = new ArrangeCommodity(lenght, width, height, slit);
+  UINT space_distance_length = lenght;
+	UINT space_distance_width = width;
+	RenderShelf(arrange_commodity, space_distance_length, space_distance_width);
+}
+
+void BigHouseView::RenderShelf( Shelf* sh, UINT space_distance_length, UINT space_distance_width ) {
 	if (can_add_shelf == false) {
 		AfxMessageBox(_T("Kh?ng th? th?m du?c n?a"));
 		return;
@@ -1304,8 +1321,7 @@ void BigHouseView::SetupRoom() {
 	}
 }
 
-void BigHouseView::SetupShelf()
-{
+void BigHouseView::SetupShelf() {
 	DlgSettingShelf dlg;
 	ShelfInfo shelf_info;
 	bool is_exist = false;
@@ -1337,10 +1353,9 @@ void BigHouseView::SetupProduction()
 		CadInfo cad_info;
 		dlg.GetCadInfor(cad_info);
 		form_bar_->SetProductionList(cad_info, is_exist);
-		str = cad_info.production;
+		str = cad_info.name_production;
 		if (is_exist == false) {
-			number_of_product_++;
-			form_bar_->SetDataForListProduct(number_of_product_);
+			form_bar_->SetDataForListProduct();
 
 		} else {
 			::MessageBox(NULL, _T("S?n ph?m n?y d? t?n t?i"), _T("Th?ng b?o"), MB_OK | MB_ICONINFORMATION);
@@ -1380,4 +1395,32 @@ bool BigHouseView::CalPointOnOZ(Vector3D &dir, Vector3D &pos, Vector3D &Point_oz
 	Point_oz = oz*t;
 	Point_oz = Point_oz + O;
 	return true;
+}
+
+void BigHouseView::CreatContainer(float length, float width, float height) {
+	//arrange_commodity_ = new ArrangeCommodity(length, width, height);
+}
+
+void BigHouseView::CreateArrangeCommodity(std::vector<CadInfo> &list_commodity_info) {
+	//if(arrange_commodity_ == NULL) {
+	//	//chua co thung 
+	//	return;
+	//}
+	//arrange_commodity_->RemoveCommodity();
+	//list_commodity_.clear();
+	//std::vector<Commodity*> list_co;
+	for(int i = 0; i < list_commodity_info.size(); i++) {
+		Commodity *co = new Commodity(list_commodity_info.at(i).width,
+			                           list_commodity_info.at(i).lenght,
+																 list_commodity_info.at(i).height,
+																 list_commodity_info.at(i).count,
+																 list_commodity_info.at(i).name_production);
+		//list_co.push_back(co);
+		list_commodity_.push_back(co);
+	}
+	if(shelf_.size() == 1 && !display_room_) {
+		shelf_.at(0)->SetCommodity(list_commodity_);
+	}
+
+	//arrange_commodity_->AddCommodity(list_co);
 }

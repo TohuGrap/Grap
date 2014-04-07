@@ -156,6 +156,12 @@
     <ClInclude Include="XmlUtls.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Commodity.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArrangeCommodity.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BigHouse.cpp">
@@ -207,6 +213,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="XmlUtls.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Commodity.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArrangeCommodity.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

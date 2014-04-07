@@ -13,11 +13,12 @@ RectShelfFront_Back::RectShelfFront_Back(float width,
 	int h = int((height - height/15.0) / dis_drag);
 	h = int(h/floor_count);
 	float d = h*dis_drag;
-	std::pair<Floor, std::vector<Triangle3D*>> stock;
+	//std::pair<Floor, std::vector<Triangle3D*>> stock;
+	Floor floor;
 	for(int i = 0; i < floor_count; i++) {
-		stock.first.height_floor = d;
-		stocks_font_.push_back(stock);
-		stocks_back_.push_back(stock);
+		floor.height_floor = d;
+		all_floor_font_.push_back(floor);
+		all_floor_back_.push_back(floor);
 	}
 
 	bbmin_back_.Set(0, 0, 0);
@@ -69,10 +70,11 @@ void RectShelfFront_Back::DrawShelf() {
 									 height_,
 									 h_solo, 
 									 selected_floor,
-									 stocks_font_);
-		DrawCommodity(stocks_font_,  h_solo);
+									 all_floor_font_/*all_floor_font_*/);
+		//DrawCommodity(all_floor_font_,  h_solo);
+		DrawCommodityFromDownToUp(all_floor_font_, List_commodity_font_, length_, width_, h_solo, 4*dis_drag_, 10);
 		if(GetKeyState(VK_SHIFT) & 0x8000) {
-		  DrawAllSizeOZDR(513, h_solo, stocks_font_);
+			DrawAllSizeOZDR(513, h_solo, all_floor_font_);
 		}
 		// draw ke thu 2
 		glPushMatrix();
@@ -88,42 +90,53 @@ void RectShelfFront_Back::DrawShelf() {
 									 height_,
 									 h_solo,
 									 selected_floor,
-									 stocks_back_,
+									 all_floor_back_,
 									 false);
-		DrawCommodity(stocks_back_,  h_solo);
+		DrawCommodityFromDownToUp(all_floor_back_, List_commodity_back_, length_, width_, h_solo, 4*dis_drag_, 10);
 		if(GetKeyState(VK_SHIFT) & 0x8000) {
-		  DrawAllSizeOZDR(513, h_solo, stocks_back_);
+		  DrawAllSizeOZDR(513, h_solo, all_floor_back_);
 		}
 		glPopMatrix();
 }
 void RectShelfFront_Back::SetCadToShelf(std::pair<Floor , std::vector<Triangle3D*>> &body) {
+	//if (selected_floor_ != -1) {
+	//  if (type_ == FLOOR_FONT) {
+	//		if(selected_floor_< all_floor_font_.size()- 1) {
+	//			if(all_floor_font_.at(selected_floor_ + 1).first.height_floor < body.first.floor_size.z_size) {
+	//				AfxMessageBox(L"Chiều cao kệ không đủ");
+	//				return;
+	//			}
+	//		}
+	//		all_floor_font_.at(selected_floor_).first.cad_pos.x_pos = (int)width_/body.first.floor_size.x_size;
+	//		all_floor_font_.at(selected_floor_).first.cad_pos.y_pos = (int)length_/body.first.floor_size.y_size;
+	//		all_floor_font_.at(selected_floor_).first.floor_size = body.first.floor_size;
+	//		all_floor_font_.at(selected_floor_).second = body.second;
+	//		//stocks_.assign
+	//	} else if (type_ == FLOOR_BACK) {
+	//		if(selected_floor_< all_floor_back_.size()- 1) {
+	//			if(all_floor_back_.at(selected_floor_ + 1).first.height_floor < body.first.floor_size.z_size) {
+	//				AfxMessageBox(L"Chiều cao kệ không đủ");
+	//				return;
+	//			}
+	//		}
+	//		all_floor_back_.at(selected_floor_).first.cad_pos.x_pos = (int)width_/body.first.floor_size.x_size;
+	//		all_floor_back_.at(selected_floor_).first.cad_pos.y_pos = (int)length_/body.first.floor_size.y_size;
+	//		all_floor_back_.at(selected_floor_).first.floor_size = body.first.floor_size;
+	//		all_floor_back_.at(selected_floor_).second = body.second;
+	//	}
+	//}
+}
+
+void RectShelfFront_Back::SetCommodity(std::vector<Commodity*> list_commodity) {
 	if (selected_floor_ != -1) {
 	  if (type_ == FLOOR_FONT) {
-			if(selected_floor_< stocks_font_.size()- 1) {
-				if(stocks_font_.at(selected_floor_ + 1).first.height_floor < body.first.floor_size.z_size) {
-					AfxMessageBox(L"Chiều cao kệ không đủ");
-					return;
-				}
-			}
-			stocks_font_.at(selected_floor_).first.cad_pos.x_pos = (int)width_/body.first.floor_size.x_size;
-			stocks_font_.at(selected_floor_).first.cad_pos.y_pos = (int)length_/body.first.floor_size.y_size;
-			stocks_font_.at(selected_floor_).first.floor_size = body.first.floor_size;
-			stocks_font_.at(selected_floor_).second = body.second;
-			//stocks_.assign
+			List_commodity_font_ = list_commodity;
 		} else if (type_ == FLOOR_BACK) {
-			if(selected_floor_< stocks_back_.size()- 1) {
-				if(stocks_back_.at(selected_floor_ + 1).first.height_floor < body.first.floor_size.z_size) {
-					AfxMessageBox(L"Chiều cao kệ không đủ");
-					return;
-				}
-			}
-			stocks_back_.at(selected_floor_).first.cad_pos.x_pos = (int)width_/body.first.floor_size.x_size;
-			stocks_back_.at(selected_floor_).first.cad_pos.y_pos = (int)length_/body.first.floor_size.y_size;
-			stocks_back_.at(selected_floor_).first.floor_size = body.first.floor_size;
-			stocks_back_.at(selected_floor_).second = body.second;
+			List_commodity_back_ = list_commodity;
 		}
 	}
 }
+
 void RectShelfFront_Back::GetShelfPosition(Vector3D &p_origin) {
 	p_origin = bbmin_back_+ bbmax_font_;
 	p_origin = p_origin*0.5;
@@ -150,9 +163,9 @@ void RectShelfFront_Back::SetShelfPosition(Vector3D &p_move) {
 }
 void RectShelfFront_Back::PointMouseOnFloor(Vector3D &dir, Vector3D &pos) {
 	if (type_ == FLOOR_FONT) {
-		selected_floor_ = FindPointMouseOnFloor(dir, pos, bbmin_font_, bbmax_font_, height_ /12.0, stocks_font_);
+		selected_floor_ = FindPointMouseOnFloor(dir, pos, bbmin_font_, bbmax_font_, height_ /12.0,all_floor_font_ /*all_floor_font_*/);
 	} else {
-	  selected_floor_ = FindPointMouseOnFloor(dir, pos, bbmin_back_, bbmax_back_, height_ /12.0, stocks_back_);
+		selected_floor_ = FindPointMouseOnFloor(dir, pos, bbmin_back_, bbmax_back_, height_ /12.0, all_floor_back_/*all_floor_back_*/);
 	}
 }
 void RectShelfFront_Back::ReSetSelectFloor() {
@@ -180,62 +193,69 @@ void RectShelfFront_Back::SetHeightFloor(int selected_count, double height_first
 		return;
 	}
 	if(selected_count >= 0) {
-		if(selected_count < stocks_font_.size() && type_ == FLOOR_FONT) {
-			if(selected_count < stocks_font_.size() - 1) {
+		if(selected_count < all_floor_font_.size() && type_ == FLOOR_FONT) {
+			if(selected_count < all_floor_font_.size() - 1) {
 				if(height_second < 4*dis_drag_)
 					return;
 			}
-			if( selected_count == stocks_font_.size() - 1) {
+			if( selected_count == all_floor_font_.size() - 1) {
 				double d = height_/12.0;
-				for(int i = 1; i < stocks_font_.size() - 1; i ++) {
-					d += stocks_font_.at(i).first.height_floor;
+				for(int i = 1; i < all_floor_font_.size() - 1; i ++) {
+					d += all_floor_font_.at(i).height_floor;
 				}
 				if(d + height_first > height_) {
 					int h = (height_ - d)/dis_drag_;
 					height_first = h*dis_drag_;
 				}
+				height_second = height_ - d - height_first;
 			}
 			assert(height_first > 0);
-			if(selected_count < stocks_font_.size() && selected_count > 0) {
-				if(height_first  < stocks_font_.at(selected_count -1).first.floor_size.z_size + 2) {
+			if(selected_count < all_floor_font_.size() && selected_count > 0) {
+				if(height_first  < all_floor_font_.at(selected_count -1).floor_size.z_size + 2) {
 					return;
 				}
-				if(selected_count < stocks_font_.size() - 1) {
-					if(height_second < stocks_font_.at(selected_count).first.floor_size.z_size + 2) {
+				if(selected_count < all_floor_font_.size() - 1) {
+					if(height_second < all_floor_font_.at(selected_count).floor_size.z_size + 2) {
 						return;
 					}
-					stocks_font_.at(selected_count + 1).first.height_floor = height_second;
+					all_floor_font_.at(selected_count + 1).height_floor = height_second;
+				} else {
+					all_floor_font_.at(0).height_floor = height_second;
 				}
-				stocks_font_.at(selected_count).first.height_floor = height_first;
+				all_floor_font_.at(selected_count).height_floor = height_first;
 			}
-		} else if(selected_count < stocks_back_.size()) {
-			if(selected_count < stocks_back_.size() - 1) {
+		} else if(selected_count < all_floor_back_.size()) {
+			if(selected_count < all_floor_back_.size() - 1) {
 				if(height_second < 4*dis_drag_)
 					return;
 			}
-			if( selected_count == stocks_back_.size() - 1) {
+			if( selected_count == all_floor_back_.size() - 1) {
 				double d = height_/12.0;
-				for(int i = 1; i < stocks_back_.size() - 1; i ++) {
-					d += stocks_back_.at(i).first.height_floor;
+				for(int i = 1; i < all_floor_back_.size() - 1; i ++) {
+					d += all_floor_back_.at(i).height_floor;
 				}
 				if(d + height_first > height_) {
 					int h = (height_ - d)/dis_drag_;
 					height_first = h*dis_drag_;
 				}
+				height_second = height_ - d - height_first;
+
 			}
 
 			assert(height_first > 0);
-			if(selected_count < stocks_back_.size() && selected_count > 0) {
-				if(height_first  < stocks_back_.at(selected_count -1).first.floor_size.z_size + 2) {
+			if(selected_count < all_floor_back_.size() && selected_count > 0) {
+				if(height_first  < all_floor_back_.at(selected_count -1).floor_size.z_size + 2) {
 					return;
 				}
-				if(selected_count < stocks_back_.size() - 1) {
-					if(height_second < stocks_back_.at(selected_count).first.floor_size.z_size + 2) {
+				if(selected_count < all_floor_back_.size() - 1) {
+					if(height_second < all_floor_back_.at(selected_count).floor_size.z_size + 2) {
 						return;
 					}
-					stocks_back_.at(selected_count + 1).first.height_floor = height_second;
+					all_floor_back_.at(selected_count + 1).height_floor = height_second;
+				} else {
+					all_floor_back_.at(0).height_floor = height_second;
 				}
-				stocks_back_.at(selected_count).first.height_floor = height_first;
+				all_floor_back_.at(selected_count).height_floor = height_first;
 			}
 		}
 	}
@@ -253,11 +273,11 @@ void RectShelfFront_Back::GetHeightFloor(Vector3D &dir,
 																						bbmin_font_,
 																						bbmax_font_, 
 																						height_ /12.0, 
-																						stocks_font_);
+																						all_floor_font_/*all_floor_font_*/);
 		 if(selected_count != - 1) {
-			height_first = stocks_font_.at(selected_count).first.height_floor;
-			if(selected_count< stocks_font_.size() - 1) {
-				height_second = stocks_font_.at(selected_count + 1).first.height_floor;
+			height_first = all_floor_font_.at(selected_count).height_floor;
+			if(selected_count< all_floor_font_.size() - 1) {
+				height_second = all_floor_font_.at(selected_count + 1).height_floor;
 			}
 		} 
 	} else {
@@ -266,11 +286,11 @@ void RectShelfFront_Back::GetHeightFloor(Vector3D &dir,
 																						bbmin_back_,
 																						bbmax_back_, 
 																						height_ /12.0,
-																						stocks_back_);
+																						all_floor_back_/*all_floor_back_*/);
 		 if(selected_count != - 1) {
-			height_first = stocks_back_.at(selected_count).first.height_floor;
-			if(selected_count< stocks_back_.size() - 1) {
-				height_second = stocks_back_.at(selected_count + 1).first.height_floor;
+			height_first = all_floor_back_.at(selected_count).height_floor;
+			if(selected_count< all_floor_back_.size() - 1) {
+				height_second = all_floor_back_.at(selected_count + 1).height_floor;
 			}
 		} 
 	}

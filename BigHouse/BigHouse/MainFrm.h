@@ -44,6 +44,7 @@ public:
 	void SetupShelf();
 	void ClearAllShelf();
 	void SetupProduction();
+	void ArrangeProduction();
 
 // Implementation
 public:

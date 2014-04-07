@@ -25,7 +25,8 @@ public:
 	enum ShelfType {
 		SIMPLE_SHELF = 0,
 		DOUBLE_SHELF = 1,
-		CIRCLE_SHELF = 2
+		CIRCLE_SHELF = 2,
+		CONTAINER = 3
 	};
 
 
@@ -38,11 +39,14 @@ protected:
   afx_msg void OnNumberOfShelf();
   afx_msg void OnNumberOfFloor();
 	afx_msg void OnEditShelfRadius();
-	afx_msg void OnEditShelfStartAngle();
-	afx_msg void OnEditShelfEndAngle();
-	afx_msg void OnEditShelfFlatAngle();
 	afx_msg void OnComboxShelfType();
 	afx_msg void OnEditShelfDrag();
+	afx_msg void OnEditShelfDisWall();
+	afx_msg void OnEditNameProject();
+	afx_msg void OnEditDragWall();
+	afx_msg void OnRadioArrange0();
+	afx_msg void OnRadioArrange1();
+	afx_msg void OnOk();
 
 	DECLARE_MESSAGE_MAP()
 protected:
@@ -50,26 +54,23 @@ protected:
   CString str_shelf_width_;
   CString str_shelf_height_;
 	CString str_shelf_drag_;
+	CString str_drag_wall_;
   CString str_number_of_floor_;
 
 	CString str_shelf_radius_;
-	CString str_shelf_start_angle_;
-	CString str_shelf_end_angle_;
-	CString str_shelf_flat_angle_;
-
 
 	CEdit edit_number_of_shelf_;
   CEdit edit_shelf_long_;
   CEdit edit_shelf_width_;
   CEdit edit_shelf_height_;
   CEdit edit_number_of_floor_;
-  CEdit edit_shelf_angle_;
 	CEdit edit_shelf_drag_;
+	CEdit edit_drag_wall_;
 
 	CEdit edit_shelf_radius_;
-	CEdit edit_shelf_start_angle_;
-	CEdit edit_shelf_end_angle_;
-	CEdit edit_shelf_flat_angle_;
+	CEdit edit_name_shelf_project_;
+	CButton radio_arrange_0_;
+	CButton radio_arrange_1_;
 
 	ShelfInfo shelf_info_;
 	CComboBox combox_shelf_type_;

@@ -124,7 +124,7 @@ void CircleShelf::DrawShelf() {
 		glRotatef(90, 0, 0, 1);
 	glPopMatrix();
 	if(GetKeyState(VK_SHIFT) & 0x8000) {
-		DrawAllSizeOZ(513, h_solo, radius_, stocks_);
+		DrawAllSizeOZ(513, h_solo, radius_, all_floor_);
 	}
 	glPopMatrix();
 }
@@ -147,6 +147,11 @@ void CircleShelf::SetCadToShelf(std::pair<Floor , std::vector<Triangle3D*>> &bod
 		stocks_.at(floor_count_).second = body.second;
 	}
 }
+
+void CircleShelf::SetCommodity(std::vector<Commodity*> list_commodity) {
+
+}
+
 void CircleShelf::GetShelfPosition(Vector3D &p_origin) {
 	p_origin = Origin_;
 }

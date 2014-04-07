@@ -99,8 +99,8 @@ void Shelf::DrawCylinder(double r, double h, double sp, double ep,
 void Shelf::DrawAllSizeOZ(DWORD TextList3D,
 													double height_base,
 													double dis,
-										      std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks) {
-	if(stocks.empty()) {
+										      std::vector<Floor> &floor/*std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks*/) {
+	if(floor.empty()) {
 		return;
 	}
 	glDisable(GL_LIGHTING);
@@ -109,10 +109,10 @@ void Shelf::DrawAllSizeOZ(DWORD TextList3D,
 	Vector3D A(0, 0, 0);
 	Vector3D B(0, - 60, 0);
 	DrawALine(A, B);
-	for(int i = 1; i < stocks.size(); i ++) {
-		glTranslatef(0, 0, stocks.at(i).first.height_floor);
-		DrawSizeOZ(stocks.at(i).first.height_floor, TextList3D);
-		if(i == stocks.size() - 1) {
+	for(int i = 1; i < floor.size(); i ++) {
+		glTranslatef(0, 0, floor.at(i).height_floor);
+		DrawSizeOZ(floor.at(i).height_floor, TextList3D);
+		if(i == floor.size() - 1) {
 			glPushMatrix();
 			glTranslated(200, 200 , 0);
 				glRotatef(90, 0, 1, 0);
@@ -120,6 +120,9 @@ void Shelf::DrawAllSizeOZ(DWORD TextList3D,
 				DrawSizeOZ(200, TextList3D);
 			  //DrawALine(A, B);
 			glPopMatrix();
+			glRotatef(90, 0, 1, 0);
+			glRotatef(90, 1, 0, 0);
+			DrawSizeOZ(200, TextList3D);
 			glPushMatrix();
 
 
@@ -197,3 +200,106 @@ void Shelf::DrawARawOZ(Vector3D & A, Vector3D &B) {
 
 	glPopMatrix();
 }
+
+//void Shelf::DrawContainer(std::vector<Commodity*> list_commodity,
+//													int &i,
+//													int &j,
+//													float lenght,
+//													float with, 
+//													float height,
+//													float slit) {
+//	glDisable(GL_DEPTH_TEST);
+//	glBegin(GL_LINE_LOOP);
+//  glVertex3f(0, 0, height);
+//	glVertex3f(with, 0, height);//1
+//  glVertex3f(with, lenght, height);
+//	glVertex3f(0, lenght, height);
+//	glEnd();
+//
+//	glBegin(GL_LINE_LOOP);
+//  glVertex3f(0, 0, 0);
+//  glVertex3f( with, 0, 0);//2
+//	glVertex3f( with, 0, height);
+//	glVertex3f(0, 0, height);
+//	glEnd();
+//
+//	glBegin(GL_LINE_LOOP);
+//
+//  glVertex3f(0,lenght , 0);
+//  glVertex3f(0, 0, 0);
+//	glVertex3f(0, 0, height);
+//	glVertex3f(0, lenght, height);
+//	glEnd();
+//
+//	glBegin(GL_LINE_LOOP);
+//	glVertex3f(with, 0, 0);
+//  glVertex3f(with, lenght, 0);      //4
+//  glVertex3f(with, lenght, height);
+//  glVertex3f(with, 0, height);
+//	glEnd();
+//
+//	glBegin(GL_LINE_LOOP);
+//  glVertex3f(with, lenght, 0);
+//  glVertex3f(0, lenght, 0);
+//  glVertex3f(0, lenght, height); //5
+//  glVertex3f(with, lenght, height);
+//  glEnd();
+//
+//	glEnable(GL_DEPTH_TEST);
+//
+//
+//	if(list_commodity.empty()) {
+//		return;
+//	}
+//	float dx = 0;
+//	float dy = 0;
+//	float dz = 0;
+//	float old_x = 0;
+//	float old_y = 0;
+//	float old_z = 0;
+//	bool end = false;
+//	glPushMatrix();
+//	for(; i < list_commodity.size(); i++) {
+//		float c_y = list_commodity.at(i)->GetLenght();
+//		float c_x = list_commodity.at(i)->GetWith();
+//		float c_z = list_commodity.at(i)->GetHeight();
+//
+//		for(; j < list_commodity.at(i)->GetCout(); j ++) {
+//			dz += old_z;
+//			if(dz > height - c_z) {
+//				dz = 0;
+//				dx += old_x + slit;//
+//				old_x = c_x;
+//				if(dx > with - c_x) {
+//					dx = 0;
+//					dy += old_y + slit;
+//					old_y = c_y;
+//					if(dy > lenght - c_y) {
+//						end = true;
+//						break;
+//					}
+//				} 
+//
+//			} 
+//			glPushMatrix();
+//			glTranslatef(dx, dy, dz);
+//			list_commodity.at(i)->DrawProduction();
+//			glPopMatrix();
+//			old_z = c_z;
+//			if(old_x < c_x) {
+//				old_x = c_x;
+//			}
+//
+//			if(old_y < c_y) {
+//				old_y = c_y;
+//			}
+//		}
+//		if(end) {
+//			break;
+//		} else {
+//			j = 0;
+//		}
+//	}
+//	glPopMatrix();
+//
+//}
