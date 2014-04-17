@@ -14,6 +14,7 @@
 #include "CircleShelf.h"
 #include "Struct.h"
 #include "MainFrm.h"
+#include "SupermarketInfor.h"
 //#include "Commodity.h"
 #define PI 3.1415926535
 class BigHouseView : public CView
@@ -111,6 +112,7 @@ public:
   void OnShowCoordinate();
   void OnUpdateShowCoordinate(CCmdUI* cmd);
 	void SetRoomSize(RoomSize room_size) {room_size_ = room_size;}
+	void ShowSupermartketInfo();
 	RoomSize GetRoomSize() {return room_size_;}
 	void CreateOpenGLFont();
 	void SetShowSize(bool is_show) {is_show_size_ = is_show; InvalidateRect(NULL, FALSE);} 
@@ -226,8 +228,10 @@ private:
 	Vector3D bbmin_first;
 	bool can_add_shelf;
 	GLuint m_nRoomList;
-	UINT number_of_shelf_;
+//	UINT number_of_shelf_;
 	bool display_room_;
+	SupermartketInfo sup_info_;
+	//DlgProduction dlg_production_;
 
 
 protected:

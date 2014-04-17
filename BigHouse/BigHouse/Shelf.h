@@ -29,6 +29,7 @@ public:
 	virtual void PointMouseOnFloor(Vector3D &dir, Vector3D &pos) = 0;
 	virtual void ReSetSelectFloor() = 0;
 	virtual void RotateShelf() = 0;
+	virtual void GetInfoContainerOfCommodity(CString &name, CString &type, float &weight) = 0;
 	virtual void SetHeightFloor(int selected_count, double height_first, double height_second) = 0;
 	virtual void GetHeightFloor(Vector3D &dir, Vector3D &pos, int &selected_count, double &height_first, double &height_second, float &dis_drag) = 0;
 	void DrawAllSizeOZ(DWORD TextList3D,

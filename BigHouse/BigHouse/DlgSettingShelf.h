@@ -4,7 +4,7 @@
 #include "afxwin.h"
 
 // DlgSettingShelf dialog
-
+class FormBar;
 class DlgSettingShelf : public CDialogEx
 {
 	DECLARE_DYNAMIC(DlgSettingShelf)
@@ -21,15 +21,12 @@ public:
 public:
 	void SetStatusInfoShelf(UINT shelf_type);
 	void SetBitmapShelf(UINT index);
-
-	enum ShelfType {
-		SIMPLE_SHELF = 0,
-		DOUBLE_SHELF = 1,
-		CIRCLE_SHELF = 2,
-		CONTAINER = 3
-	};
-
-
+	void UpdateInfo();
+	void CreateShelf(CWnd* pParent);
+	void SetPositionItem(int pos) {position_item_ = pos;}
+	int GetPoisitionItem() {return position_item_;}
+	void SetData(ShelfInfo &shelf_info);
+	void SetMethodArrange(TypeArrange &method);
 protected:
 	virtual BOOL OnInitDialog();
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
@@ -46,20 +43,12 @@ protected:
 	afx_msg void OnEditDragWall();
 	afx_msg void OnRadioArrange0();
 	afx_msg void OnRadioArrange1();
+	void SetStatusCombobox(ShelfType &shelf_type);
 	afx_msg void OnOk();
 
 	DECLARE_MESSAGE_MAP()
-protected:
-	CString str_shelf_long_;
-  CString str_shelf_width_;
-  CString str_shelf_height_;
-	CString str_shelf_drag_;
-	CString str_drag_wall_;
-  CString str_number_of_floor_;
+private:
 
-	CString str_shelf_radius_;
-
-	CEdit edit_number_of_shelf_;
   CEdit edit_shelf_long_;
   CEdit edit_shelf_width_;
   CEdit edit_shelf_height_;
@@ -74,8 +63,9 @@ protected:
 
 	ShelfInfo shelf_info_;
 	CComboBox combox_shelf_type_;
+	int position_item_;
 
 	CStatic bitmap_shelf_;
 	CBitmap cbitmap_;
-
+	FormBar * parent_;
 };

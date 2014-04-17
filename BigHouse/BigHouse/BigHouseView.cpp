@@ -1,4 +1,4 @@
-
+﻿
 // BigHouseView.cpp : implementation of the BigHouseView class
 //
 
@@ -14,7 +14,7 @@
 #include "base.h"
 #include "SettingRoomDlg.h"
 #include "DlgSettingShelf.h"
-#include "DlgProduction.h"
+
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -115,7 +115,6 @@ BigHouseView::BigHouseView():
 	bbmin_first.v[1]= 0.0;
 	bbmin_first.v[2]= 0.0;
 	can_add_shelf = true;
-	number_of_shelf_ = 0;
 	display_room_ = true;
 }
 
@@ -1078,7 +1077,7 @@ void BigHouseView::MakeSimpleShelf( float width,
 	UINT space_distance_length = length;
 	UINT space_distance_width = width;
 	RenderShelf(rec_shelf, space_distance_length, space_distance_width);
-	display_room_ = true;
+	//display_room_ = true;
 }
 	
 
@@ -1096,13 +1095,13 @@ void BigHouseView::MakeDoubleShelf( float width,
 	UINT space_distance_length = length;
 	UINT space_distance_width = 2*width;
 	RenderShelf(double_shelf, space_distance_length, space_distance_width);
-	display_room_ = true;
+	//display_room_ = true;
 }
 
 void BigHouseView::MakeCircleShelf(float radius, float height,
 																	 float dis_drag,
 																	 int floor ) {
-	display_room_ = true;
+	//display_room_ = true;
 	CircleShelf *circle_shelf = new CircleShelf (radius,
 		                                           height, 
 																							 0,
@@ -1117,7 +1116,7 @@ void BigHouseView::MakeCircleShelf(float radius, float height,
 
 void BigHouseView::MakeArrangeCommodity(float lenght, float width, float height, float slit) {
 	ClearAllShelf();
-	display_room_ = false;
+	//display_room_ = false;
 	ArrangeCommodity *arrange_commodity = new ArrangeCommodity(lenght, width, height, slit);
   UINT space_distance_length = lenght;
 	UINT space_distance_width = width;
@@ -1318,24 +1317,25 @@ void BigHouseView::SetupRoom() {
 	if (IDOK == dlg.DoModal()) {
 		room_size_ = dlg.GetRoomSize();
 		is_show_size_ = dlg.IsShowRoomSize();
+		display_room_ = dlg.IsArrangeInRoom();
 	}
 }
 
 void BigHouseView::SetupShelf() {
-	DlgSettingShelf dlg;
-	ShelfInfo shelf_info;
-	bool is_exist = false;
-	if (dlg.DoModal() == IDOK) {
-		shelf_info = dlg.GetShelfInfo();
-		form_bar_->SetShelfInfoList(shelf_info, is_exist);
-		if (is_exist == false) {
-		  number_of_shelf_++;
-		  form_bar_->SetDataForListShelf(number_of_shelf_);
-		} else {
-			::MessageBox(NULL, _T("Lo?i K? N?y ?? T?n T?i Trong List R?i"), _T("Th?ng B?o"), MB_OK | MB_ICONINFORMATION);
-			return;
-		}
-	}
+	form_bar_->SetupShelf();
+	//DlgSettingShelf dlg;
+	//ShelfInfo shelf_info;
+	//bool is_exist = false;
+	//if (dlg.DoModal() == IDOK) {
+	//	shelf_info = dlg.GetShelfInfo();
+	//	form_bar_->SetShelfInfoList(shelf_info, is_exist);
+	//	if (is_exist == false) {
+	//	  form_bar_->SetDataForListShelf();
+	//	} else {
+	//		::MessageBox(NULL, _T("Lo?i K? N?y ?? T?n T?i Trong List R?i"), _T("Th?ng B?o"), MB_OK | MB_ICONINFORMATION);
+	//		return;
+	//	}
+
 }
 
 void BigHouseView::ClearAllShelf() {
@@ -1343,26 +1343,29 @@ void BigHouseView::ClearAllShelf() {
 	form_bar_->DisableLoadProduct();
 }
 
-void BigHouseView::SetupProduction()
-{
-	bool is_exist = false;
-	DlgProduction dlg;
-	CString str;
-	if (dlg.DoModal() == IDOK) {
-		//str = dlg.GetProductName();
-		CadInfo cad_info;
-		dlg.GetCadInfor(cad_info);
-		form_bar_->SetProductionList(cad_info, is_exist);
-		str = cad_info.name_production;
-		if (is_exist == false) {
-			form_bar_->SetDataForListProduct();
+void BigHouseView::SetupProduction() {
+	form_bar_->SetupProduction();
+	//if(!dlg_production_.GetSafeHwnd()) {
+	//	dlg_production_.Create(this);
+	//}
+	//dlg_production_.ShowWindow(SW_SHOW);
+	//CString str;
+	//if (dlg.DoModal() == IDOK) {
+	//	//str = dlg.GetProductName();
+	//	CadInfo cad_info;
+	//	dlg.GetCadInfor(cad_info);
+	//	form_bar_->SetProductionList(cad_info, is_exist);
+	//	str = cad_info.name_production;
+	//	if (is_exist == false) {
+	//		form_bar_->SetDataForListProduct();
 
-		} else {
-			::MessageBox(NULL, _T("S?n ph?m n?y d? t?n t?i"), _T("Th?ng b?o"), MB_OK | MB_ICONINFORMATION);
-			return;
-		}
-	}
+	//	} else {
+	//		::MessageBox(NULL, _T("S?n ph?m n?y d? t?n t?i"), _T("Th?ng b?o"), MB_OK | MB_ICONINFORMATION);
+	//		return;
+	//	}
+	//}
 }
+
 
 void BigHouseView::OnViewFullscreen()
 {
@@ -1409,11 +1412,16 @@ void BigHouseView::CreateArrangeCommodity(std::vector<CadInfo> &list_commodity_i
 	//arrange_commodity_->RemoveCommodity();
 	//list_commodity_.clear();
 	//std::vector<Commodity*> list_co;
+	for(int i = 0; i < list_commodity_.size(); i ++) {
+		delete list_commodity_.at(i);
+	}
+	list_commodity_.clear();
 	for(int i = 0; i < list_commodity_info.size(); i++) {
 		Commodity *co = new Commodity(list_commodity_info.at(i).width,
 			                           list_commodity_info.at(i).lenght,
 																 list_commodity_info.at(i).height,
 																 list_commodity_info.at(i).count,
+																 list_commodity_info.at(i).weight,
 																 list_commodity_info.at(i).name_production);
 		//list_co.push_back(co);
 		list_commodity_.push_back(co);
@@ -1424,3 +1432,22 @@ void BigHouseView::CreateArrangeCommodity(std::vector<CadInfo> &list_commodity_i
 
 	//arrange_commodity_->AddCommodity(list_co);
 }
+
+void BigHouseView::ShowSupermartketInfo() {
+	//SupermartketInfo sup_info;
+	if(!sup_info_.GetSafeHwnd())
+		sup_info_.Create(this);
+ sup_info_.ShowWindow(SW_SHOW);
+ //sup_info_.RemoveListText();
+ CString str_name = _T("");
+ CString str_type = _T("");
+ CString str_w = _T("");
+ float w = 0;
+ for(int i = 0; i < shelf_.size(); i ++) {
+	 shelf_.at(i)->GetInfoContainerOfCommodity(str_name, str_type, w);
+	 str_w.Format(L"%.2f", w);
+	 //sup_info_.ShowListText(str_name, str_type, str_w);
+ }
+	//if(sup_info.
+}
+

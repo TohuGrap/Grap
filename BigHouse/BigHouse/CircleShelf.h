@@ -40,6 +40,7 @@ public:
 															double &height_first, 
 															double &height_second,
 															float & dis_drag);
+	virtual void GetInfoContainerOfCommodity(CString &name, CString &type, float &weight) {};
 
 
 private:

@@ -138,6 +138,7 @@
     <ClInclude Include="CustomListView.h" />
     <ClInclude Include="DlgProduction.h" />
     <ClInclude Include="DlgSettingShelf.h" />
+    <ClInclude Include="EditProduction.h" />
     <ClInclude Include="FormBar.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="RecShelf.h" />
@@ -148,6 +149,7 @@
     <ClInclude Include="ArrangeCommodity.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="Struct.h" />
+    <ClInclude Include="SupermarketInfor.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Triangle3D.h" />
     <ClInclude Include="Vector3D.h" />
@@ -162,6 +164,7 @@
     <ClCompile Include="CustomListView.cpp" />
     <ClCompile Include="DlgProduction.cpp" />
     <ClCompile Include="DlgSettingShelf.cpp" />
+    <ClCompile Include="EditProduction.cpp" />
     <ClCompile Include="FormBar.cpp" />
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="RecShelfFont_Back.cpp" />
@@ -173,6 +176,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="SupermarketInfo.cpp" />
     <ClCompile Include="Triangle3D.cpp" />
     <ClCompile Include="Vector3D.cpp" />
     <ClCompile Include="XmlUtls.cpp" />

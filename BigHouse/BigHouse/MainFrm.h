@@ -46,6 +46,7 @@ public:
 	void SetupProduction();
 	void ArrangeProduction();
 
+
 // Implementation
 public:
 	virtual ~MainFrame();

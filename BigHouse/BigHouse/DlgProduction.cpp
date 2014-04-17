@@ -6,38 +6,27 @@
 #include "DlgProduction.h"
 #include "afxdialogex.h"
 #include "base.h"
+#include "FormBar.h"
 
 // DlgProduction dialog
 
 IMPLEMENT_DYNAMIC(DlgProduction, CDialogEx)
 
-DlgProduction::DlgProduction(CWnd* pParent /*=NULL*/)
-	: CDialogEx(DlgProduction::IDD, pParent)
-{
-	module_path_ = Base::GetPathModule();
-	//product_cad_path_  = module_path_ + _T("\\cad\\");
-	product_pic_path_  = module_path_ + _T("\\anh\\");
- // product_bitmap_path_ = module_path_ + _T("\\bitmap_cad\\");
-  str_cad_lenght_ = L"50";
-  str_cad_width_ = L"50";
-  str_cad_height_ = L"50";
-	//str_cad_proportion_ = L"1";
-	str_count_commodity_ = L"1";
-	str_selection_floor_ = L"0";
-	str_commodity_weight_ = L"0";
-
+DlgProduction::DlgProduction(CWnd* pParent /*=NULL*/) {
 	cad_info_.width = 50;
 	cad_info_.lenght = 50;
 	cad_info_.height = 50;
 	cad_info_.count = 1;
 	cad_info_.floor = 0;
 	cad_info_.weight = 0;
-	cad_info_.type_production = L"hang_hoa";
-	//cad_info_.change_proportion = true;
+	cad_info_.name_production = L"";
+	cad_info_.type_commodity = TypeCommodity::COMMODITY;
+	pos_list_view_ = -1;
 }
 
-DlgProduction::~DlgProduction()
-{
+DlgProduction::~DlgProduction() {
+
+	//pParent_ = NULL;
 }
 
 void DlgProduction::DoDataExchange(CDataExchange* pDX)
@@ -48,7 +37,6 @@ void DlgProduction::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT_CAD_LENGHT, edit_cad_lenght_);
 	DDX_Control(pDX, IDC_EDIT_CAD_WIDTH, edit_cad_width_);
 	DDX_Control(pDX, IDC_EDIT_CAD_HEIGHT, edit_cad_height_);
-//	DDX_Control(pDX, IDC_CHECKBOX_PROPORTION , check_proportion_);
 	DDX_Control(pDX, IDC_EDIT_COUNT_PRODUCTION , edit_count_commodity_);
 	DDX_Control(pDX, IDC_EDIT_WEIGHT, edit_commodity_weight_);
 	DDX_Control(pDX, IDC_EDIT_FLOOR, edit_selection_floor_);
@@ -68,67 +56,99 @@ BEGIN_MESSAGE_MAP(DlgProduction, CDialogEx)
 	ON_EN_CHANGE(IDC_EDIT_WEIGHT, &OnEditWeighProduction)
 	ON_EN_CHANGE(IDC_EDIT_FLOOR, &OnEditSelectionFloor)
 	ON_COMMAND(IDOK, OnOk)
+
 END_MESSAGE_MAP()
 
 
 // DlgProduction message handlers
 BOOL DlgProduction::OnInitDialog() {
 	CDialogEx::OnInitDialog();
-
-	bitmap_image_ctrl.SetBitmap((HBITMAP)cbitmap_);
-
-	UpdateProduct();
-
-  int index = list_box_ctrl_.GetCurSel();
-  //if (/*index >= 0*/1) {
-    CString current_str;
-    list_box_ctrl_.GetText(0/*index*/, current_str);
-		/*CString name_bitmap = Base::RemoveExtensionFile(current_str);*/
-	if (current_str != "") {
-		current_str += _T("_0");
-		HandleBitmap(/*name_bitmap*/current_str);
-  } else {
-		cbitmap_.LoadBitmap(IDB_BITMAP_BKGN);
-		bitmap_image_ctrl.SetBitmap((HBITMAP)cbitmap_);
-  }
-
-  UpdateData(FALSE);
-	//check_proportion_.SetCheck(1);
-	edit_cad_lenght_.SetWindowText(str_cad_lenght_);
-	edit_cad_width_.SetWindowText(str_cad_width_);
-	edit_cad_height_.SetWindowText(str_cad_height_);
-	edit_count_commodity_.SetWindowText(str_count_commodity_);
-	edit_selection_floor_.SetWindowTextW(str_selection_floor_);
-	edit_commodity_weight_.SetWindowText(str_commodity_weight_);
-
-	edit_cad_lenght_.EnableWindow(true);
-  edit_cad_width_.EnableWindow(true);
-  edit_cad_height_.EnableWindow(true);
-/*	edit_cad_proportion_.EnableWindow(true)*/;
-
+	UpdateProductImage();
+	SetBitmap();
+	DisplayInfoOnDialog();
+	SetStatusDialog(TypeCommodity::COMMODITY);
+	Invalidate();
 	CButton *clear_btn = static_cast<CButton*>(GetDlgItem(IDC_BTN_CLEAR));
 	clear_btn->EnableWindow(FALSE);
   return TRUE;
 }
 
-void DlgProduction::UpdateProduct() {
-	CString str = product_pic_path_;
+void DlgProduction::Create(CWnd* pParentWnd) {
+	CDialog::Create(DlgProduction::IDD, pParentWnd);
+	pParent_ = reinterpret_cast<FormBar*>(pParentWnd);
+}
+
+void DlgProduction::SetData(CadInfo &info) {
+	cad_info_ = info;
+	SetBitmap();
+	DisplayInfoOnDialog();
+	SetStatusDialog(cad_info_.type_commodity);
+	UpdateData();
+}
+
+void DlgProduction::SetStatusDialog(TypeCommodity type) {
+	if(type == TypeCommodity::COMMODITY) {
+		edit_count_commodity_.EnableWindow(TRUE);
+		edit_cad_lenght_.EnableWindow(TRUE);
+		edit_cad_width_.EnableWindow(TRUE);
+		edit_cad_height_.EnableWindow(TRUE);
+		edit_commodity_weight_.EnableWindow(TRUE);
+		edit_selection_floor_.EnableWindow(TRUE);
+	} else {
+		edit_count_commodity_.EnableWindow(TRUE);
+		edit_cad_lenght_.EnableWindow(FALSE);
+		edit_cad_width_.EnableWindow(FALSE);
+		edit_cad_height_.EnableWindow(FALSE);
+		edit_commodity_weight_.EnableWindow(FALSE);
+		edit_selection_floor_.EnableWindow(TRUE);
+	}
+}
+
+void DlgProduction::DisplayInfoOnDialog()	{
+	CString str;
+	str.Format(_T("%0.2f"),cad_info_.lenght);
+	edit_cad_lenght_.SetWindowText(str);
+	str.Format(_T("%0.2f"),cad_info_.width);
+	edit_cad_width_.SetWindowText(str);
+	str.Format(_T("%0.2f"),cad_info_.height);
+	edit_cad_height_.SetWindowText(str);
+	str.Format(_T("%d"),cad_info_.count);
+	edit_count_commodity_.SetWindowText(str);
+	str.Format(_T("%d"),cad_info_.floor);
+	edit_selection_floor_.SetWindowTextW(str);
+	str.Format(_T("%0.2f"),cad_info_.weight);
+	edit_commodity_weight_.SetWindowText(str);
+}
+
+void DlgProduction::SetBitmap() {
+	HandleBitmap(cad_info_.name_production);
+	bitmap_image_ctrl.SetBitmap((HBITMAP)cbitmap_);
+  UpdateData(FALSE);
+}
+
+void DlgProduction::UpdateProductImage() {
+	CString str = Base::GetPathModule();
+	str = str + _T("\\anh\\");
 	std::string str_cad = CStringA(str);
-	//std::string str_tye("*.stl");
 	std::string str_tye("*.bmp");
 	str_cad = str_cad + str_tye;
 
 	std::vector<std::string> list_file = Base::ListFileInFolder(str_cad);
-
-	for (int i =0; i < list_file.size(); i++) {
+	int count = list_box_ctrl_.GetCount();
+	for(int i = 0; i < count; i ++) {
+		list_box_ctrl_.DeleteString(0);
+	}
+	for (int i = 0; i < list_file.size(); i++) {
 		if(CheckProductionPic(list_file.at(i))) {
 			std::string str_pic;
 			str_pic = GetPicName(list_file.at(i));
-			CA2T str( /*list_file[i].c_str()*/str_pic.c_str());
+			CA2T str(str_pic.c_str());
+			if(i)
 			list_box_ctrl_.AddString(str);
 		}
 	}
 	list_box_ctrl_.SetSel(0, true);
+  list_box_ctrl_.GetText(0, cad_info_.name_production);
 }
 
 std::string DlgProduction::GetPicName(std::string &str_name) {
@@ -150,7 +170,7 @@ bool DlgProduction::CheckProductionPic(std::string str_name) {
 	for(int i = str_name.length() - 6; i < str_name.length(); i ++) {
 		str += str_name.at(i);
 	}
-	if(str == "_0.bmp")
+	if(str == "_1.bmp")
 		return true;
 	return false;
 }
@@ -158,15 +178,8 @@ bool DlgProduction::CheckProductionPic(std::string str_name) {
 void DlgProduction::OnLBSelChange() {
   int index = list_box_ctrl_.GetCurSel();
   if (index >= 0) {
-    CString current_str;
-    list_box_ctrl_.GetText(index, current_str);
-		// Get file cad Which is selected
-		str_current_production_ = current_str;
-		current_str += _T("_0");
-		
-//		CString file_name = Base::RemoveExtensionFile(current_str);
-    HandleBitmap(current_str);
-
+		list_box_ctrl_.GetText(index, cad_info_.name_production);
+		SetBitmap();
 		CButton *clear_btn = static_cast<CButton*>(GetDlgItem(IDC_BTN_CLEAR));
 		clear_btn->EnableWindow(TRUE);
   }
@@ -180,16 +193,20 @@ void DlgProduction::LoadProductionBkgn() {
 
 void DlgProduction::HandleBitmap(CString str_name) {
 	cbitmap_.Detach();
-	CString str = product_pic_path_ + str_name + (".bmp");
-
+	CString str = Base::GetPathModule() + ("\\anh\\") + str_name + ("_1") + (".bmp");
 	HBITMAP hbitmap =(HBITMAP)::LoadImage(AfxGetInstanceHandle(), str,
-																				IMAGE_BITMAP, 0, 0,
+																				IMAGE_BITMAP, 200, 200,
 																				LR_LOADFROMFILE  |
 																				LR_CREATEDIBSECTION);
 	if (hbitmap == NULL) {
-		MessageBox(L"Ảnh không tồn tại hoặc bị lỗi", L"Bitmap", MB_OK |MB_ICONERROR);
-		LoadProductionBkgn();
-		return;
+		str = Base::GetPathModule() + _T("\\picture_default\\box.bmp");
+	  hbitmap =(HBITMAP)::LoadImage(AfxGetInstanceHandle(), str,
+																					IMAGE_BITMAP, 200, 200,
+																					LR_LOADFROMFILE  |
+																					LR_CREATEDIBSECTION);
+		//MessageBox(L"Ảnh không tồn tại hoặc bị lỗi", L"Bitmap", MB_OK |MB_ICONERROR);
+		//LoadProductionBkgn();
+		//return;
 	}
 	cbitmap_.Attach(hbitmap); 
 	bitmap_image_ctrl.SetBitmap((HBITMAP)cbitmap_);
@@ -206,7 +223,7 @@ void DlgProduction::NewProduction() {
 	  file_path = dlg.GetPathName();
 		file_name = dlg.GetFileName();
 
-		CString path_product = product_pic_path_ + file_name;
+		CString path_product;
 
 		const char * src_path = Base::CStringToChar(file_path);
 
@@ -265,7 +282,7 @@ void DlgProduction::NewImage() {
 	if (dlg.DoModal() == IDOK) {
     str_new_image = dlg.GetPathName();
 
-		CString des_str = product_pic_path_ + dlg.GetFileName(); 
+		CString des_str = /*product_pic_path_ + */dlg.GetFileName(); 
 	  const wchar_t* src_wstr = str_new_image.GetString();
 		const wchar_t* des_wstr = des_str.GetString();
 
@@ -309,63 +326,82 @@ void DlgProduction::NewImage() {
 
 void DlgProduction::OnEditCadLenght() {
 	UpdateData(TRUE);
-	edit_cad_lenght_.GetWindowText(str_cad_lenght_);
-	cad_info_.lenght = _ttof(str_cad_lenght_);
+	CString str;
+	edit_cad_lenght_.GetWindowText(str);
+	cad_info_.lenght = _ttof(str);
 }
 void DlgProduction::OnEditCadWidth() {
 	UpdateData(TRUE);
-	edit_cad_width_.GetWindowText(str_cad_width_);
-	cad_info_.width = _ttof(str_cad_width_);
+	CString str;
+	edit_cad_width_.GetWindowText(str);
+	cad_info_.width = _ttof(str);
 }
 void DlgProduction::OnEditCadHeight() {
 	UpdateData(TRUE);
-	edit_cad_height_.GetWindowText(str_cad_height_);
-	cad_info_.height = _ttof(str_cad_height_);
+	CString str;
+	edit_cad_height_.GetWindowText(str);
+	cad_info_.height = _ttof(str);
 }
 
 void DlgProduction::GetCadInfor(CadInfo & cad_info) const{
 	cad_info = cad_info_;
-	cad_info.name_production = str_current_production_;
+	//cad_info.name_production = str_current_production_;
 }
 
 
 void DlgProduction::OnEditCountProduction() {
 	UpdateData(TRUE);
-	edit_count_commodity_.GetWindowText(str_count_commodity_);
-	cad_info_.count = _ttoi(str_count_commodity_);
+	CString str;
+	edit_count_commodity_.GetWindowText(str);
+	cad_info_.count = _ttoi(str);
 }
 void DlgProduction::OnEditWeighProduction() {
 	UpdateData(TRUE);
-	edit_commodity_weight_.GetWindowText(str_commodity_weight_);
-	cad_info_.weight = _ttoi(str_commodity_weight_);
+	CString str;
+	edit_commodity_weight_.GetWindowText(str);
+	cad_info_.weight = _ttoi(str);
 }
 
 void DlgProduction::OnEditSelectionFloor() {
 	UpdateData(TRUE);
-	edit_selection_floor_.GetWindowText(str_selection_floor_);
-	cad_info_.floor = _ttoi(str_selection_floor_);
+	CString str;
+	edit_selection_floor_.GetWindowText(str);
+	cad_info_.floor = _ttoi(str);
 }
 
 void DlgProduction::OnOk() {
-	if(str_current_production_ == "" || list_box_ctrl_.GetCount() == 0) {
-		if(list_box_ctrl_.GetCount() != 0) {
-			CString current_str;
-		
-			list_box_ctrl_.GetText(0, current_str);
-			// Get file cad Which is selected
-			str_current_production_ = current_str;
-			current_str += _T("_0");
-		
-	//		CString file_name = Base::RemoveExtensionFile(current_str);
-			HandleBitmap(current_str);
+	pParent_->SetProductionList(cad_info_, pos_list_view_);
+	//pParent_->SendMessage(IDC_MESAGER_PRODUCTION, (WPARAM)&cad_info_, 0);
+	//SendMessage(WM_ICONERASEBKGND, (WPARAM)pParent_->GetSafeHwnd(), 0);
+	//if(str_current_production_ == "" || list_box_ctrl_.GetCount() == 0) {
+	//	if(list_box_ctrl_.GetCount() != 0) {
+	//		CString current_str;
+	//	
+	//		list_box_ctrl_.GetText(0, current_str);
+	//		// Get file cad Which is selected
+	//		str_current_production_ = current_str;
+	//		current_str += _T("_0");
+	//	
+	////		CString file_name = Base::RemoveExtensionFile(current_str);
+	//		HandleBitmap(current_str);
 
-			CButton *clear_btn = static_cast<CButton*>(GetDlgItem(IDC_BTN_CLEAR));
-			clear_btn->EnableWindow(TRUE);
-			CDialog::OnOK();
-		} else {
-			AfxMessageBox(_T("Xin vui lòng chọn ảnh"));
-		}
-	} else {
+	//		CButton *clear_btn = static_cast<CButton*>(GetDlgItem(IDC_BTN_CLEAR));
+	//		clear_btn->EnableWindow(TRUE);
+	//		CDialog::OnOK();
+	//	} else {
+	//		AfxMessageBox(_T("Xin vui lòng chọn ảnh"));
+	//	}
+	//} else {
 		CDialog::OnOK();
-	}
+	//}
+}
+
+void DlgProduction::InitCommodity() {
+	cad_info_.type_commodity = TypeCommodity::COMMODITY;
+	list_box_ctrl_.SetSel(0, true);
+  list_box_ctrl_.GetText(0, cad_info_.name_production);
+	SetBitmap();
+	DisplayInfoOnDialog();
+	SetStatusDialog(cad_info_.type_commodity);
+	Invalidate();
 }

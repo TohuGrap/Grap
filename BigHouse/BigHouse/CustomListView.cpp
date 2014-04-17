@@ -25,7 +25,7 @@ BEGIN_MESSAGE_MAP(CustomListView, CListCtrl)
 	ON_WM_HSCROLL()
 	ON_WM_VSCROLL()
 	ON_WM_SIZE()
-	ON_NOTIFY_REFLECT(LVN_ITEMCHANGED, OnItemchanged)
+	//ON_NOTIFY_REFLECT(LVN_ITEMCHANGED, OnItemchanged)
 END_MESSAGE_MAP()
 
 
@@ -49,10 +49,10 @@ void CustomListView::OnItemchanged(NMHDR* pNMHDR, LRESULT* pResult) {
 	NM_LISTVIEW* pNMListView = (NM_LISTVIEW*)pNMHDR;
 	int item = pNMListView->iItem;
 	if (form_bar_shelf != NULL) {
-		form_bar_shelf->HandleListViewShelf(item);
+	//	form_bar_shelf->HandleListViewShelf(item);
 	}
 
 	if (form_bar_product != NULL) {
-		form_bar_product->HandleListViewProduct(item);
+		//form_bar_product->HandleListViewProduct(item);
 	}
 }

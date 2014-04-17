@@ -22,12 +22,15 @@ public:
 	RoomSize GetRoomSize() {return room_size_;}
 	virtual BOOL OnInitDialog();
 	bool IsShowRoomSize() {return is_show_room_size_;}
+	bool IsArrangeInRoom() {return is_arrange_in_room_;}
 protected:
 	afx_msg void OnEditRoomLong();
 	afx_msg void OnEditRoomWidth();
 	afx_msg void OnEditRoomHeight();
 	afx_msg void OnEditRoomDepth();
 	afx_msg void ShowRoomSize();
+	afx_msg void ArrangeInRoom();
+	afx_msg void ArrangeInContainer();
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	DECLARE_MESSAGE_MAP()
 protected:
@@ -42,6 +45,10 @@ protected:
 	CEdit edit_room_width_;
 	CEdit edit_room_height_;
 	CEdit edit_room_depth_;
+
+	CButton show_room_;
+	CButton show_container_;
 	int show_room_size_;
 	bool is_show_room_size_;
+	bool is_arrange_in_room_;
 };

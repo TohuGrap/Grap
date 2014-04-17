@@ -114,6 +114,7 @@ protected:
 	void DrawAllSizeOZDR(DWORD TextList3D,
 										double height_base,
 								  	std::vector<Floor> &floor/*std::vector<std::pair<Floor, std::vector<Triangle3D*>>> &stocks*/);
+	virtual void GetInfoContainerOfCommodity(CString &name, CString &type, float &weight) {};
 
 
 private:
@@ -129,7 +130,7 @@ private:
 	TypeRecShelf type_;
 	//std::vector<std::pair<Floor, std::vector<Triangle3D*>>> stocks_;
 	std::vector<Floor> all_floor_;
-	std::vector<Commodity*> List_commodity_;
+	std::vector<Commodity*> list_commodity_;
 	Vector3D bbmin_;
 	Vector3D bbmax_;
 	Vector3D point_center_;

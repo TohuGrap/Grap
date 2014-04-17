@@ -5,6 +5,9 @@
 #include "afxcmn.h"
 #include "CustomListView.h"
 #include <vector>
+#include "EditProduction.h"
+#include "DlgProduction.h"
+#include "DlgSettingShelf.h"
 
 class BigHouseView;
 class BigHouseDoc;
@@ -32,12 +35,12 @@ public:
   BigHouseView* GetBigHouseView();
 	void	InitListViewShelf();
 	void InitListViewProduct();
-	void SetShelfInfoList(ShelfInfo shelf_info, bool &is_exist);
-	void SetProductionList(CadInfo & cad_info, bool &is_exist);
-	void SetDataForListShelf(UINT number_of_shelf); 
+	void SetShelfInfoList(ShelfInfo &shelf_info, int pos_item);
+	void SetProductionList(CadInfo & cad_info, int pos_item);
+	void SetDataForListShelf(); 
 	void SetDataForListProduct();
-	void HandleListViewShelf(int item);
-	void HandleListViewProduct(int item);
+	//void HandleListViewShelf(int item);
+	//void HandleListViewProduct(int item);
 	void DisableLoadProduct();
 	void LoadSimShelfFile(CString& path_file);
 	bool SaveSimShelfFile(CString& path_file);
@@ -45,22 +48,21 @@ public:
 	void ExportFile();
 	void RemoveListShelf();
 	void RemoveListCommodity();
-
+	void OnClickListProduction(NMHDR* pNMHDR, LRESULT* pResult);// huu
+	void OnDoubleClickListProduction(NMHDR* pNMHDR, LRESULT* pResult);// huu
+	void OnClickListShelf(NMHDR* pNMHDR, LRESULT* pResult);// huu
+	void OnDoubleClickListShelf(NMHDR* pNMHDR, LRESULT* pResult);// huu
+	void OnRightClickListShelf(NMHDR* pNMHDR, LRESULT* pResult);// huu
 	void ImportCad();
 	void LoadCadFile(CString& str);
 	bool SaveCadFile(CString& str);
 	void ExportCad();
+	void SetupProduction();
+	void SetupShelf();
   enum ObjectShape {
     OBJ_TABLE = 0,
     OBJ_DESK = 1,
   };
-
-	enum ShelfType {
-		SIMPLE_SHELF = 0,
-		DOUBLE_SHELF = 1,
-		CIRCLE_SHELF = 2,
-		CONTAINER = 3
-	};
 
 protected:
   virtual void OnPaint();
@@ -73,8 +75,15 @@ protected:
 	afx_msg void OnLButtonUp(UINT nFlags, CPoint pt);
 	afx_msg void OnBnShelfSelected();
 	afx_msg void OnBnProductionSelected();
+	afx_msg LRESULT OnMyMessage(WPARAM wParam, LPARAM lParam);
+	void DelItemFromListShelf();
+	void DelItemFromListProduction();
 	DECLARE_MESSAGE_MAP()
 private:
+	DlgProduction dlg_production_;
+	EditProduction edit_production_;
+	DlgSettingShelf dlg_shelf_;
+	///
 	int index_shelf_;
 	int index_product_;
 	//std::vector<CString> production_list_;

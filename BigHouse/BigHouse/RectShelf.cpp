@@ -200,7 +200,7 @@ void RectShelf::DrawShelf() {
 									 selected_floor_,
 									 all_floor_);
  		//DrawCommodity(stocks_, h_solo);
-		DrawCommodityFromDownToUp(all_floor_, List_commodity_, length_, width_, h_solo, 4*dis_drag_, slit_);
+		DrawCommodityFromDownToUp(all_floor_, list_commodity_, length_, width_, h_solo, 4*dis_drag_, slit_);
 		if(GetKeyState(VK_SHIFT) & 0x8000) {
 			DrawAllSizeOZ(513, h_solo,0, all_floor_);
 			is_update_ = true;
@@ -358,7 +358,7 @@ void RectShelf::SetCadToShelf(std::pair<Floor, std::vector<Triangle3D*>> &body) 
 }
 
 void RectShelf::SetCommodity(std::vector<Commodity*> list_commodity) {
-	List_commodity_ = list_commodity;
+	list_commodity_ = list_commodity;
 }
 
 //**********************************&&*************************

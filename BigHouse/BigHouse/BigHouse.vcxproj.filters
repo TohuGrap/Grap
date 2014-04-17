@@ -162,6 +162,12 @@
     <ClInclude Include="ArrangeCommodity.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SupermarketInfor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EditProduction.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BigHouse.cpp">
@@ -219,6 +225,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ArrangeCommodity.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SupermarketInfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="EditProduction.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

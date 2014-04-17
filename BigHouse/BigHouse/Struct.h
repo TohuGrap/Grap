@@ -1,5 +1,6 @@
 #ifndef STRUCT_H_
 #define STRUCT_H_
+#include "Vector3D.h"
 struct RoomSize {
   float longs;
 	float width;
@@ -7,11 +8,21 @@ struct RoomSize {
 	float depth;
 };
 
+enum TypeCommodity {
+	COMMODITY = 0,
+	CO_CONTAINER = 1
+};
+
 	enum TypeArrange {
 		SEQUENTIAL = 0,
 		FLOOR
 	};
-
+	enum ShelfType {
+		SIMPLE_SHELF = 0,
+		DOUBLE_SHELF = 1,
+		CIRCLE_SHELF = 2,
+		CONTAINER = 3
+	};
 
 struct ShelfInfo {
   // Get info from fomrview to view
@@ -24,7 +35,7 @@ struct ShelfInfo {
 	float dis_drag;
 	float dis_wall;
 	CString name_project;
-	UINT shelf_type;
+	ShelfType shelf_type;
 	TypeArrange type_arrange;
 };
 
@@ -35,16 +46,13 @@ struct ShelfInfo {
 
 	struct CadInfo {
 	CString name_production;
-	CString type_production;
 	float lenght;
 	float width;
 	float height;
 	float weight;
 	int floor;
-	//bool change_proportion;
 	int count;
-	//
-	
+	TypeCommodity type_commodity;
 	};
 
 #endif // STRUCT_H_

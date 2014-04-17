@@ -364,7 +364,7 @@ void MainFrame::SetupProduction() {
 }
 
 void MainFrame::ArrangeProduction() {
-	
+	big_house_view_->ShowSupermartketInfo();
 }
 
 
