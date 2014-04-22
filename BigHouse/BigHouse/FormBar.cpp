@@ -31,8 +31,8 @@ FormBar::FormBar()
 	index_product_ = -1;
 }
 
-FormBar::~FormBar()
-{
+FormBar::~FormBar() {
+	
 }
 
 void FormBar::DoDataExchange(CDataExchange* pDX)
@@ -50,12 +50,18 @@ BEGIN_MESSAGE_MAP(FormBar, CFormView)
 	ON_BN_CLICKED(IDC_BTN_SHELF_IMPORT_CAD, &FormBar::ImportCad)
 	ON_BN_CLICKED(IDC_BTN_SHELF_EXPORT_CAD, &FormBar::ExportCad)
 	ON_BN_CLICKED(IDC_BTN_REMOVE_LIST_SHELF, &FormBar::RemoveListShelf)
+	ON_BN_CLICKED(IDC_BUTTON_DEL_ITEM_SHELF, &FormBar::DelItemFromListShelf)//
+	ON_BN_CLICKED(IDC_BUTTON_DEL_ITEM_PRODUCTION, &FormBar::DelItemFromListProduction)//
 	ON_BN_CLICKED(IDC_BTN_REMOVE_LIST_COMMODITY, &FormBar::RemoveListCommodity)
+	ON_BN_CLICKED(IDC_BUTTON_STORE_COMMODITY, &FormBar::ShowDialogStore)
+	ON_BN_CLICKED(IDC_BUTTON_SAVE_DATA_COMMODITY, &FormBar::SaveCommodityToData)
 	ON_NOTIFY(NM_CLICK, IDC_LIST_PRODUCT, OnClickListProduction)
 	ON_NOTIFY(NM_CLICK, IDC_LIST_SHELF, OnClickListShelf)
 	ON_NOTIFY(NM_DBLCLK, IDC_LIST_PRODUCT, OnDoubleClickListProduction)
 	ON_NOTIFY(NM_DBLCLK, IDC_LIST_SHELF, OnDoubleClickListShelf)
 	ON_NOTIFY(NM_RCLICK, IDC_LIST_SHELF, OnRightClickListShelf)
+	ON_WM_DESTROY()
+
 	ON_MESSAGE(IDC_MESAGER_PRODUCTION, OnMyMessage)
   ON_WM_PAINT()
   ON_WM_SIZE()
@@ -96,8 +102,12 @@ void FormBar::OnInitialUpdate() {
 	InitListViewShelf();
 	// Init list view production
 	InitListViewProduct();
-
+	LoadDataFromFileData();
   return ;
+}
+
+void FormBar::OnDestroy( ) {
+	SaveCommodityToData();
 }
 
 void FormBar::InitListViewShelf() {
@@ -145,35 +155,35 @@ void FormBar::SetDataForListShelf() {
 
 	//UINT i = number_of_shelf - 1;
 	for (int i = 0; i < shelf_info_list_.size(); i++) {
-	str_name_project = shelf_info_list_[i].name_project;
+	str_name_project = shelf_info_list_.at(i).name_project;
 
-	if (shelf_info_list_[i].shelf_type == ShelfType::SIMPLE_SHELF) {
+	if (shelf_info_list_.at(i).shelf_type == ShelfType::SIMPLE_SHELF) {
 		str_type = _T("Kệ Đơn");
-	} else if (shelf_info_list_[i].shelf_type == ShelfType::DOUBLE_SHELF) {
+	} else if (shelf_info_list_.at(i).shelf_type == ShelfType::DOUBLE_SHELF) {
 		str_type = _T("Kệ Đôi");
-	} else if (shelf_info_list_[i].shelf_type == ShelfType::CIRCLE_SHELF) {
+	} else if (shelf_info_list_.at(i).shelf_type == ShelfType::CIRCLE_SHELF) {
 		str_type = _T("Kệ Tròn");
-	} else if (shelf_info_list_[i].shelf_type == ShelfType::CONTAINER) {
+	} else if (shelf_info_list_.at(i).shelf_type == ShelfType::CONTAINER) {
 		str_type = _T("Thùng chứa");
 	} else {
 		str_type = _T("Không rõ");
 	}
 
-	if(shelf_info_list_[i].shelf_type == ShelfType::SIMPLE_SHELF ||
-		 shelf_info_list_[i].shelf_type == ShelfType::DOUBLE_SHELF||
-		 shelf_info_list_[i].shelf_type == ShelfType::CONTAINER) {
-		str_longs.Format(_T("%.2f"), shelf_info_list_[i].longs);
-		str_width.Format(_T("%.2f"), shelf_info_list_[i].width);
+	if(shelf_info_list_.at(i).shelf_type == ShelfType::SIMPLE_SHELF ||
+		 shelf_info_list_.at(i).shelf_type == ShelfType::DOUBLE_SHELF||
+		 shelf_info_list_.at(i).shelf_type == ShelfType::CONTAINER) {
+		str_longs.Format(_T("%.2f"), shelf_info_list_.at(i).longs);
+		str_width.Format(_T("%.2f"), shelf_info_list_.at(i).width);
 	}
 
-	str_height.Format(_T("%.2f"), shelf_info_list_[i].height);
+	str_height.Format(_T("%.2f"), shelf_info_list_.at(i).height);
 
-	if(shelf_info_list_[i].shelf_type != ShelfType::CONTAINER) {
-		str_numf.Format(_T("%d"), shelf_info_list_[i].numf);
+	if(shelf_info_list_.at(i).shelf_type != ShelfType::CONTAINER) {
+		str_numf.Format(_T("%d"), shelf_info_list_.at(i).numf);
 	}
 
-	if (shelf_info_list_[i].shelf_type == ShelfType::CIRCLE_SHELF) {
-		str_radius.Format(_T("%.2f"), shelf_info_list_[i].shelf_radius);
+	if (shelf_info_list_.at(i).shelf_type == ShelfType::CIRCLE_SHELF) {
+		str_radius.Format(_T("%.2f"), shelf_info_list_.at(i).shelf_radius);
 	}
 	int pos = list_view_shelf_.GetItemCount();
 	list_view_shelf_.InsertItem(pos, str_name_project);
@@ -277,8 +287,7 @@ void FormBar::OnBnProductionSelected() {
 }
 
 
-void FormBar::OnBnShelfSelected()
-{
+void FormBar::OnBnShelfSelected() {
 	//int i = shelf_info_list_.size() - 1 - index_shelf_;
 	//if (i < 0) {
 	//	AfxMessageBox(_T("Bạn chưa chọn kệ trong danh sách"));
@@ -405,9 +414,9 @@ void FormBar::SetShelfInfoList(ShelfInfo &shelf_info, int pos_item) {
 }
 
 void FormBar::SetProductionList(CadInfo & cad_info, int pos_item) {
-	if(pos_item < 0 )
+	if(pos_item == - 1 )
 		return;
-	if(pos_item == cad_info_.size()) {
+	if(pos_item == cad_info_.size()|| pos_item == - 2) {
 		cad_info_.push_back(cad_info);
 	} else {
 		cad_info_.at(pos_item) = cad_info;
@@ -530,7 +539,7 @@ void FormBar::LoadSimShelfFile(CString& path_file )
   RemoveListShelf();
 	shelf_info_list_ = shelf_info_list;
 	//for (int i = shelf_info_list.size(); i > 0; i--) {
-    SetDataForListShelf();
+  SetDataForListShelf();
 	//}
 
 	std::reverse(shelf_info_list_.begin(), shelf_info_list_.end());
@@ -640,7 +649,11 @@ void FormBar::ImportCad() {
 	CString str_path(_T(""));
 	if (dlg.DoModal() == IDOK) {
 		str_path = dlg.GetPathName();
-		LoadCadFile(str_path);
+		cad_info_.clear();
+		//LoadCadFile(str_path);
+		LoadListCommodity(str_path, cad_info_);
+		RemoveListCommodity();
+		SetDataForListProduct();
 	}
 }
 
@@ -740,7 +753,8 @@ void FormBar::ExportCad() {
 	CString str_path(_T(""));
 	if (dlg.DoModal() == IDOK) {
 		str_path = dlg.GetPathName();
-		SaveCadFile(str_path);
+		SaveListCommodity(str_path, cad_info_);
+		//SaveCadFile(str_path);
 	}
 }
 
@@ -748,7 +762,6 @@ void FormBar::ExportCad() {
 
 bool FormBar::SaveCadFile(CString& str) {
 
-	//std::vector<CString> cad_list;
 	std::vector<CadInfo> cad_info;
 	//cad_list = production_list_;
 	cad_info = cad_info_;
@@ -828,7 +841,6 @@ void FormBar::RemoveListCommodity() {
 }
 
 void FormBar::OnDoubleClickListProduction(NMHDR* pNMHDR, LRESULT* pResult) {
-  Invalidate();
 	HWND hWnd1 =  ::GetDlgItem (m_hWnd,IDC_LIST_EDIT_PRODUCTION);
 	LPNMITEMACTIVATE temp = (LPNMITEMACTIVATE) pNMHDR;
 	RECT rect;
@@ -857,7 +869,6 @@ void FormBar::OnDoubleClickListProduction(NMHDR* pNMHDR, LRESULT* pResult) {
 }
 
 void FormBar::OnClickListProduction(NMHDR* pNMHDR, LRESULT* pResult) {
-  Invalidate();
 	HWND hWnd1 =  ::GetDlgItem (m_hWnd,IDC_LIST_EDIT_PRODUCTION);
 	LPNMITEMACTIVATE temp = (LPNMITEMACTIVATE) pNMHDR;
 	//get the row number
@@ -865,7 +876,6 @@ void FormBar::OnClickListProduction(NMHDR* pNMHDR, LRESULT* pResult) {
 }
 
 void FormBar::OnClickListShelf(NMHDR* pNMHDR, LRESULT* pResult) {
-  Invalidate();
 	HWND hWnd1 =  ::GetDlgItem (m_hWnd,IDC_LIST_SHELF);
 	LPNMITEMACTIVATE temp = (LPNMITEMACTIVATE) pNMHDR;
 
@@ -877,14 +887,12 @@ void FormBar::OnClickListShelf(NMHDR* pNMHDR, LRESULT* pResult) {
 	} else {
 		btn_select_shelf->EnableWindow(FALSE);
 	}
-
 }
 
 void FormBar::OnDoubleClickListShelf(NMHDR* pNMHDR, LRESULT* pResult) {
-  Invalidate();
 	HWND hWnd1 =  ::GetDlgItem (m_hWnd,IDC_LIST_SHELF);
 	LPNMITEMACTIVATE temp = (LPNMITEMACTIVATE) pNMHDR;
-	RECT rect;
+
 	//get the row number
 	int n_item = temp->iItem;
 	//get the column number
@@ -919,7 +927,7 @@ void FormBar::SetupProduction() {
 	if(!dlg_production_.GetSafeHwnd()) {
 		dlg_production_.Create(this);
 	}
-	dlg_production_.SetPositionListViewCtrl(cad_info_.size());
+	dlg_production_.SetPositionListViewCtrl(-2);
 	dlg_production_.InitCommodity();
 	dlg_production_.ShowWindow(SW_SHOW);
 }
@@ -957,19 +965,210 @@ void FormBar::OnRightClickListShelf(NMHDR* pNMHDR, LRESULT* pResult) {
 	container.name_production = shelf_info_list_.at(n_item).name_project;
 	container.type_commodity = TypeCommodity::CO_CONTAINER;
 	dlg_production_.SetData(container);
-	dlg_production_.SetPositionListViewCtrl(cad_info_.size());
+	dlg_production_.SetPositionListViewCtrl(- 2);
 
 }
 
 void FormBar::DelItemFromListShelf() {
-	if(index_shelf_ != -1) {
-		shelf_info_list_.erase(shelf_info_list_.begin() + index_shelf_);
+	if(index_shelf_ < 0 || index_shelf_ >= shelf_info_list_.size()) {
+		return;
 	}
+	shelf_info_list_.erase(shelf_info_list_.begin() + index_shelf_);
+	SetDataForListShelf();
+	index_shelf_ = - 1;
 }
 
 void FormBar::DelItemFromListProduction() {
-	if(index_product_ != -1) {
-		cad_info_.erase(cad_info_.begin() + index_product_);
+	if(index_product_ < 0 || index_product_ >= cad_info_.size()) {
+		return;
 	}
+	cad_info_.erase(cad_info_.begin() + index_product_);
+	SetDataForListProduct();
+	index_product_ = - 1;
 }
 
+void FormBar::SaveListShelf() {
+
+}
+
+void FormBar::LoadListShelf() {
+
+}
+
+bool FormBar::SaveListCommodity(CString &name_path, std::vector<CadInfo> &data_commodity) {
+
+
+	std::string str_file = CStringA(name_path);
+
+	xmlTextWriterPtr writer = xmlNewTextWriterFilename(str_file.c_str(), 0);
+	if (NULL == writer) {
+		return false;
+	}
+
+	// Set indentation
+	int rc = xmlTextWriterSetIndent(writer, 1);
+	if (rc < 0) return false;
+
+	const char* kXmlDefaultVersion = NULL;
+	const char* kUtf8Encoding = "UTF-8";
+	const char* kDefaultStandalon = NULL;
+	rc = xmlTextWriterStartDocument(writer,
+		kXmlDefaultVersion,
+		kUtf8Encoding,
+		kDefaultStandalon);
+	if (rc < 0) {
+		return false;
+	}
+
+	rc = xmlTextWriterStartElement(writer, BAD_CAST "root");
+	if (rc < 0) 
+		return false;
+
+	for (int i = 0; i < data_commodity.size(); i++) {
+		char* chstr = Base::CStringToChar(data_commodity.at(i).name_production/*str*/);
+		rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST"ten","%s", (const xmlChar*)chstr);
+		if (rc < 0) {
+			return false;
+		}
+		rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST"loai","%d", data_commodity.at(i).type_commodity);
+		if (rc < 0) {
+			return false;
+		}
+		rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST"dai", "%f", data_commodity.at(i).lenght);
+		if (rc < 0) return false;
+		rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST"rong", "%f", data_commodity.at(i).width);
+		if (rc < 0) return false;
+		rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST"cao", "%f", data_commodity.at(i).height);
+		if (rc < 0) return false;
+		rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST"trong_luong", "%f", data_commodity.at(i).weight);
+		if (rc < 0) return false;
+		rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST"so_luong", "%d", data_commodity.at(i).count);
+		if (rc < 0) return false;
+		rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST"tang", "%d", data_commodity.at(i).floor);
+		if (rc < 0) return false;
+
+	}
+	rc = xmlTextWriterEndDocument(writer);
+	if (rc < 0) 
+		return false;
+	// End document.
+	xmlFreeTextWriter(writer);
+	return true;
+}
+
+void FormBar::LoadListCommodity(CString &name_path, std::vector<CadInfo> &data_commodity) {
+	xmlDocPtr doc;
+	xmlNodePtr cur;
+	std::string file_name = CStringA(name_path);
+
+	// get doc
+	const char* chstr = file_name.c_str();
+	doc = xmlParseFile(chstr);
+	if (doc == NULL) {
+		::MessageBox(NULL, _T("Load file thất bại \n Cấu trúc xml của file không chính xác"), _T("Thông báo"), MB_OK|MB_ICONERROR);
+		return;
+	}
+	// get cur
+	cur = xmlDocGetRootElement(doc);
+	if (cur == NULL) {
+		xmlFree(doc);
+		return;
+	}
+	// get "root" element
+	if (xmlStrcmp(cur->name, (const xmlChar*)"root")) {
+		xmlFree(doc);
+		return;
+	}
+
+	std::vector<CadInfo> cad_info;
+
+
+	cur = cur->children;
+	CadInfo production;
+	while (cur != NULL) {
+		if (!xmlStrcmp(cur->name, (const xmlChar*)"ten")) {
+			std::wstring name =  XmlUtls::GetStringContent(doc, cur);
+			CString str = name.c_str();
+			production.name_production = str;
+		}
+		if (!xmlStrcmp(cur->name, (const xmlChar*)"loai")) {
+			int type_co =  XmlUtls::GetIntContent(doc, cur);
+
+			if(type_co == 0) {
+				production.type_commodity = TypeCommodity::COMMODITY;
+			} else {
+				production.type_commodity = TypeCommodity::CO_CONTAINER;
+			}
+		}
+		if (!xmlStrcmp(cur->name, (const xmlChar*)"dai")) {
+			double lenght =  XmlUtls::GetDoubleContent(doc, cur);
+			production.lenght = lenght;
+		}
+
+		if (!xmlStrcmp(cur->name, (const xmlChar*)"rong")) {
+			double width =  XmlUtls::GetDoubleContent(doc, cur);
+			production.width = width;
+		}
+
+		if (!xmlStrcmp(cur->name, (const xmlChar*)"cao")) {
+			double height =  XmlUtls::GetDoubleContent(doc, cur);
+			production.height = height;
+		}
+		if (!xmlStrcmp(cur->name, (const xmlChar*)"trong_luong")) {
+			double weight =  XmlUtls::GetDoubleContent(doc, cur);
+			production.weight = weight;
+		}
+
+		if (!xmlStrcmp(cur->name, (const xmlChar*)"so_luong")) {
+			double count =  XmlUtls::GetDoubleContent(doc, cur);
+			production.count = count;
+		}
+
+		if (!xmlStrcmp(cur->name, (const xmlChar*)"tang")) {
+			double floor =  XmlUtls::GetDoubleContent(doc, cur);
+			production.floor = floor;
+			data_commodity.push_back(production);
+		}
+		cur = cur->next;
+	}
+	xmlFreeDoc(doc);
+}
+
+void FormBar::ShowDialogStore() {
+	if(!dlg_store_.GetSafeHwnd()) {
+		dlg_store_.Create(this);
+	}
+	dlg_store_.SetData(data_commodity_);
+	dlg_store_.ShowWindow(SW_SHOW);
+}
+
+void FormBar::SetCommodityToData(CadInfo & cad_info, int pos_item) {
+	if(!IsSameACommodity(data_commodity_, cad_info)) {
+		data_commodity_.push_back(cad_info);
+	} else {
+	//	AfxMessageBox(_T("Mã sản phẩm vừa tạo trùng với 1 sản phẩm đã có trong dữ liệu,\n vì vậy nó sẽ không được lưu lại trong dữ liệu lưu chữ"));
+	}
+	SetProductionList(cad_info, pos_item);
+}
+
+void FormBar::SaveCommodityToData() {
+	CString str_path = Base::GetPathModule() + _T("\\data\\Commodity.prd");
+	SaveListCommodity(str_path, data_commodity_);
+}
+
+void FormBar::LoadDataFromFileData() {
+	CString str_path = Base::GetPathModule() + _T("\\data\\Commodity.prd");
+	data_commodity_.clear();
+	LoadListCommodity(str_path, data_commodity_);
+}
+
+bool FormBar::IsSameACommodity(std::vector<CadInfo> &data_commodity, CadInfo &commodity) {
+	for(int i = 0; i < data_commodity.size(); i++) {
+		if(data_commodity.at(i).name_production == commodity.name_production) {
+			if(data_commodity.at(i).type_commodity == commodity.type_commodity) {
+				return true;
+			}
+		}
+	}
+	return false;
+}

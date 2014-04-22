@@ -168,6 +168,9 @@
     <ClInclude Include="EditProduction.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="DlgLiveStock.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BigHouse.cpp">
@@ -231,6 +234,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="EditProduction.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DlgLiveStock.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

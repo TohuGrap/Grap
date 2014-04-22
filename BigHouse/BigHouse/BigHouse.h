@@ -68,7 +68,6 @@ private:
 
 	std::vector<std::pair<FloorSize, std::vector<Triangle3D*>>> list_cad_boydy_;
 
-
 // Implementation
 	BOOL  m_bHiColorIcons;
 public:

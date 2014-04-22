@@ -26,6 +26,7 @@ BEGIN_MESSAGE_MAP(BigHouseApp, CWinAppEx)
   ON_COMMAND(ID_FILE_OPEN, &BigHouseApp::OnFileOpen)
 	ON_COMMAND(ID_FILE_SAVE, &BigHouseApp::OnFileSave)
 	// Standard print setup command
+	//ON_WM_DESTROY()
 	ON_COMMAND(ID_FILE_PRINT_SETUP, &CWinAppEx::OnFilePrintSetup)
 END_MESSAGE_MAP()
 
@@ -57,6 +58,7 @@ BigHouseApp::~BigHouseApp() {
 	//	delete cad_body_.at(i);
 	//}
 }
+
 
 // The one and only BigHouseApp object
 

@@ -133,7 +133,7 @@ public:
 
 	void CreateArrangeCommodity(std::vector<CadInfo> &list_commodity_info);
 	void CreatContainer(float length, float width, float height);
-protected:
+	protected:
   float pos[3];
 
 	float red_color_;

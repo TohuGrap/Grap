@@ -21,7 +21,7 @@ DlgProduction::DlgProduction(CWnd* pParent /*=NULL*/) {
 	cad_info_.weight = 0;
 	cad_info_.name_production = L"";
 	cad_info_.type_commodity = TypeCommodity::COMMODITY;
-	pos_list_view_ = -1;
+	pos_list_view_ = - 2;
 }
 
 DlgProduction::~DlgProduction() {
@@ -370,7 +370,7 @@ void DlgProduction::OnEditSelectionFloor() {
 }
 
 void DlgProduction::OnOk() {
-	pParent_->SetProductionList(cad_info_, pos_list_view_);
+	pParent_->SetCommodityToData(cad_info_, pos_list_view_);
 	//pParent_->SendMessage(IDC_MESAGER_PRODUCTION, (WPARAM)&cad_info_, 0);
 	//SendMessage(WM_ICONERASEBKGND, (WPARAM)pParent_->GetSafeHwnd(), 0);
 	//if(str_current_production_ == "" || list_box_ctrl_.GetCount() == 0) {

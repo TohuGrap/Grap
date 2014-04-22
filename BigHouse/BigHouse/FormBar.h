@@ -8,6 +8,7 @@
 #include "EditProduction.h"
 #include "DlgProduction.h"
 #include "DlgSettingShelf.h"
+#include "DlgLiveStock.h"
 
 class BigHouseView;
 class BigHouseDoc;
@@ -58,12 +59,22 @@ public:
 	bool SaveCadFile(CString& str);
 	void ExportCad();
 	void SetupProduction();
+	void SetCommodityToData(CadInfo & cad_info, int pos_item);
 	void SetupShelf();
   enum ObjectShape {
     OBJ_TABLE = 0,
     OBJ_DESK = 1,
   };
 
+	void SaveListShelf();
+	void LoadListShelf();
+
+	bool SaveListCommodity(CString &name_path, std::vector<CadInfo> &data_commodity);
+	void LoadListCommodity(CString &name_path, std::vector<CadInfo> &data_commodity);
+	void ShowDialogStore();
+	void SaveCommodityToData();
+	void LoadDataFromFileData();
+	bool IsSameACommodity(std::vector<CadInfo> &data_commodity, CadInfo &commodity);
 protected:
   virtual void OnPaint();
   virtual void OnInitialUpdate();
@@ -76,17 +87,23 @@ protected:
 	afx_msg void OnBnShelfSelected();
 	afx_msg void OnBnProductionSelected();
 	afx_msg LRESULT OnMyMessage(WPARAM wParam, LPARAM lParam);
+	afx_msg void OnDestroy();
 	void DelItemFromListShelf();
 	void DelItemFromListProduction();
+
 	DECLARE_MESSAGE_MAP()
 private:
 	DlgProduction dlg_production_;
 	EditProduction edit_production_;
 	DlgSettingShelf dlg_shelf_;
+	DlgLiveStock dlg_store_;
 	///
 	int index_shelf_;
 	int index_product_;
-	//std::vector<CString> production_list_;
+
+	std::vector<CadInfo> data_commodity_;
+	std::vector<ShelfInfo*> data_shelf_;
+
 	std::vector<CadInfo> cad_info_;
 	std::vector<ShelfInfo> shelf_info_list_;
 	CustomListView list_view_product_;
